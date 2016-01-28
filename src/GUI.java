@@ -1,4 +1,3 @@
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -7,7 +6,6 @@ import java.awt.event.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -83,13 +81,13 @@ public class GUI extends JFrame{
         g2d.setComposite(AlphaComposite.Clear);
         g2d.fillRect(0, 0, map.getWidth(), map.getHeight());
         g2d.setComposite(AlphaComposite.Src);
-        try {
-            map = ImageIO.read(new File("map.png"));
-            log("loaded");
-        }
-        catch (IOException e){
-            e.printStackTrace();
-        }
+//        try {
+//            map = ImageIO.read(new File("map.png"));
+//            log("loaded");
+//        }
+//        catch (IOException e){
+//            e.printStackTrace();
+//        }
 
         g2d.dispose();
 
@@ -438,9 +436,9 @@ public class GUI extends JFrame{
                     mapPanel.remove(currentCamera.getVisibleImageLabel());
                 }
                 log("Camera selected");
-                log("start angle " + ((Camera)e.getSource()).getArc().getAngleStart() +
-                        " end angle " + (((Camera)e.getSource()).getArc().getAngleStart() +
-                        ((Camera)e.getSource()).getArc().getAngleExtent()));
+//                log("start angle " + ((Camera)e.getSource()).getArc().getAngleStart() +
+//                        " end angle " + (((Camera)e.getSource()).getArc().getAngleStart() +
+//                        ((Camera)e.getSource()).getArc().getAngleExtent()));
                 isCameraChanging = true;
 
 
@@ -549,9 +547,9 @@ public class GUI extends JFrame{
 //                currentCamera.redrawVisibleImage();
                 mapPanel.repaint();
                 log("Image was redrawed. New xy "+x+" "+y);
-                log("start angle " + currentCamera.getArc().getAngleStart() +
-                        " end angle " + (currentCamera.getArc().getAngleStart() +
-                        currentCamera.getArc().getAngleExtent()));
+//                log("start angle " + currentCamera.getArc().getAngleStart() +
+//                        " end angle " + (currentCamera.getArc().getAngleStart() +
+//                        currentCamera.getArc().getAngleExtent()));
 //                System.out.print(TrackingSystem.getCameraList().get(TrackingSystem.getCameraList().indexOf(currentCamera)).getx());
             }
         }

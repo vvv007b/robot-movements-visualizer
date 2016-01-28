@@ -239,17 +239,17 @@ public class TrackingSystem {
                 endPoint = new Point2D.Double(endx, endy),
                 centerPoint = new Point2D.Float(camera.getx(), camera.gety());
 
-        log(startPoint);
-        log(endPoint);
-        log(centerPoint);
+//        log(startPoint);
+//        log(endPoint);
+//        log(centerPoint);
 
         Vec2d sectorStart = new Vec2d(startPoint.getX() - centerPoint.getX(), startPoint.getY() - centerPoint.getY()),
                 sectorEnd = new Vec2d(endPoint.getX() - centerPoint.getX(), endPoint.getY() - centerPoint.getY()),
                 relPoint = new Vec2d(x - centerPoint.getX(), y - centerPoint.getY());
 
-        log(sectorStart);
-        log(sectorEnd);
-        log(relPoint);
+//        log(sectorStart);
+//        log(sectorEnd);
+//        log(relPoint);
         return isInCircle && !areClockwise(sectorStart, relPoint) && areClockwise(sectorEnd, relPoint);
 
 //        return (( angle <= endAngle && angle >= startAngle ) ||
