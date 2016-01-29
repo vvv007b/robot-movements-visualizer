@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
+import java.io.*;
 import java.util.List;
 
 /**
@@ -30,6 +30,7 @@ public class GUI extends JFrame{
     private JLabel xLabel;
     private JLabel yLabel;
     private JLabel mapLabel;
+    private JLabel loadedPointsLabel;
     private JButton calculateVisibleButton;
     private JButton clearScreenButton;
     private JButton removeKeyPointButton;
@@ -81,13 +82,6 @@ public class GUI extends JFrame{
         g2d.setComposite(AlphaComposite.Clear);
         g2d.fillRect(0, 0, map.getWidth(), map.getHeight());
         g2d.setComposite(AlphaComposite.Src);
-//        try {
-//            map = ImageIO.read(new File("map.png"));
-//            log("loaded");
-//        }
-//        catch (IOException e){
-//            e.printStackTrace();
-//        }
 
         g2d.dispose();
 
@@ -341,6 +335,50 @@ public class GUI extends JFrame{
                 int returnVal = fc.showOpenDialog(rootPanel);
                 if( returnVal == JFileChooser.APPROVE_OPTION){
                     File file = fc.getSelectedFile();
+                    BufferedReader reader = null;
+                    try{
+                        reader = new BufferedReader(new FileReader(file));
+//                        String size = reader.readLine();
+                        String size[] = reader.readLine().split(" ");
+                        int newWidth = Integer.parseInt(size[0]),
+                            newHeight = Integer.parseInt(size[1]);
+                        mapPanel.setSize(newWidth, newHeight);
+                        mapPanel.setPreferredSize(new Dimension(newWidth,newHeight));
+
+                        log(mapPanel.getWidth()+" "+ mapPanel.getHeight());
+//                        pack();
+                        rootPanel.repaint();
+                        BufferedImage loadedPoints = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+                        Graphics2D g2d = loadedPoints.createGraphics();
+                        g2d.setColor(Color.WHITE);
+                        g2d.fillRect(0, 0, newWidth, newHeight);
+                        g2d.setColor(Color.BLACK);
+                        String line = null;
+                        while((line = reader.readLine()) != null){
+                            String point[] = line.split(" ");
+                            g2d.fillOval(Integer.parseInt(point[0]), Integer.parseInt(point[1]), 4, 4);
+                        }
+                        g2d.dispose();
+                        if (loadedPointsLabel!=null) mapPanel.remove(loadedPointsLabel);
+                        loadedPointsLabel = new JLabel(new ImageIcon(loadedPoints));
+                        mapPanel.add(loadedPointsLabel);
+                        loadedPointsLabel.setBounds(insets.left, insets.top,
+                                loadedPointsLabel.getPreferredSize().width, loadedPointsLabel.getPreferredSize().height);
+//                        pack();
+                        repaint();
+                    }
+                    catch(IOException ex){
+                        ex.printStackTrace();
+                    }
+                    finally {
+                        try{
+                            if (reader != null)
+                                reader.close();
+                        }
+                        catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
                 }
             }
         });
