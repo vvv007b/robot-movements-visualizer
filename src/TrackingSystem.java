@@ -17,6 +17,7 @@ public class TrackingSystem {
     private static HashSet<Point2D> visiblePoints = new HashSet<>();
 //    private static int[][] accumulator = new int[1][1];
     private static Map<DoubleKey, Integer> accumulator = new HashMap<>();
+    private static List<Point2D> loadedPoitns = new ArrayList<>();
 
     private static int width = 640;
     private static int height = 480;
@@ -204,33 +205,36 @@ public class TrackingSystem {
                 }
             }
         }
+        for(Point2D point: loadedPoitns){
+            for(Camera curCamera:cameraList){
+                if(isVisible(point, curCamera)){
+                    curCamera.addVisiblePoint(point);
+                }
+            }
+        }
         for(Camera curCamera:cameraList){
             curCamera.redrawVisibleImage();
         }
-//        for(Camera curCamera:cameraList){
-//            curCamera.getVisiblePoints().clear();
-//            for(Trajectory tr:trajectoryList){
-//                for(Point2D point: tr.getPointList()){
-//
-//                }
-//
-//            }
-//        }
+    }
+
+    public static void calculateVisibleAfterLoading(){
+        for(Camera curCamera:cameraList){
+            curCamera.getVisiblePoints().clear();
+            curCamera.clearVisibleImage();
+        }
+        for(Point2D point: loadedPoitns){
+            for(Camera curCamera:cameraList){
+                if(isVisible(point, curCamera)){
+                    curCamera.addVisiblePoint(point);
+                }
+            }
+        }
     }
 
     private static boolean isVisible(Point2D point, Camera camera){
         boolean isInCircle = false;
         double x = point.getX(), y = point.getY();
         if(Math.pow(camera.getx() - x, 2) + Math.pow(camera.gety() - y, 2) <= Math.pow(camera.getR(), 2)) isInCircle = true;
-//        double  startAngle = (Math.toRadians(camera.getArc().getAngleStart()) + 4 * Math.PI) % (4 * Math.PI),
-//                endAngle = (Math.toRadians((camera.getArc().getAngleExtent() + camera.getArc().getAngleStart())) + 4 * Math.PI) % (4 * Math.PI),
-//        double  startAngle = Math.toRadians(camera.getArc().getAngleStart()) + 2 * Math.PI,
-//                endAngle = Math.toRadians((camera.getArc().getAngleExtent() + camera.getArc().getAngleStart())),
-//                angle = Math.acos((x - camera.getx()) / Math.pow(Math.pow(x - camera.getx(), 2) + Math.pow(y - camera.gety(), 2), 0.5)) +
-//                        Math.PI * (y -  camera.gety() > 0 ? 1 : 0);
-//        log(startAngle);
-//        log(endAngle);
-//        log(angle);
         double startx = camera.getx() - camera.getR() + camera.getArc().getStartPoint().getX(),
                 starty = camera.gety() - camera.getR() + camera.getArc().getStartPoint().getY(),
                 endx = camera.getx() - camera.getR() + camera.getArc().getEndPoint().getX(),
@@ -239,24 +243,10 @@ public class TrackingSystem {
                 endPoint = new Point2D.Double(endx, endy),
                 centerPoint = new Point2D.Float(camera.getx(), camera.gety());
 
-//        log(startPoint);
-//        log(endPoint);
-//        log(centerPoint);
-
         Vec2d sectorStart = new Vec2d(startPoint.getX() - centerPoint.getX(), startPoint.getY() - centerPoint.getY()),
                 sectorEnd = new Vec2d(endPoint.getX() - centerPoint.getX(), endPoint.getY() - centerPoint.getY()),
                 relPoint = new Vec2d(x - centerPoint.getX(), y - centerPoint.getY());
-
-//        log(sectorStart);
-//        log(sectorEnd);
-//        log(relPoint);
         return isInCircle && !areClockwise(sectorStart, relPoint) && areClockwise(sectorEnd, relPoint);
-
-//        return (( angle <= endAngle && angle >= startAngle ) ||
-//                ( angle <= endAngle + 2 * Math.PI && angle >= startAngle + 2 * Math.PI ) ||
-//                ( angle <= endAngle - 2 * Math.PI && angle >= startAngle - 2 * Math.PI ))
-//                        && isInCircle;
-//        return camera.getArc().containsAngle(angle) && isInCircle;
     }
 
     private static boolean areClockwise(Vec2d v1, Vec2d v2){
@@ -287,9 +277,7 @@ public class TrackingSystem {
         return trajectoryList;
     }
 
-    public static void setTrajectoryList(List<Trajectory> trajectoryList) {
-        TrackingSystem.trajectoryList = trajectoryList;
-    }
+    public static void setTrajectoryList(List<Trajectory> trajectoryList) { TrackingSystem.trajectoryList = trajectoryList;    }
 
     public static void addTrajectory(Trajectory trajectory){
         trajectoryList.add(trajectory);
@@ -318,6 +306,12 @@ public class TrackingSystem {
     public static void setHeight(int height) {
         TrackingSystem.height = height;
     }
+
+    public static List<Point2D> getLoadedPoitns() { return loadedPoitns; }
+
+    public static void setLoadedPoitns(List<Point2D> loadedPoitns) { TrackingSystem.loadedPoitns = loadedPoitns; }
+
+    public static void addPoint(Point2D p){loadedPoitns.add(p);}
 
     private static void log(String s){ System.out.println(s); }
 

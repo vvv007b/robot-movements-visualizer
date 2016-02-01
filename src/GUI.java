@@ -348,15 +348,21 @@ public class GUI extends JFrame{
                         log(mapPanel.getWidth()+" "+ mapPanel.getHeight());
 //                        pack();
                         rootPanel.repaint();
-                        BufferedImage loadedPoints = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+                        BufferedImage loadedPoints = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
                         Graphics2D g2d = loadedPoints.createGraphics();
-                        g2d.setColor(Color.WHITE);
+//                        g2d.setColor(Color.WHITE);
+                        g2d.setComposite(AlphaComposite.Clear);
                         g2d.fillRect(0, 0, newWidth, newHeight);
                         g2d.setColor(Color.BLACK);
+                        g2d.setComposite(AlphaComposite.Src);
                         String line = null;
                         while((line = reader.readLine()) != null){
                             String point[] = line.split(" ");
-                            g2d.fillOval(Integer.parseInt(point[0]), Integer.parseInt(point[1]), 4, 4);
+                            int x = Integer.parseInt(point[0]),
+                                    y = Integer.parseInt(point[1]);
+                            g2d.fillOval(x, y, 4, 4);
+                            TrackingSystem.addPoint(new Point2D.Double(x,y));
+
                         }
                         g2d.dispose();
                         if (loadedPointsLabel!=null) mapPanel.remove(loadedPointsLabel);
@@ -366,6 +372,7 @@ public class GUI extends JFrame{
                                 loadedPointsLabel.getPreferredSize().width, loadedPointsLabel.getPreferredSize().height);
 //                        pack();
                         repaint();
+                        TrackingSystem.calculateVisibleAfterLoading();
                     }
                     catch(IOException ex){
                         ex.printStackTrace();
