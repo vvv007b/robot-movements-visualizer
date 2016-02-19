@@ -73,7 +73,7 @@ public class GUI extends JFrame{
         mapPanel.setLayout(null);
         mapPanel.setSize(640,480);
         mapPanel.setBorder(BorderFactory.createLineBorder(Color.black, 2));
-        Insets insets = mapPanel.getInsets();
+        final Insets insets = mapPanel.getInsets();
 
         BufferedImage map = new BufferedImage(640, 480, BufferedImage.TYPE_INT_ARGB);
 //        BufferedImage map1 = new BufferedImage(640, 480, BufferedImage.TYPE_INT_ARGB);
@@ -144,7 +144,7 @@ public class GUI extends JFrame{
             }
         });
 
-        DocumentListener cameraChangerDL = new DocumentListener() {
+        final DocumentListener cameraChangerDL = new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
 //                log("insert");
@@ -238,6 +238,7 @@ public class GUI extends JFrame{
                 else{
                     if(!currentTrajectory.getKeyPointList().isEmpty()){
                         currentTrajectory.generateConnections();
+                        currentTrajectory.calculateTime();
                         JLabel connectionsLabel = currentTrajectory.getTrajectoryLabel();
                         mapPanel.add(connectionsLabel);
 //                        mapPanel.setComponentZOrder(connectionsLabel, 1);
@@ -247,6 +248,7 @@ public class GUI extends JFrame{
                             kp.setParentTrajectory(currentTrajectory);
                         }
                         TrackingSystem.addTrajectory(currentTrajectory);
+
                     }
                     else System.out.print("Empty trajectory");
                     isTrajectoryAdding = false;
@@ -320,12 +322,16 @@ public class GUI extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 TrackingSystem.mergeVisible();
-                TrackingSystem.calculateLines();
-                List<StraightLine> lines = TrackingSystem.findLocalMaximums();
+                double startR = 0,
+                        endR = Math.sqrt(Math.pow(mapPanel.getWidth(), 2) + Math.pow(mapPanel.getHeight(), 2));
+                TrackingSystem.setAccumulator(TrackingSystem.calculateLines(TrackingSystem.getVisiblePoints(), startR, endR));
+                List<StraightLine> lines = TrackingSystem.findLocalMaximums(TrackingSystem.getAccumulator(), startR, endR);
                 log(lines.size());
                 for(StraightLine line: lines)
                     drawLine(line);
+//                System.out.println("Points on corner");
 
+                TrackingSystem.findInOutVectors();
             }
         });
 
@@ -338,7 +344,6 @@ public class GUI extends JFrame{
                     BufferedReader reader = null;
                     try{
                         reader = new BufferedReader(new FileReader(file));
-//                        String size = reader.readLine();
                         String size[] = reader.readLine().split(" ");
                         int newWidth = Integer.parseInt(size[0]),
                             newHeight = Integer.parseInt(size[1]);
@@ -346,11 +351,9 @@ public class GUI extends JFrame{
                         mapPanel.setPreferredSize(new Dimension(newWidth,newHeight));
 
                         log(mapPanel.getWidth()+" "+ mapPanel.getHeight());
-//                        pack();
                         rootPanel.repaint();
                         BufferedImage loadedPoints = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
                         Graphics2D g2d = loadedPoints.createGraphics();
-//                        g2d.setColor(Color.WHITE);
                         g2d.setComposite(AlphaComposite.Clear);
                         g2d.fillRect(0, 0, newWidth, newHeight);
                         g2d.setColor(Color.BLACK);
@@ -361,7 +364,7 @@ public class GUI extends JFrame{
                             int x = Integer.parseInt(point[0]),
                                     y = Integer.parseInt(point[1]);
                             g2d.fillOval(x, y, 4, 4);
-                            TrackingSystem.addPoint(new Point2D.Double(x,y));
+                            TrackingSystem.addPoint(new VisitedPoint((double)x,(double)y));
 
                         }
                         g2d.dispose();
@@ -372,6 +375,8 @@ public class GUI extends JFrame{
                                 loadedPointsLabel.getPreferredSize().width, loadedPointsLabel.getPreferredSize().height);
 //                        pack();
                         repaint();
+                        TrackingSystem.setWidth(mapPanel.getWidth());
+                        TrackingSystem.setHeight(mapPanel.getHeight());
                         TrackingSystem.calculateVisibleAfterLoading();
                     }
                     catch(IOException ex){
@@ -443,36 +448,12 @@ public class GUI extends JFrame{
         TrackingSystem.addCamera(newCamera);
 //        System.out.print(TrackingSystem.getCameraList().size());
         mapPanel.add(newCamera);
-//        mapPanel.setComponentZOrder(newCamera, 1);
         mapPanel.add(newCamera.getFOVLabel());
-//        mapPanel.setComponentZOrder(newCamera.getFOVLabel(), 2);
-//        mapPanel.add(newCamera.getVisibleImageLabel());
         Dimension size = newCamera.getPreferredSize();
         newCamera.setBounds(x + insets.left - size.width / 2, y + insets.top - size.height / 2, size.width, size.height);
         size = newCamera.getFOVLabel().getPreferredSize();
         newCamera.getFOVLabel().setBounds(x + insets.left - size.width / 2, y + insets.top - size.height / 2, size.width, size.height);
-//        size = newCamera.getVisibleImageLabel().getPreferredSize();
-//        newCamera.getVisibleImageLabel().setBounds(insets.left, insets.top, size.width, size.height);
-      /*  newCamera.addMouseMotionListener(new MouseMotionListener() {
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                Camera camera = (Camera)e.getSource();
-                int x = e.getX();
-                int y = e.getY();
-                Dimension size = camera.getPreferredSize();
-                camera.setBounds(x + insets.left - size.width / 2, y + insets.top - size.height / 2, size.width, size.height);
-                size = camera.getFOVLabel().getPreferredSize();
-                camera.getFOVLabel().setBounds(x + insets.left - size.width / 2, y + insets.top - size.height / 2, size.width, size.height);
-                camera.setx(x);
-                camera.sety(y);
-                mapPanel.repaint();
-            }
 
-            @Override
-            public void mouseMoved(MouseEvent e) {
-
-            }
-        });*/
         newCamera.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -605,14 +586,14 @@ public class GUI extends JFrame{
     private void updateCurrentKeyPoint(){
         log("updating keypoint");
         int     x = currentKeyPoint.getx(),
-                y = currentKeyPoint.gety(),
-                v = currentKeyPoint.getV(),
+                y = currentKeyPoint.gety();
+        double  v = currentKeyPoint.getV(),
                 t = currentKeyPoint.getT();
         try{
             int     newX = Integer.parseInt(xKeyPointTextField.getText()),
-                    newY = Integer.parseInt(yKeyPointTextField.getText()),
-                    newV = Integer.parseInt(vKeyPointTextField.getText()),
-                    newT = Integer.parseInt(tKeyPointTextField.getText());
+                    newY = Integer.parseInt(yKeyPointTextField.getText());
+            double  newV = Double.parseDouble(vKeyPointTextField.getText()),
+                    newT = Double.parseDouble(tKeyPointTextField.getText());
             if (x != newX || y != newY || v != newV || t !=newT){
                 x = newX < 0 ? 0 : newX > mapPanel.getWidth() ? mapPanel.getWidth() : newX;
                 y = newY < 0 ? 0 : newY > mapPanel.getHeight() ? mapPanel.getHeight() : newY;
@@ -664,7 +645,7 @@ public class GUI extends JFrame{
             addNewCameraToPanel(e.getX(), e.getY());
         }
         else if(isTrajectoryAdding){
-            KeyPoint newKeyPoint = new KeyPoint("", e.getX(), e.getY(), 0, 0);
+            KeyPoint newKeyPoint = new KeyPoint(e.getX(), e.getY(), 10);
             newKeyPoint.setPreferredSize(new Dimension(keyPointWidth, keyPointHeight));
             Insets insets = mapPanel.getInsets();
             Dimension size = newKeyPoint.getPreferredSize();
@@ -688,13 +669,22 @@ public class GUI extends JFrame{
 
                     xKeyPointTextField.setText(Integer.toString(currentKeyPoint.getx()));
                     yKeyPointTextField.setText(Integer.toString(currentKeyPoint.gety()));
-                    vKeyPointTextField.setText(Integer.toString(currentKeyPoint.getV()));
-                    tKeyPointTextField.setText(Integer.toString(currentKeyPoint.getT()));
+                    vKeyPointTextField.setText(Double.toString(round(currentKeyPoint.getV(), 2)));
+                    tKeyPointTextField.setText(Double.toString(round(currentKeyPoint.getT(), 2)));
 
                     isKeyPointChanging = false;
                 }
             });
         }
+    }
+
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        long factor = (long) Math.pow(10, places);
+        value = value * factor;
+        long tmp = Math.round(value);
+        return (double) tmp / factor;
     }
 
     public void log(String s){

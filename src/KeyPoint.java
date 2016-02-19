@@ -2,19 +2,32 @@
  * Created by bocharov_n on 13.11.15.
  */
 public class KeyPoint extends RoundButton {
-    private int x, y, t, v;
-
+    private int x, y;
+    private double t, v;
+                                                //V  - how many pixels in one time quant
     private Trajectory parentTrajectory;
 
-    public KeyPoint(String label){
-        super(label);
+    public KeyPoint(){
+        super("");
+        this.x = 0;
+        this.y = 0;
+        this.v = 0;
+        this.t = 0;
     }
 
-    public KeyPoint(String label, int x, int y, int t, int v){
-        super(label);
+    public KeyPoint(int x, int y, double t, double v){
+        super("");
         this.x = x;
         this.y = y;
         this.t = t;
+        this.v = v;
+    }
+
+    public KeyPoint(int x, int y, double v){
+        super("");
+        this.x = x;
+        this.y = y;
+        this.t = 0;
         this.v = v;
     }
 
@@ -34,19 +47,19 @@ public class KeyPoint extends RoundButton {
         this.y = y;
     }
 
-    public int getT() {
+    public double getT() {
         return t;
     }
 
-    public void setT(int t) {
+    public void setT(double t) {
         this.t = t;
     }
 
-    public int getV() {
+    public double getV() {
         return v;
     }
 
-    public void setV(int v) {
+    public void setV(double v) {
         this.v = v;
     }
 

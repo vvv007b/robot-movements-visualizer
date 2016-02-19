@@ -11,46 +11,70 @@ import java.util.Map;
  * Created by bocharov_n on 27.11.15.
  */
 public class TrackingSystem {
-    private static List<Camera> cameraList = new ArrayList<>();
-    private static List<Trajectory> trajectoryList = new ArrayList<>();
+    private static List<Camera> cameraList = new ArrayList<Camera>();
+    private static List<Trajectory> trajectoryList = new ArrayList<Trajectory>();
 //    private static Map<Camera,Point[]> visible = new HashMap<>();
-    private static HashSet<Point2D> visiblePoints = new HashSet<>();
+    private static HashSet<VisitedPoint> visiblePoints = new HashSet<VisitedPoint>();
 //    private static int[][] accumulator = new int[1][1];
-    private static Map<DoubleKey, Integer> accumulator = new HashMap<>();
-    private static List<Point2D> loadedPoitns = new ArrayList<>();
+//    private static Map<DoubleKey, Integer> accumulator = new HashMap<>();
+    private static Map<DoubleKey, List<VisitedPoint>> accumulator = new HashMap<DoubleKey, List<VisitedPoint>>();
+    private static List<VisitedPoint> loadedPoints = new ArrayList<VisitedPoint>();
+
+    private static List<InOutVector> inVectors = new ArrayList<InOutVector>(),
+                                    outVectors = new ArrayList<InOutVector>();
 
     private static int width = 640;
     private static int height = 480;
 
     private static double angleSampleRate = 1;
     private static double radiusSampleRate = 1;
+    private static double accuracy = radiusSampleRate / 4;
 
-    private static final int coreSize = 3;    // WARNING! MUST BE ODD
-    private static final int centerSuperiority = 45; // measured in percent.
-    private static final int minimalPointsCount = 25;
+    private static final int coreSize = 5;    // WARNING! MUST BE ODD
+    private static final int centerSuperiority = 200; // measured in percent.
+    private static final int minimalPointsCount = 10;
+
+    public static void findMatches(){
+        for(Camera curCamera:cameraList){
+            calculateVisibleForCamera(curCamera);
+            HashSet<VisitedPoint> points = new HashSet<VisitedPoint>(curCamera.getVisiblePoints());
+            Map<DoubleKey, List<VisitedPoint>> acc = new HashMap<DoubleKey, List<VisitedPoint>>();
+            double x = curCamera.getx(),
+                    y = curCamera.gety(),
+                    r = curCamera.getR();
+            double startR = Math.pow(Math.pow(x - r, 2) + Math.pow(y - r, 2), 0.5),
+                    endR = Math.pow(Math.pow(x + r, 2) + Math.pow(y + r, 2), 0.5);
+            acc = calculateLines(points, startR, endR);
+            List<StraightLine> lines = findLocalMaximums(acc, startR, endR);
+            
+        }
+    }
 
     public static void mergeVisible(){
         visiblePoints.clear();
         for(Camera camera: cameraList){
-            for(Point2D point:camera.getVisiblePoints())
+            for(VisitedPoint point:camera.getVisiblePoints())
                 visiblePoints.add(point);
         }
     }
 
-    public static void calculateLines(){
-//        accumulator = new int[x][y];
-//        for()
+    public static Map<DoubleKey, List<VisitedPoint>> calculateLines(HashSet<VisitedPoint> pointsList, double startR, double endR){
+        Map<DoubleKey, List<VisitedPoint>> acc = new HashMap<DoubleKey, List<VisitedPoint>>();
         for(double i = 0; i < 180; i += angleSampleRate){
-            for(double j = 0; j < Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2)); j += radiusSampleRate){
+            for(double j = startR; j < endR; j += radiusSampleRate){
                 DoubleKey dkey = new DoubleKey(i, j);
-                accumulator.put(dkey, 0);
+                acc.put(dkey, null);
+                List<VisitedPoint> points = new ArrayList<VisitedPoint>();
                 StraightLine line = new StraightLine(i, j, StraightLine.POLAR);
-                for(Point2D point: visiblePoints){
-                    double accuracy = radiusSampleRate / 2;
-                    if (line.isContains(point.getX(), point.getY(), accuracy)) accumulator.put(dkey, accumulator.get(dkey) + 1);
+                for(VisitedPoint point: pointsList){
+                    if (line.isContains(point.getX(), point.getY(), accuracy))
+                        points.add(new VisitedPoint(point));
+//                        acc.put(dkey, acc.get(dkey) + 1);
                 }
+                acc.put(dkey, points);
             }
         }
+        return acc;
     }
 
     public static void printLines(){
@@ -59,10 +83,8 @@ public class TrackingSystem {
             bw = new PrintStream(new File("123.txt"));
             for(double i = 0; i < 180; i += angleSampleRate){
                 for(double j = 0; j < Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2)); j += radiusSampleRate){
-//                System.out.print(accumulator.get(new DoubleKey(i, j)) + " ");
-                    bw.print(accumulator.get(new DoubleKey(i, j)) + " ");
+//                bw.print(accumulator.get(new DoubleKey(i, j)) + " ");
                 }
-//                System.out.println();
                 bw.println();
             }
 
@@ -73,100 +95,79 @@ public class TrackingSystem {
 
     }
 
-//    public static List<StraightLine> findLocalMaximums(){
-//        List<StraightLine> lines = new ArrayList<>();
-//        log(width);
-//        log(height);
-//        log(accumulator.size());
-//        double iMax = 180 - coreSize + 1,
-//                jMax = Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2)) - coreSize + 1;
-//        for (int i = 0; i < iMax; i+=angleSampleRate){
-//            for (int j = 0; j < jMax; j+=radiusSampleRate){
-//                double mean = 0;
-//                log(i+ " "+ j + " ");
-//                log(accumulator.get(new DoubleKey(0,0)));
-////                for (int p = 0; p < (int)Math.pow(coreSize, 2); p++){
-////                    log(i + p / coreSize);
-////                    log(j + p % coreSize);
-////                    mean += accumulator.get(new DoubleKey(i + p / coreSize, j + p % coreSize));
-////                }
-//                for(int p = 0; p < coreSize; p++){
-//                    for(int q = 0; q < coreSize; q++){
-//                        mean+=accumulator.get(new DoubleKey(i + p * angleSampleRate, j + q * radiusSampleRate));
-//                    }
-//                }
-//                mean /= 9;
-//                if ( accumulator.get(new DoubleKey(i + (coreSize / 2) * angleSampleRate,
-//                        j + (coreSize / 2) * radiusSampleRate)) >
-//                        mean * (1 + centerSuperiority / 100)) {
-//                    lines.add(new StraightLine(i + coreSize / 2, j + coreSize / 2, StraightLine.POLAR));
-//                }
-//            }
-//        }
-//        return lines;//
-//    }
 
-    public static List<StraightLine> findLocalMaximums(){
-        List<StraightLine> lines = new ArrayList<>();
-
-
-            for (double i = 0; i < 180 - coreSize * angleSampleRate; i += angleSampleRate) {
-                for (double j = 0; j < Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2)) - coreSize * radiusSampleRate; j += radiusSampleRate) {
-                    double mean = 0;
-                    try {
-                        for(double p = 0; p < coreSize; p++){
-                            for (double q = 0; q < coreSize; q++){
-                                mean += accumulator.get(new DoubleKey(i + p * angleSampleRate, j + q * radiusSampleRate));
-                            }
-                        }
-                        mean /= 9;
-                        int center = coreSize / 2;
-                        if (mean * (1 + (double)centerSuperiority / 100) < accumulator.get(
-                                new DoubleKey(i + center * angleSampleRate, j + center * radiusSampleRate)) &&
-                                accumulator.get(new DoubleKey(i + center * angleSampleRate,
-                                        j + center * radiusSampleRate)) > minimalPointsCount){
-                            lines.add(new StraightLine(i + center * angleSampleRate, j + center * radiusSampleRate, StraightLine.POLAR));
-                            log("Line at " + i + " " + j + " with mean " + mean + " center " + accumulator.get(
-                                    new DoubleKey(i + center * angleSampleRate, j + center * radiusSampleRate)));
-//                            try {
-//                                TimeUnit.MILLISECONDS.sleep(200);
-//                            }
-//                            catch(InterruptedException e){
-//                                e.printStackTrace();
-//                            }
+    public static List<StraightLine> findLocalMaximums(Map<DoubleKey, List<VisitedPoint>> acc, double startR, double endR){
+        List<StraightLine> lines = new ArrayList<StraightLine>();
+        
+       for (double i = 0; i < 180 - coreSize * angleSampleRate; i += angleSampleRate) {
+            for (double j = startR; j < endR - coreSize * radiusSampleRate; j += radiusSampleRate) {
+                double mean = 0;
+                try {
+                    for(double p = 0; p < coreSize; p++){
+                        for (double q = 0; q < coreSize; q++){
+                            mean += acc.get(new DoubleKey(i + p * angleSampleRate, j + q * radiusSampleRate)).size();
                         }
                     }
-                    catch(NullPointerException ex){
-//                        ex.printStackTrace();
-                        log("error at " + i + " "  + j);
+                    mean /= 9;
+                    int center = coreSize / 2;
+                    if (mean * (1 + (double)centerSuperiority / 100) < acc.get(
+                            new DoubleKey(i + center * angleSampleRate, j + center * radiusSampleRate)).size() &&
+                            acc.get(new DoubleKey(i + center * angleSampleRate,
+                                    j + center * radiusSampleRate)).size() > minimalPointsCount){
+                        lines.add(new StraightLine(i + center * angleSampleRate, j + center * radiusSampleRate, StraightLine.POLAR));
+                        log("Line at " + i + " " + j + " with mean " + mean + " center " + acc.get(
+                                new DoubleKey(i + center * angleSampleRate, j + center * radiusSampleRate)).size());
                     }
                 }
+                catch(NullPointerException ex){
+                    log("error at " + i + " "  + j);
+                }
             }
+        }
 
         return lines;
     }
 
-//    public static DoubleKey findMax(){
-//        int max = 0;
-//        DoubleKey dk = new DoubleKey(0, 0);
-//        for(double i = 0; i < 180; i += angleSampleRate){
-//            for(double j = 0; j < Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2)); j += radiusSampleRate){
-//                    if (accumulator.get(new DoubleKey(i, j)) > max) {
-//                        max = accumulator.get(new DoubleKey(i, j));
-//                        dk = new DoubleKey(i, j);
-//                    }
-//            }
-//        }
-//        return dk;
-//    }
+
+    public static void findInOutVectors(){
+        inVectors.clear();
+        outVectors.clear();
+        List<VisitedPoint> cornerPoints = new ArrayList<VisitedPoint>();
+        for(Camera curCamera:getCameraList()){
+            for(VisitedPoint point: curCamera.getVisiblePoints()){
+                if (curCamera.isOnCorner(point))
+                    cornerPoints.add(point);
+            }
+            for(VisitedPoint cornerPoint:cornerPoints){                  //Looking for nearest in time
+                double mindT = Double.MAX_VALUE;
+                VisitedPoint nearestPoint = null;
+                for(VisitedPoint visitedPoint: curCamera.getVisiblePoints()) {
+                    double dt = Math.abs(visitedPoint.getT() - cornerPoint.getT());
+                    if (dt < mindT) {
+                        mindT = dt;
+                        nearestPoint = visitedPoint;
+                    }
+                }
+                if ( nearestPoint != null && nearestPoint.getT() - cornerPoint.getT() < 0 ){
+                    //out
+                    outVectors.add(new InOutVector(nearestPoint, cornerPoint));
+                }
+                else{
+                    inVectors.add(new InOutVector(cornerPoint, nearestPoint));
+                }
+            }
+        }
+        System.out.println(outVectors.size()+" "+ inVectors.size());
+    }
+
 
     public static StraightLine findMax(){
         int max = 0;
         StraightLine dk = new StraightLine(0, 0, StraightLine.POLAR);
         for(double i = 0; i < 180; i += angleSampleRate){
             for(double j = 0; j < Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2)); j += radiusSampleRate){
-                if (accumulator.get(new DoubleKey(i, j)) > max) {
-                    max = accumulator.get(new DoubleKey(i, j));
+                if (accumulator.get(new DoubleKey(i, j)).size() > max) {
+                    max = accumulator.get(new DoubleKey(i, j)).size();
                     dk = new StraightLine(i, j, StraightLine.POLAR);
                 }
             }
@@ -179,7 +180,7 @@ public class TrackingSystem {
         camera.clearVisibleImage();
         for(Trajectory tr:trajectoryList){
             tr.calculatePointList();
-            for(Point2D point:tr.getPointList()){
+            for(VisitedPoint point:tr.getPointList()){
                 if (isVisible(point, camera)){
                     camera.addVisiblePoint(point);
                 }
@@ -196,7 +197,7 @@ public class TrackingSystem {
         }
         for(Trajectory tr:trajectoryList){
             tr.calculatePointList();
-            for(Point2D point: tr.getPointList()){
+            for(VisitedPoint point: tr.getPointList()){
                 for(Camera curCamera:cameraList){
                     if(isVisible(point, curCamera)){
                         curCamera.addVisiblePoint(point);
@@ -205,7 +206,7 @@ public class TrackingSystem {
                 }
             }
         }
-        for(Point2D point: loadedPoitns){
+        for(VisitedPoint point: loadedPoints){
             for(Camera curCamera:cameraList){
                 if(isVisible(point, curCamera)){
                     curCamera.addVisiblePoint(point);
@@ -222,7 +223,7 @@ public class TrackingSystem {
             curCamera.getVisiblePoints().clear();
             curCamera.clearVisibleImage();
         }
-        for(Point2D point: loadedPoitns){
+        for(VisitedPoint point: loadedPoints){
             for(Camera curCamera:cameraList){
                 if(isVisible(point, curCamera)){
                     curCamera.addVisiblePoint(point);
@@ -250,7 +251,7 @@ public class TrackingSystem {
     }
 
     private static boolean areClockwise(Vec2d v1, Vec2d v2){
-        return -v1.x * v2.y + v1.y * v2.x < 0;
+        return -v1.x * v2.y + v1.y * v2.x <= 0;
     }
 
     public static List<Camera> getCameraList() {
@@ -307,11 +308,36 @@ public class TrackingSystem {
         TrackingSystem.height = height;
     }
 
-    public static List<Point2D> getLoadedPoitns() { return loadedPoitns; }
+    public static List<VisitedPoint> getloadedPoints() { return loadedPoints; }
 
-    public static void setLoadedPoitns(List<Point2D> loadedPoitns) { TrackingSystem.loadedPoitns = loadedPoitns; }
+    public static void setloadedPoints(List<VisitedPoint> loadedPoints) { TrackingSystem.loadedPoints = loadedPoints; }
 
-    public static void addPoint(Point2D p){loadedPoitns.add(p);}
+    public static HashSet<VisitedPoint> getVisiblePoints() {
+        return visiblePoints;
+    }
+
+    public static void setVisiblePoints(HashSet<VisitedPoint> visiblePoints) {
+        TrackingSystem.visiblePoints = visiblePoints;
+    }
+
+//    public static Map<DoubleKey, Integer> getAccumulator() {
+//        return accumulator;
+//    }
+//
+//    public static void setAccumulator(Map<DoubleKey, Integer> accumulator) {
+//        TrackingSystem.accumulator = accumulator;
+//    }
+
+
+    public static Map<DoubleKey, List<VisitedPoint>> getAccumulator() {
+        return accumulator;
+    }
+
+    public static void setAccumulator(Map<DoubleKey, List<VisitedPoint>> accumulator) {
+        TrackingSystem.accumulator = accumulator;
+    }
+
+    public static void addPoint(VisitedPoint p){loadedPoints.add(p);}
 
     private static void log(String s){ System.out.println(s); }
 

@@ -14,8 +14,9 @@ public class Camera extends RoundButton{
     private int x, y, azimuth, r, angle;
     private BufferedImage FOV, visibleImage;
     private JLabel FOVLabel, visibleImageLabel;
-    private List<Point2D> visiblePoints;
+    private List<VisitedPoint> visiblePoints;
     private Arc2D arc;
+    private double accuracy = 1.0;
 
     public Camera(String label){
         super(label);
@@ -25,7 +26,7 @@ public class Camera extends RoundButton{
         azimuth = 0;
         r = 3;
         angle = 90;
-        visiblePoints = new ArrayList<>();
+        visiblePoints = new ArrayList<VisitedPoint>();
         arc = null;
         this.FOV = new BufferedImage(2 * r + 1, 2 * r + 1, BufferedImage.TYPE_INT_ARGB);
         this.visibleImage = new BufferedImage(x + r + 1, y + r + 1, BufferedImage.TYPE_INT_ARGB);
@@ -44,7 +45,7 @@ public class Camera extends RoundButton{
         this.azimuth = azimuth;
         this.r = r;
         this.angle = angle;
-        visiblePoints = new ArrayList<>();
+        visiblePoints = new ArrayList<VisitedPoint>();
         arc = null;
         this.FOV = new BufferedImage(2 * r + 1, 2 * r + 1, BufferedImage.TYPE_INT_ARGB);
         this.visibleImage = new BufferedImage(x + r + 1, y + r + 1, BufferedImage.TYPE_INT_ARGB);
@@ -108,6 +109,20 @@ public class Camera extends RoundButton{
         visibleImageLabel.repaint();
     }
 
+    public boolean isOnCorner(Point2D p){
+        boolean isOnArc = Math.abs(Math.sqrt(Math.pow(this.x - p.getX(), 2) + Math.pow(this.y - p.getY(), 2)) - this.r) < this.accuracy;
+        boolean isOnLeftLine = Math.abs(p.getY() - this.y -
+                Math.tan(Math.toRadians(this.azimuth + this.angle / 2)) * (p.getX() - this.x)) < this.accuracy; // TODO: check this
+        boolean isOnRightLine = Math.abs(p.getY() - this.y -
+                Math.tan(Math.toRadians(this.azimuth - this.angle / 2)) * (p.getX() - this.x)) < this.accuracy;
+//        System.out.println(p.getX()+" "+p.getY());
+//        System.out.println(Math.abs(p.getY() - this.y - Math.tan(this.azimuth + this.angle / 2) * (p.getX() - this.x)));
+//        System.out.println( Math.abs(Math.sqrt(Math.pow(this.x - p.getX(), 2) + Math.pow(this.y - p.getY(), 2)) - this.r));
+//        System.out.println(isOnArc + " " + isOnLeftLine + " " + isOnRightLine);
+        return isOnArc || isOnLeftLine || isOnRightLine;
+    }
+
+
     public JLabel getVisibleImageLabel() {
         return visibleImageLabel;
     }
@@ -124,11 +139,11 @@ public class Camera extends RoundButton{
         this.visibleImage = visibleImage;
     }
 
-    public List<Point2D> getVisiblePoints() { return visiblePoints;}
+    public List<VisitedPoint> getVisiblePoints() { return visiblePoints;}
 
-    public void setVisiblePoints(List<Point2D> visiblePoints) {this.visiblePoints = visiblePoints;}
+    public void setVisiblePoints(List<VisitedPoint> visiblePoints) {this.visiblePoints = visiblePoints;}
 
-    public void addVisiblePoint(Point2D point){this.visiblePoints.add(point);}
+    public void addVisiblePoint(VisitedPoint point){this.visiblePoints.add(point);}
 
     public Arc2D getArc() {return arc;}
 

@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,13 +10,13 @@ import java.util.Random;
  */
 public class Trajectory {
     private List<KeyPoint> keyPointList;
-    private List<Point2D> pointList;
+    private List<VisitedPoint> pointList;
     private JLabel trajectoryLabel;
     private Color color;
 
     public Trajectory(){
-        keyPointList = new ArrayList<>();
-        pointList = new ArrayList<>();
+        keyPointList = new ArrayList<KeyPoint>();
+        pointList = new ArrayList<VisitedPoint>();
         trajectoryLabel = new JLabel();
         Random rand = new Random();
         Float r = rand.nextFloat(),
@@ -26,6 +25,20 @@ public class Trajectory {
         color = new Color(r, g, b);
         System.out.println(r + " " + g + " " + b);
         System.out.println("new Trajectory created");
+    }
+
+    public void calculateTime(){
+        KeyPoint firstKeyPoint = keyPointList.get(0);
+        double startTime =  firstKeyPoint.getT();
+        for(KeyPoint curKeyPoint: keyPointList){
+            double distance = Math.pow(Math.pow(firstKeyPoint.getx() - curKeyPoint.getx(), 2) +
+                    Math.pow(firstKeyPoint.gety() - curKeyPoint.getY(), 2), 0.5);
+            System.out.println(distance);
+            double time = startTime + distance / curKeyPoint.getV();
+            curKeyPoint.setT(time);
+            firstKeyPoint = curKeyPoint;
+            startTime = time;
+        }
     }
 
     public void generateConnections(){
@@ -89,7 +102,8 @@ public class Trajectory {
                     double  x = i,
                             y = y1 == y2 ? y1 : calculateYbyX(x1, x2, y1, y2, i);
 //                    System.out.println(x + " " + y);
-                    pointList.add(new Point2D.Double(x, y));
+                    double t = kp1.getT() + Math.sqrt(Math.pow(x - kp1.getx(), 2) + Math.pow(y - kp1.gety(), 2)) * kp1.getV();
+                    pointList.add(new VisitedPoint(x, y, t));
                 }
             }
             else{
@@ -109,7 +123,8 @@ public class Trajectory {
                 for(int i = y1; i <= y2; i++){
                     double  y = i,
                             x = x1 == x2 ? x1 : calculateXbyY(x1, x2, y1, y2, i);
-                    pointList.add(new Point2D.Double(x, y));
+                    double t = kp1.getT() + Math.sqrt(Math.pow(x - kp1.getx(), 2) + Math.pow(y - kp1.gety(), 2)) * kp1.getV();
+                    pointList.add(new VisitedPoint(x, y, t));
                 }
             }
 //            for(int j = minY; j <= maxY; j++){
@@ -134,11 +149,11 @@ public class Trajectory {
         return -(c + b * y) / a;
     }
 
-    public List<Point2D> getPointList() {
+    public List<VisitedPoint> getPointList() {
         return pointList;
     }
 
-    public void setPointList(List<Point2D> pointList) {
+    public void setPointList(List<VisitedPoint> pointList) {
         this.pointList = pointList;
     }
 
