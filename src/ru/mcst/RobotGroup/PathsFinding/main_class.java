@@ -14,9 +14,9 @@ public class main_class /*extends JFrame*/{
 				
 		//setTitle("Robot");
 		
-		Surface s=new Surface();
+		//Surface s=new Surface();
         //cp=new Control_Panel(s);
-        s.setPreferredSize(new Dimension(0, 0));
+        //s.setPreferredSize(new Dimension(0, 0));
         //cp.setPreferredSize(cp.getPreferredSize());
 
 //        JScrollPane scrollPaneForSurface = new JScrollPane(s);
