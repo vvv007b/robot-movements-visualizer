@@ -1,3 +1,5 @@
+package ru.mcst.RobotGroup.PathsLinking;
+
 import com.sun.javafx.geom.Vec2d;
 
 import java.awt.geom.Point2D;
@@ -134,16 +136,20 @@ public class TrackingSystem {
         outVectors.clear();
         List<VisitedPoint> cornerPoints = new ArrayList<VisitedPoint>();
         for(Camera curCamera:getCameraList()){
+            System.out.println("Camera:" + curCamera.getx() + " " + curCamera.gety() + "have " +
+                    curCamera.getVisiblePoints().size() + " visible points");
             for(VisitedPoint point: curCamera.getVisiblePoints()){
-                if (curCamera.isOnCorner(point))
+                if (curCamera.isOnCorner(point)) {
                     cornerPoints.add(point);
+                    System.out.println("corner: " + point.x +" "+ point.y);
+                }
             }
             for(VisitedPoint cornerPoint:cornerPoints){                  //Looking for nearest in time
                 double mindT = Double.MAX_VALUE;
                 VisitedPoint nearestPoint = null;
                 for(VisitedPoint visitedPoint: curCamera.getVisiblePoints()) {
                     double dt = Math.abs(visitedPoint.getT() - cornerPoint.getT());
-                    if (dt < mindT) {
+                    if ( dt != 0 && dt < mindT ) {
                         mindT = dt;
                         nearestPoint = visitedPoint;
                     }
@@ -151,9 +157,11 @@ public class TrackingSystem {
                 if ( nearestPoint != null && nearestPoint.getT() - cornerPoint.getT() < 0 ){
                     //out
                     outVectors.add(new InOutVector(nearestPoint, cornerPoint));
+                    System.out.println("nearest: " + nearestPoint.x+ " " + nearestPoint.y);
                 }
                 else{
                     inVectors.add(new InOutVector(cornerPoint, nearestPoint));
+                    System.out.println("nearest: " + nearestPoint.x+ " " + nearestPoint.y);
                 }
             }
         }

@@ -1,3 +1,5 @@
+package ru.mcst.RobotGroup.PathsLinking;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -37,6 +39,7 @@ public class GUI extends JFrame{
     private JButton removeTrajectoryButton;
     private JButton calculateLinesButton;
     private JButton loadTrajectoriesButton;
+    private JButton startButton;
     private JFileChooser fc = new JFileChooser();
 
     private Camera currentCamera;
@@ -66,7 +69,7 @@ public class GUI extends JFrame{
         createUIComponents();
         setContentPane(rootPanel);
         pack();
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
     private void createUIComponents() {
@@ -230,9 +233,19 @@ public class GUI extends JFrame{
                 if(!isTrajectoryAdding) {
                     currentTrajectory = new Trajectory();
                     isAddingCheckBox.setSelected(false);
+                    for(Component c:rootPanel.getComponents()){
+                        try{
+                            JButton b = (JButton)c;
+                            if(b != addTrajectoryButton)
+                                b.setEnabled(false);
+                        }
+                        catch(ClassCastException ex){
+                            //
+                        }
+                    }
                     isTrajectoryAdding = true;
                     addTrajectoryButton.setText("Press here to finish");
-                    calculateVisibleButton.setEnabled(false);
+                    isAddingCheckBox.setEnabled(false);
                     clearScreenButton.setEnabled(false);
                 }
                 else{
@@ -253,7 +266,17 @@ public class GUI extends JFrame{
                     else System.out.print("Empty trajectory");
                     isTrajectoryAdding = false;
                     addTrajectoryButton.setText("Add trajectory");
-                    calculateVisibleButton.setEnabled(true);
+                    isAddingCheckBox.setEnabled(true);
+                    for(Component c:rootPanel.getComponents()){
+                        try{
+                            JButton b = (JButton)c;
+                            if(b != addTrajectoryButton)
+                                b.setEnabled(true);
+                        }
+                        catch(ClassCastException ex){
+                            //
+                        }
+                    }
                     clearScreenButton.setEnabled(true);
                 }
             }
@@ -395,8 +418,39 @@ public class GUI extends JFrame{
             }
         });
 
+        startButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                start();
+            }
+        });
+
         System.out.print("ui");
 
+    }
+
+    public void start(){
+        for(Component c:rootPanel.getComponents()){
+            try{
+                JButton b = (JButton)c;
+                b.setEnabled(true);
+            }
+            catch(ClassCastException ex){
+                //
+            }
+        }
+
+
+
+        for(Component c:rootPanel.getComponents()){
+            try{
+                JButton b = (JButton)c;
+                b.setEnabled(true);
+            }
+            catch(ClassCastException ex){
+                //
+            }
+        }
     }
 
     public void drawLine(StraightLine line){

@@ -1,3 +1,5 @@
+package ru.mcst.RobotGroup.PathsLinking;
+
 import java.awt.geom.Point2D;
 
 /**
