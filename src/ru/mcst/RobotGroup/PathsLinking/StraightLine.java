@@ -1,3 +1,5 @@
+package ru.mcst.RobotGroup.PathsLinking;
+
 /**
  * Created by bocharov_n on 11.12.15.
  */

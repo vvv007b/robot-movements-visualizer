@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="GUI">
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="ru.mcst.RobotGroup.PathsLinking.GUI">
   <grid id="27dc6" binding="rootPanel" layout-manager="FormLayout">
     <rowspec value="center:30px:noGrow"/>
     <rowspec value="top:5dlu:noGrow"/>
@@ -26,8 +26,12 @@
     <rowspec value="center:30px:noGrow"/>
     <rowspec value="top:4dlu:noGrow"/>
     <rowspec value="center:30px:noGrow"/>
-    <rowspec value="top:5dlu:noGrow"/>
-    <rowspec value="center:125px:noGrow"/>
+    <rowspec value="top:6dlu:noGrow"/>
+    <rowspec value="center:30px:noGrow"/>
+    <rowspec value="top:4dlu:noGrow"/>
+    <rowspec value="center:30px:noGrow"/>
+    <rowspec value="top:4dlu:noGrow"/>
+    <rowspec value="center:65px:noGrow"/>
     <colspec value="left:640px:noGrow"/>
     <colspec value="center:60px:noGrow"/>
     <colspec value="left:4dlu:noGrow"/>
@@ -41,7 +45,7 @@
     <colspec value="left:4dlu:noGrow"/>
     <colspec value="fill:max(d;4px):noGrow"/>
     <constraints>
-      <xy x="20" y="17" width="979" height="616"/>
+      <xy x="20" y="17" width="979" height="632"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -246,7 +250,7 @@
       </component>
       <component id="b94df" class="javax.swing.JLabel" binding="yLabel">
         <constraints>
-          <grid row="26" column="9" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="2" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="30" column="9" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="2" fill="0" indent="0" use-parent-layout="false"/>
           <forms defaultalign-horz="false" defaultalign-vert="false"/>
         </constraints>
         <properties>
@@ -255,7 +259,7 @@
       </component>
       <component id="dbe9d" class="javax.swing.JLabel" binding="xLabel">
         <constraints>
-          <grid row="26" column="7" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="2" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="30" column="7" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="2" fill="0" indent="0" use-parent-layout="false"/>
           <forms defaultalign-horz="false" defaultalign-vert="false"/>
         </constraints>
         <properties>
@@ -327,7 +331,7 @@
       </component>
       <scrollpane id="90371">
         <constraints>
-          <grid row="0" column="0" row-span="27" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="0" column="0" row-span="31" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
           <forms defaultalign-horz="false" defaultalign-vert="false"/>
         </constraints>
         <properties/>
@@ -341,6 +345,15 @@
           </grid>
         </children>
       </scrollpane>
+      <component id="68068" class="javax.swing.JButton" binding="startButton">
+        <constraints>
+          <grid row="28" column="1" row-span="1" col-span="9" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <forms/>
+        </constraints>
+        <properties>
+          <text value="START"/>
+        </properties>
+      </component>
     </children>
   </grid>
 </form>

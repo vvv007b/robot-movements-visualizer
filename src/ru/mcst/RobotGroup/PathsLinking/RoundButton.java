@@ -1,3 +1,5 @@
+package ru.mcst.RobotGroup.PathsLinking;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
