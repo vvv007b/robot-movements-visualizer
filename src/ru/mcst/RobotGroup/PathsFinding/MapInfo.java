@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.List;
 import javax.imageio.ImageIO;
 
-public class MapInfo implements Cloneable {
+class MapInfo implements Cloneable {
 	// ����� ���������
 	private BufferedImage image;
 	// ����� ������������

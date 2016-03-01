@@ -3,7 +3,7 @@ package ru.mcst.RobotGroup.PathsFinding;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 
-public class Link {
+class Link {
 	private Node parent=null;
 	private Node child=null;
 	private Segment[] segments=null;

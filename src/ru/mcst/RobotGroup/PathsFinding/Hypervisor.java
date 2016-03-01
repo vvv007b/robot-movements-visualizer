@@ -263,4 +263,14 @@ public class Hypervisor {
         }
         return result;
     }
+
+    // returns {width, height}
+    public static int[] getMapSize() {
+        if(robots.size()==0)
+            return null;
+        int result[]=new int[2];
+        result[0]=robots.get(0).getMap().getWidth();
+        result[1]=robots.get(0).getMap().getHeight();
+        return result;
+    }
 }

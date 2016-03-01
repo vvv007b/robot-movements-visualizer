@@ -6,7 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 
 
-public class main_class /*extends JFrame*/{
+class main_class /*extends JFrame*/{
     //Surface s;
     //Control_Panel cp;
 
