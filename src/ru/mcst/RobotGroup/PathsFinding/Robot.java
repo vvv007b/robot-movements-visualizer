@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Robot implements Cloneable {
+class Robot implements Cloneable {
 	public static final int ROBOT_NOWHERE_X=-1000;
 	public static final int ROBOT_NOWHERE_Y=-1000;
 

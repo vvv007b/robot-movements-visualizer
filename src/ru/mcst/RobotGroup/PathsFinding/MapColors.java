@@ -5,13 +5,13 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 // Maps can be downloaded at http://overpass-turbo.eu/
-public class MapColors {
-	// соотношения "цвет"-"коэффициент проходимости"
+class MapColors {
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅ"-"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
     HashMap <Color, Integer> ColorMap;
-    // порог разности реальной проходимости и отмеченной на карте проходимости
+    // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     //public static final int DIFFERENCE_BORDER=20;
     public static final int DIFFERENCE_BORDER=128;
-    // порог серого, при котором надо замедлиться
+    // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     public static final int GRAY_BORDER=128;
     
     //public static final float compareBorder=0.003f;
@@ -102,7 +102,7 @@ public class MapColors {
         ColorMap.put(new Color(255, 255, 255), 250);	// white (roads?)
         
     }
-    // возвращает значение проходимости, соответствующий цвету color
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ color
     public int getPassability(Color color) {
         if(ColorMap.containsKey(color)){
         	return ColorMap.get(color);

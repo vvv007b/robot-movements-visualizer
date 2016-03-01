@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class SearchAlgorithm {
+class SearchAlgorithm {
 	// �������� ������
 	private List<NodeForSearch> openList;
 	// �������� ������

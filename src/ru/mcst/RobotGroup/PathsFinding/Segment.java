@@ -1,6 +1,6 @@
 package ru.mcst.RobotGroup.PathsFinding;
 
-public class Segment {
+class Segment {
 	private int testing;
 
 	private boolean isStraightLine=true;	
