@@ -7,8 +7,10 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.io.*;
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * Created by bocharov_n on 22.10.15.
@@ -20,7 +22,6 @@ public class GUI extends JFrame{
     private JTextField azimuthTextField;
     private JTextField rTextField;
     private JTextField angleTextField;
-    private JPanel mapPanel;
     private JCheckBox isAddingCheckBox;
     private JButton removeCameraButton;
     private JButton addTrajectoryButton;
@@ -40,7 +41,10 @@ public class GUI extends JFrame{
     private JButton calculateLinesButton;
     private JButton loadTrajectoriesButton;
     private JButton startButton;
+    private JScrollPane mapScrollPane;
     private JFileChooser fc = new JFileChooser();
+    private MapUnderlay mapPanel;
+
 
     private Camera currentCamera;
 
@@ -66,39 +70,35 @@ public class GUI extends JFrame{
         isCameraChanging = false;
         isKeyPointChanging = false;
         isTrajectoryAdding = false;
-        createUIComponents();
+//        createUIComponents();
+        createMyComponents();
+
         setContentPane(rootPanel);
         pack();
+        setSize(1001, 720);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
     private void createUIComponents() {
-        mapPanel.setLayout(null);
-        mapPanel.setSize(640,480);
-        mapPanel.setBorder(BorderFactory.createLineBorder(Color.black, 2));
+        mapPanel = new MapUnderlay();
+//        mapScrollPane.add(mapPanel);
+        mapScrollPane=new JScrollPane(mapPanel);
+
+
+    }
+
+    private void createMyComponents(){
+        mapPanel.setLayout(new BorderLayout());
+//        mapPanel.setBorder(BorderFactory.createLineBorder(Color.black, 2));
         final Insets insets = mapPanel.getInsets();
 
-        BufferedImage map = new BufferedImage(640, 480, BufferedImage.TYPE_INT_ARGB);
-//        BufferedImage map1 = new BufferedImage(640, 480, BufferedImage.TYPE_INT_ARGB);
 
-        Graphics2D g2d = map.createGraphics();
-        g2d.setComposite(AlphaComposite.Clear);
-        g2d.fillRect(0, 0, map.getWidth(), map.getHeight());
-        g2d.setComposite(AlphaComposite.Src);
 
-        g2d.dispose();
-
-        mapLabel = new JLabel();
-        mapLabel.setIcon(new ImageIcon(map));
-        addMapPicture();
 
         TrackingSystem.setWidth(mapPanel.getWidth());
         TrackingSystem.setHeight(mapPanel.getHeight());
 
-        Dimension size = mapLabel.getPreferredSize();
-        mapLabel.setBounds(insets.left, insets.top, size.width, size.height);
-//        mapLabel.setOpaque(true);
-        mapPanel.setBackground(Color.green);
+//        mapPanel.setBackground(Color.green);
         xTextField.setEnabled(false);
         yTextField.setEnabled(false);
         azimuthTextField.setEnabled(false);
@@ -348,7 +348,7 @@ public class GUI extends JFrame{
                 double startR = 0,
                         endR = Math.sqrt(Math.pow(mapPanel.getWidth(), 2) + Math.pow(mapPanel.getHeight(), 2));
                 TrackingSystem.setAccumulator(TrackingSystem.calculateLines(TrackingSystem.getVisiblePoints(), startR, endR));
-                List<StraightLine> lines = TrackingSystem.findLocalMaximums(TrackingSystem.getAccumulator(), startR, endR);
+                java.util.List<StraightLine> lines = TrackingSystem.findLocalMaximums(TrackingSystem.getAccumulator(), startR, endR);
                 log(lines.size());
                 for(StraightLine line: lines)
                     drawLine(line);
@@ -369,7 +369,7 @@ public class GUI extends JFrame{
                         reader = new BufferedReader(new FileReader(file));
                         String size[] = reader.readLine().split(" ");
                         int newWidth = Integer.parseInt(size[0]),
-                            newHeight = Integer.parseInt(size[1]);
+                                newHeight = Integer.parseInt(size[1]);
                         mapPanel.setSize(newWidth, newHeight);
                         mapPanel.setPreferredSize(new Dimension(newWidth,newHeight));
 
@@ -426,7 +426,6 @@ public class GUI extends JFrame{
         });
 
         System.out.print("ui");
-
     }
 
     public void start(){
