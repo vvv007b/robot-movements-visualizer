@@ -79,8 +79,7 @@ public class GUI extends JFrame{
         setContentPane(rootPanel);
         pack();
         setSize(1001, 720);
-
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
     }
 
     private void startMapListenerDaemon(){
@@ -537,7 +536,7 @@ public class GUI extends JFrame{
         newCamera.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(currentCamera!=null) {
+                if (currentCamera != null) {
                     currentCamera.setBackground(Color.WHITE);
                     mapPanel.remove(currentCamera.getVisibleImageLabel());
                 }
@@ -580,7 +579,7 @@ public class GUI extends JFrame{
                 angleTextField.setEnabled(true);
                 removeCameraButton.setEnabled(true);
 
-                currentCamera = (Camera)e.getSource();
+                currentCamera = (Camera) e.getSource();
                 currentCamera.setBackground(Color.RED);
 
                 xTextField.setText(Integer.toString(currentCamera.getx()));
@@ -663,7 +662,7 @@ public class GUI extends JFrame{
         }
     }
 
-    private void updateCurrentKeyPoint(){
+    private void updateCurrentKeyPoint() {
         log("updating keypoint");
         int     x = currentKeyPoint.getx(),
                 y = currentKeyPoint.gety();
