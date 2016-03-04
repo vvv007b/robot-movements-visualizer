@@ -1,5 +1,6 @@
 package ru.mcst.RobotGroup.PathsFinding;
 
+import java.awt.*;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -250,8 +251,9 @@ public class Hypervisor {
 
     public static ArrayList<double[]> getAllCoordinates() {
         ArrayList<double[]> result = new ArrayList<double[]>();
-        double coordinates[]=new double[2];
+
         for(Robot r: robots) {
+            double coordinates[]=new double[2];
             coordinates[0]=r.getX();
             coordinates[1]=r.getY();
             result.add(coordinates);
@@ -264,11 +266,17 @@ public class Hypervisor {
         if(robots.size()==0)
             return null;
         MapInfo map=robots.get(0).getMap();
-        if(map==null)
+        if(map.getImage()==null)
             return null;
         int result[]=new int[2];
         result[0]=map.getWidth();
         result[1]=map.getHeight();
         return result;
+    }
+
+    public static Image getMapImage() {
+        if(robots.size()==0)
+            return null;
+        return robots.get(0).getMap().getImage();
     }
 }

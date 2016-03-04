@@ -97,7 +97,6 @@ public class TrackingSystem {
 
     }
 
-
     public static List<StraightLine> findLocalMaximums(Map<DoubleKey, List<VisitedPoint>> acc, double startR, double endR){
         List<StraightLine> lines = new ArrayList<StraightLine>();
         
@@ -129,7 +128,6 @@ public class TrackingSystem {
 
         return lines;
     }
-
 
     public static void findInOutVectors(){
         inVectors.clear();
@@ -167,7 +165,6 @@ public class TrackingSystem {
         }
         System.out.println(outVectors.size()+" "+ inVectors.size());
     }
-
 
     public static StraightLine findMax(){
         int max = 0;
@@ -241,9 +238,9 @@ public class TrackingSystem {
     }
 
     private static boolean isVisible(Point2D point, Camera camera){
-        boolean isInCircle = false;
         double x = point.getX(), y = point.getY();
-        if(Math.pow(camera.getx() - x, 2) + Math.pow(camera.gety() - y, 2) <= Math.pow(camera.getR(), 2)) isInCircle = true;
+        boolean isInCircle = Math.pow(camera.getx() - x, 2) + Math.pow(camera.gety() - y, 2) <= Math.pow(camera.getR(), 2);
+//        if(Math.pow(camera.getx() - x, 2) + Math.pow(camera.gety() - y, 2) <= Math.pow(camera.getR(), 2)) isInCircle = true;
         double startx = camera.getx() - camera.getR() + camera.getArc().getStartPoint().getX(),
                 starty = camera.gety() - camera.getR() + camera.getArc().getStartPoint().getY(),
                 endx = camera.getx() - camera.getR() + camera.getArc().getEndPoint().getX(),
@@ -256,6 +253,13 @@ public class TrackingSystem {
                 sectorEnd = new Vec2d(endPoint.getX() - centerPoint.getX(), endPoint.getY() - centerPoint.getY()),
                 relPoint = new Vec2d(x - centerPoint.getX(), y - centerPoint.getY());
         return isInCircle && !areClockwise(sectorStart, relPoint) && areClockwise(sectorEnd, relPoint);
+    }
+
+    public static boolean isVisible(Point2D p){
+        for(Camera curCamera:cameraList){
+            if (isVisible(p, curCamera)) return true;
+        }
+        return false;
     }
 
     private static boolean areClockwise(Vec2d v1, Vec2d v2){

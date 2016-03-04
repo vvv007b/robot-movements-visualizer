@@ -1,5 +1,7 @@
 package ru.mcst.RobotGroup.PathsLinking;
 
+import ru.mcst.RobotGroup.PathsFinding.Hypervisor;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -29,10 +31,8 @@ public class GUI extends JFrame{
     private JTextField yKeyPointTextField;
     private JTextField tKeyPointTextField;
     private JTextField vKeyPointTextField;
-    //    private JButton calculatePointsButton;
     private JLabel xLabel;
     private JLabel yLabel;
-    private JLabel mapLabel;
     private JLabel loadedPointsLabel;
     private JButton calculateVisibleButton;
     private JButton clearScreenButton;
@@ -43,7 +43,7 @@ public class GUI extends JFrame{
     private JButton startButton;
     private JScrollPane mapScrollPane;
     private JFileChooser fc = new JFileChooser();
-    private MapUnderlay mapPanel;
+    private static MapUnderlay mapPanel;
 
 
     private Camera currentCamera;
@@ -72,11 +72,43 @@ public class GUI extends JFrame{
         isTrajectoryAdding = false;
 //        createUIComponents();
         createMyComponents();
-
+        startMapListenerDaemon();
+        Tracker tracker = new Tracker();
+        tracker.setDaemon(true);
+        tracker.start();
         setContentPane(rootPanel);
         pack();
         setSize(1001, 720);
+
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    }
+
+    private void startMapListenerDaemon(){
+        Thread mapSizeListener = new Thread(){
+            @Override
+            public void run(){
+                while(true) {
+                    int[] mapSize = Hypervisor.getMapSize();
+                    Image mapImage = Hypervisor.getMapImage();
+                    if (mapSize != null && mapSize[0] != mapPanel.getPreferredSize().width &
+                            mapSize[1] != mapPanel.getPreferredSize().height) {
+                        mapPanel.setPreferredSize(new Dimension(mapSize[0], mapSize[1]));
+                        if (mapImage != null){
+                            MapUnderlay.changeMapImage(mapImage);
+                        }
+                        mapPanel.repaint();
+
+                    }
+                    try {
+                        this.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        mapSizeListener.setDaemon(true);
+        mapSizeListener.start();
     }
 
     private void createUIComponents() {
@@ -91,8 +123,6 @@ public class GUI extends JFrame{
         mapPanel.setLayout(new BorderLayout());
 //        mapPanel.setBorder(BorderFactory.createLineBorder(Color.black, 2));
         final Insets insets = mapPanel.getInsets();
-
-
 
 
         TrackingSystem.setWidth(mapPanel.getWidth());
@@ -301,9 +331,6 @@ public class GUI extends JFrame{
                 TrackingSystem.getCameraList().clear();
                 TrackingSystem.getTrajectoryList().clear();
                 mapPanel.removeAll();
-                addMapPicture();
-                Dimension size = mapLabel.getPreferredSize();
-                mapLabel.setBounds(insets.left, insets.top, size.width, size.height);
                 mapPanel.repaint();
             }
         });
@@ -439,7 +466,7 @@ public class GUI extends JFrame{
             }
         }
 
-
+//        Tracki
 
         for(Component c:rootPanel.getComponents()){
             try{
@@ -676,58 +703,46 @@ public class GUI extends JFrame{
 
     }
 
-    public void addMapPicture(){
-//        mapPanel.add(mapLabel);
-//        mapPanel.setComponentZOrder(mapLabel, 0);
-//        BufferedImage bi = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
-//        JLabel jl = new JLabel(new ImageIcon(bi));
-//        mapPanel.add(jl);
-//        Insets insets = mapPanel.getInsets();
-//        Dimension size = jl.getPreferredSize();
-//        jl.setBounds(insets.left, insets.top, size.width, size.height);
-//        mapPanel.setComponentZOrder(jl, 1);
-//        jl = new JLabel(new ImageIcon(bi));
-//        mapPanel.add(jl);
-//        jl.setBounds(insets.left, insets.top, size.width, size.height);
-//        mapPanel.setComponentZOrder(jl,1);
-
-    }
-
     public void mouseClickHandler(MouseEvent e){
-        if (isAddingCheckBox.isSelected()) {
-            addNewCameraToPanel(e.getX(), e.getY());
-        }
-        else if(isTrajectoryAdding){
-            KeyPoint newKeyPoint = new KeyPoint(e.getX(), e.getY(), 10);
-            newKeyPoint.setPreferredSize(new Dimension(keyPointWidth, keyPointHeight));
-            Insets insets = mapPanel.getInsets();
-            Dimension size = newKeyPoint.getPreferredSize();
-            mapPanel.add(newKeyPoint);
+        int[] mapSize = Hypervisor.getMapSize();
+        if(mapSize ==null || mapSize != null && (e.getX() <= mapSize[0] & e.getY() <= mapSize[1]) ) {
+            if (isAddingCheckBox.isSelected()) {
+                addNewCameraToPanel(e.getX(), e.getY());
+            } else if (isTrajectoryAdding) {
+                KeyPoint newKeyPoint = new KeyPoint(e.getX(), e.getY(), 10);
+                newKeyPoint.setPreferredSize(new Dimension(keyPointWidth, keyPointHeight));
+                Insets insets = mapPanel.getInsets();
+                Dimension size = newKeyPoint.getPreferredSize();
+                mapPanel.add(newKeyPoint);
 //            mapPanel.setComponentZOrder(newKeyPoint, 1);
-            currentTrajectory.addKeyPoint(newKeyPoint);
-            newKeyPoint.setBounds(e.getX() + insets.left - size.width / 2, e.getY() + insets.left - size.height / 2, size.width, size.height);
-            newKeyPoint.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    isKeyPointChanging = true;
+                currentTrajectory.addKeyPoint(newKeyPoint);
+                newKeyPoint.setBounds(e.getX() + insets.left - size.width / 2, e.getY() + insets.left - size.height / 2, size.width, size.height);
+                newKeyPoint.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        isKeyPointChanging = true;
 
-                    xKeyPointTextField.setEnabled(true);
-                    yKeyPointTextField.setEnabled(true);
-                    tKeyPointTextField.setEnabled(true);
-                    vKeyPointTextField.setEnabled(true);
-                    if (currentKeyPoint != null) currentKeyPoint.setBackground(Color.WHITE);
-                    currentKeyPoint = (KeyPoint)e.getSource();
-                    currentTrajectory = currentKeyPoint.getParentTrajectory();
-                    currentKeyPoint.setBackground(Color.RED);
+                        xKeyPointTextField.setEnabled(true);
+                        yKeyPointTextField.setEnabled(true);
+                        tKeyPointTextField.setEnabled(true);
+                        vKeyPointTextField.setEnabled(true);
+                        if (currentKeyPoint != null) currentKeyPoint.setBackground(Color.WHITE);
+                        currentKeyPoint = (KeyPoint) e.getSource();
+                        currentTrajectory = currentKeyPoint.getParentTrajectory();
+                        currentKeyPoint.setBackground(Color.RED);
 
-                    xKeyPointTextField.setText(Integer.toString(currentKeyPoint.getx()));
-                    yKeyPointTextField.setText(Integer.toString(currentKeyPoint.gety()));
-                    vKeyPointTextField.setText(Double.toString(round(currentKeyPoint.getV(), 2)));
-                    tKeyPointTextField.setText(Double.toString(round(currentKeyPoint.getT(), 2)));
+                        xKeyPointTextField.setText(Integer.toString(currentKeyPoint.getx()));
+                        yKeyPointTextField.setText(Integer.toString(currentKeyPoint.gety()));
+                        vKeyPointTextField.setText(Double.toString(round(currentKeyPoint.getV(), 2)));
+                        tKeyPointTextField.setText(Double.toString(round(currentKeyPoint.getT(), 2)));
 
-                    isKeyPointChanging = false;
-                }
-            });
+                        isKeyPointChanging = false;
+                    }
+                });
+            }
+        }
+        else{
+            System.out.println("Point out of range");
         }
     }
 
@@ -738,6 +753,14 @@ public class GUI extends JFrame{
         value = value * factor;
         long tmp = Math.round(value);
         return (double) tmp / factor;
+    }
+
+    public static MapUnderlay getMapPanel() {
+        return mapPanel;
+    }
+
+    public void setMapPanel(MapUnderlay mapPanel) {
+        this.mapPanel = mapPanel;
     }
 
     public void log(String s){
