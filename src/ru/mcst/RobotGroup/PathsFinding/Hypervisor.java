@@ -1,14 +1,10 @@
 package ru.mcst.RobotGroup.PathsFinding;
 
-import java.awt.geom.Line2D;
-import java.io.File;
+import java.awt.*;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by sapachev_i on 12/9/15.
@@ -255,8 +251,9 @@ public class Hypervisor {
 
     public static ArrayList<double[]> getAllCoordinates() {
         ArrayList<double[]> result = new ArrayList<double[]>();
-        double coordinates[]=new double[2];
+
         for(Robot r: robots) {
+            double coordinates[]=new double[2];
             coordinates[0]=r.getX();
             coordinates[1]=r.getY();
             result.add(coordinates);
@@ -268,9 +265,18 @@ public class Hypervisor {
     public static int[] getMapSize() {
         if(robots.size()==0)
             return null;
+        MapInfo map=robots.get(0).getMap();
+        if(map.getImage()==null)
+            return null;
         int result[]=new int[2];
-        result[0]=robots.get(0).getMap().getWidth();
-        result[1]=robots.get(0).getMap().getHeight();
+        result[0]=map.getWidth();
+        result[1]=map.getHeight();
         return result;
+    }
+
+    public static Image getMapImage() {
+        if(robots.size()==0)
+            return null;
+        return robots.get(0).getMap().getImage();
     }
 }

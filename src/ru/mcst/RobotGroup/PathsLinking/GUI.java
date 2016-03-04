@@ -1,5 +1,7 @@
 package ru.mcst.RobotGroup.PathsLinking;
 
+import ru.mcst.RobotGroup.PathsFinding.Hypervisor;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -7,8 +9,10 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.io.*;
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * Created by bocharov_n on 22.10.15.
@@ -20,7 +24,6 @@ public class GUI extends JFrame{
     private JTextField azimuthTextField;
     private JTextField rTextField;
     private JTextField angleTextField;
-    private JPanel mapPanel;
     private JCheckBox isAddingCheckBox;
     private JButton removeCameraButton;
     private JButton addTrajectoryButton;
@@ -28,10 +31,8 @@ public class GUI extends JFrame{
     private JTextField yKeyPointTextField;
     private JTextField tKeyPointTextField;
     private JTextField vKeyPointTextField;
-    //    private JButton calculatePointsButton;
     private JLabel xLabel;
     private JLabel yLabel;
-    private JLabel mapLabel;
     private JLabel loadedPointsLabel;
     private JButton calculateVisibleButton;
     private JButton clearScreenButton;
@@ -40,7 +41,10 @@ public class GUI extends JFrame{
     private JButton calculateLinesButton;
     private JButton loadTrajectoriesButton;
     private JButton startButton;
+    private JScrollPane mapScrollPane;
     private JFileChooser fc = new JFileChooser();
+    private static MapUnderlay mapPanel;
+
 
     private Camera currentCamera;
 
@@ -66,39 +70,65 @@ public class GUI extends JFrame{
         isCameraChanging = false;
         isKeyPointChanging = false;
         isTrajectoryAdding = false;
-        createUIComponents();
+//        createUIComponents();
+        createMyComponents();
+        startMapListenerDaemon();
+        Tracker tracker = new Tracker();
+        tracker.setDaemon(true);
+        tracker.start();
         setContentPane(rootPanel);
         pack();
+        setSize(1001, 720);
+
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
+    private void startMapListenerDaemon(){
+        Thread mapSizeListener = new Thread(){
+            @Override
+            public void run(){
+                while(true) {
+                    int[] mapSize = Hypervisor.getMapSize();
+                    Image mapImage = Hypervisor.getMapImage();
+                    if (mapSize != null && mapSize[0] != mapPanel.getPreferredSize().width &
+                            mapSize[1] != mapPanel.getPreferredSize().height) {
+                        mapPanel.setPreferredSize(new Dimension(mapSize[0], mapSize[1]));
+                        if (mapImage != null){
+                            MapUnderlay.changeMapImage(mapImage);
+                        }
+                        mapPanel.repaint();
+
+                    }
+                    try {
+                        this.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        mapSizeListener.setDaemon(true);
+        mapSizeListener.start();
+    }
+
     private void createUIComponents() {
-        mapPanel.setLayout(null);
-        mapPanel.setSize(640,480);
-        mapPanel.setBorder(BorderFactory.createLineBorder(Color.black, 2));
+        mapPanel = new MapUnderlay();
+//        mapScrollPane.add(mapPanel);
+        mapScrollPane=new JScrollPane(mapPanel);
+
+
+    }
+
+    private void createMyComponents(){
+        mapPanel.setLayout(new BorderLayout());
+//        mapPanel.setBorder(BorderFactory.createLineBorder(Color.black, 2));
         final Insets insets = mapPanel.getInsets();
 
-        BufferedImage map = new BufferedImage(640, 480, BufferedImage.TYPE_INT_ARGB);
-//        BufferedImage map1 = new BufferedImage(640, 480, BufferedImage.TYPE_INT_ARGB);
-
-        Graphics2D g2d = map.createGraphics();
-        g2d.setComposite(AlphaComposite.Clear);
-        g2d.fillRect(0, 0, map.getWidth(), map.getHeight());
-        g2d.setComposite(AlphaComposite.Src);
-
-        g2d.dispose();
-
-        mapLabel = new JLabel();
-        mapLabel.setIcon(new ImageIcon(map));
-        addMapPicture();
 
         TrackingSystem.setWidth(mapPanel.getWidth());
         TrackingSystem.setHeight(mapPanel.getHeight());
 
-        Dimension size = mapLabel.getPreferredSize();
-        mapLabel.setBounds(insets.left, insets.top, size.width, size.height);
-//        mapLabel.setOpaque(true);
-        mapPanel.setBackground(Color.green);
+//        mapPanel.setBackground(Color.green);
         xTextField.setEnabled(false);
         yTextField.setEnabled(false);
         azimuthTextField.setEnabled(false);
@@ -301,9 +331,6 @@ public class GUI extends JFrame{
                 TrackingSystem.getCameraList().clear();
                 TrackingSystem.getTrajectoryList().clear();
                 mapPanel.removeAll();
-                addMapPicture();
-                Dimension size = mapLabel.getPreferredSize();
-                mapLabel.setBounds(insets.left, insets.top, size.width, size.height);
                 mapPanel.repaint();
             }
         });
@@ -348,7 +375,7 @@ public class GUI extends JFrame{
                 double startR = 0,
                         endR = Math.sqrt(Math.pow(mapPanel.getWidth(), 2) + Math.pow(mapPanel.getHeight(), 2));
                 TrackingSystem.setAccumulator(TrackingSystem.calculateLines(TrackingSystem.getVisiblePoints(), startR, endR));
-                List<StraightLine> lines = TrackingSystem.findLocalMaximums(TrackingSystem.getAccumulator(), startR, endR);
+                java.util.List<StraightLine> lines = TrackingSystem.findLocalMaximums(TrackingSystem.getAccumulator(), startR, endR);
                 log(lines.size());
                 for(StraightLine line: lines)
                     drawLine(line);
@@ -369,7 +396,7 @@ public class GUI extends JFrame{
                         reader = new BufferedReader(new FileReader(file));
                         String size[] = reader.readLine().split(" ");
                         int newWidth = Integer.parseInt(size[0]),
-                            newHeight = Integer.parseInt(size[1]);
+                                newHeight = Integer.parseInt(size[1]);
                         mapPanel.setSize(newWidth, newHeight);
                         mapPanel.setPreferredSize(new Dimension(newWidth,newHeight));
 
@@ -426,7 +453,6 @@ public class GUI extends JFrame{
         });
 
         System.out.print("ui");
-
     }
 
     public void start(){
@@ -440,7 +466,7 @@ public class GUI extends JFrame{
             }
         }
 
-
+//        Tracki
 
         for(Component c:rootPanel.getComponents()){
             try{
@@ -677,58 +703,46 @@ public class GUI extends JFrame{
 
     }
 
-    public void addMapPicture(){
-//        mapPanel.add(mapLabel);
-//        mapPanel.setComponentZOrder(mapLabel, 0);
-//        BufferedImage bi = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
-//        JLabel jl = new JLabel(new ImageIcon(bi));
-//        mapPanel.add(jl);
-//        Insets insets = mapPanel.getInsets();
-//        Dimension size = jl.getPreferredSize();
-//        jl.setBounds(insets.left, insets.top, size.width, size.height);
-//        mapPanel.setComponentZOrder(jl, 1);
-//        jl = new JLabel(new ImageIcon(bi));
-//        mapPanel.add(jl);
-//        jl.setBounds(insets.left, insets.top, size.width, size.height);
-//        mapPanel.setComponentZOrder(jl,1);
-
-    }
-
     public void mouseClickHandler(MouseEvent e){
-        if (isAddingCheckBox.isSelected()) {
-            addNewCameraToPanel(e.getX(), e.getY());
-        }
-        else if(isTrajectoryAdding){
-            KeyPoint newKeyPoint = new KeyPoint(e.getX(), e.getY(), 10);
-            newKeyPoint.setPreferredSize(new Dimension(keyPointWidth, keyPointHeight));
-            Insets insets = mapPanel.getInsets();
-            Dimension size = newKeyPoint.getPreferredSize();
-            mapPanel.add(newKeyPoint);
+        int[] mapSize = Hypervisor.getMapSize();
+        if(mapSize ==null || mapSize != null && (e.getX() <= mapSize[0] & e.getY() <= mapSize[1]) ) {
+            if (isAddingCheckBox.isSelected()) {
+                addNewCameraToPanel(e.getX(), e.getY());
+            } else if (isTrajectoryAdding) {
+                KeyPoint newKeyPoint = new KeyPoint(e.getX(), e.getY(), 10);
+                newKeyPoint.setPreferredSize(new Dimension(keyPointWidth, keyPointHeight));
+                Insets insets = mapPanel.getInsets();
+                Dimension size = newKeyPoint.getPreferredSize();
+                mapPanel.add(newKeyPoint);
 //            mapPanel.setComponentZOrder(newKeyPoint, 1);
-            currentTrajectory.addKeyPoint(newKeyPoint);
-            newKeyPoint.setBounds(e.getX() + insets.left - size.width / 2, e.getY() + insets.left - size.height / 2, size.width, size.height);
-            newKeyPoint.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    isKeyPointChanging = true;
+                currentTrajectory.addKeyPoint(newKeyPoint);
+                newKeyPoint.setBounds(e.getX() + insets.left - size.width / 2, e.getY() + insets.left - size.height / 2, size.width, size.height);
+                newKeyPoint.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        isKeyPointChanging = true;
 
-                    xKeyPointTextField.setEnabled(true);
-                    yKeyPointTextField.setEnabled(true);
-                    tKeyPointTextField.setEnabled(true);
-                    vKeyPointTextField.setEnabled(true);
-                    if (currentKeyPoint != null) currentKeyPoint.setBackground(Color.WHITE);
-                    currentKeyPoint = (KeyPoint)e.getSource();
-                    currentTrajectory = currentKeyPoint.getParentTrajectory();
-                    currentKeyPoint.setBackground(Color.RED);
+                        xKeyPointTextField.setEnabled(true);
+                        yKeyPointTextField.setEnabled(true);
+                        tKeyPointTextField.setEnabled(true);
+                        vKeyPointTextField.setEnabled(true);
+                        if (currentKeyPoint != null) currentKeyPoint.setBackground(Color.WHITE);
+                        currentKeyPoint = (KeyPoint) e.getSource();
+                        currentTrajectory = currentKeyPoint.getParentTrajectory();
+                        currentKeyPoint.setBackground(Color.RED);
 
-                    xKeyPointTextField.setText(Integer.toString(currentKeyPoint.getx()));
-                    yKeyPointTextField.setText(Integer.toString(currentKeyPoint.gety()));
-                    vKeyPointTextField.setText(Double.toString(round(currentKeyPoint.getV(), 2)));
-                    tKeyPointTextField.setText(Double.toString(round(currentKeyPoint.getT(), 2)));
+                        xKeyPointTextField.setText(Integer.toString(currentKeyPoint.getx()));
+                        yKeyPointTextField.setText(Integer.toString(currentKeyPoint.gety()));
+                        vKeyPointTextField.setText(Double.toString(round(currentKeyPoint.getV(), 2)));
+                        tKeyPointTextField.setText(Double.toString(round(currentKeyPoint.getT(), 2)));
 
-                    isKeyPointChanging = false;
-                }
-            });
+                        isKeyPointChanging = false;
+                    }
+                });
+            }
+        }
+        else{
+            System.out.println("Point out of range");
         }
     }
 
@@ -739,6 +753,14 @@ public class GUI extends JFrame{
         value = value * factor;
         long tmp = Math.round(value);
         return (double) tmp / factor;
+    }
+
+    public static MapUnderlay getMapPanel() {
+        return mapPanel;
+    }
+
+    public void setMapPanel(MapUnderlay mapPanel) {
+        this.mapPanel = mapPanel;
     }
 
     public void log(String s){
