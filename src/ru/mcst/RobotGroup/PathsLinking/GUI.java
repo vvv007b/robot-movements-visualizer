@@ -46,9 +46,9 @@ public class GUI extends JFrame{
     private static MapUnderlay mapPanel;
 
 
-    private Camera currentCamera;
+    public static Camera currentCamera;
 
-    private KeyPoint currentKeyPoint;
+    public static KeyPoint currentKeyPoint;
     private boolean isCameraChanging;  //crutch for changing textFields while cur camera changing
     private boolean isKeyPointChanging; //same
     private boolean isTrajectoryAdding;
@@ -521,12 +521,9 @@ public class GUI extends JFrame{
             currentKeyPoint = null;
         }
         Insets insets = mapPanel.getInsets();
-//        Camera newCamera = new Camera("",e.getX() + insets.left - cameraWidth / 2, e.getY() + insets.top - cameraHeight / 20, 90, 120, 90);
-        Camera newCamera = new Camera("", x, y, 90, 120, 90);
+        Camera newCamera = new Camera(x, y, 90, 120, 90);
         newCamera.setPreferredSize(new Dimension(cameraWidth, cameraHeight));
-//                    testButton.setFont(new Font("Arial", Font.PLAIN, 2));
         TrackingSystem.addCamera(newCamera);
-//        System.out.print(TrackingSystem.getCameraList().size());
         mapPanel.add(newCamera);
         mapPanel.add(newCamera.getFOVLabel());
         Dimension size = newCamera.getPreferredSize();
@@ -542,36 +539,7 @@ public class GUI extends JFrame{
                     mapPanel.remove(currentCamera.getVisibleImageLabel());
                 }
                 log("Camera selected");
-//                log("start angle " + ((Camera)e.getSource()).getArc().getAngleStart() +
-//                        " end angle " + (((Camera)e.getSource()).getArc().getAngleStart() +
-//                        ((Camera)e.getSource()).getArc().getAngleExtent()));
                 isCameraChanging = true;
-
-
-                //DEBUG HERE
-//                Point2D startPoint = ((Camera)e.getSource()).getArc().getStartPoint(),
-//                        endPoint = ((Camera)e.getSource()).getArc().getEndPoint(),
-//                        centerPoint = new Point2D.Float(((Camera)e.getSource()).getx(), ((Camera)e.getSource()).gety());
-//                log(startPoint);
-//                log(endPoint);
-//                log(centerPoint);
-//                Camera camera = (Camera)e.getSource();
-//                double startx = camera.getx() - camera.getR() + camera.getArc().getStartPoint().getX(),
-//                        starty = camera.gety() - camera.getR() + camera.getArc().getStartPoint().getY(),
-//                        endx = camera.getx() - camera.getR() + camera.getArc().getEndPoint().getX(),
-//                        endy = camera.gety() - camera.getR() + camera.getArc().getEndPoint().getY();
-//                Point2D startPoint = new Point2D.Double(startx, starty),
-//                        endPoint = new Point2D.Double(endx, endy),
-//                        centerPoint = new Point2D.Float(camera.getx(), camera.gety());
-//
-//                log(startPoint);
-//                log(endPoint);
-//                log(centerPoint);
-//                log(camera.getArc().getStartPoint().getX());
-//                log(camera.getArc().getStartPoint().getY());
-//                log(camera.getArc().getEndPoint().getX());
-//                log(camera.getArc().getEndPoint().getY());
-                //DEBUG END
 
                 xTextField.setEnabled(true);
                 yTextField.setEnabled(true);
@@ -589,16 +557,12 @@ public class GUI extends JFrame{
                 rTextField.setText(Integer.toString(currentCamera.getR()));
                 angleTextField.setText(Integer.toString(currentCamera.getAngle()));
 
-//                updateCurrentCamera();
                 TrackingSystem.calculateVisibleForCamera(currentCamera);
                 currentCamera.redrawVisibleImage();
                 mapPanel.add(currentCamera.getVisibleImageLabel());
-//                mapPanel.setComponentZOrder(currentCamera, 3);
-//                mapPanel.setComponentZOrder(currentCamera.getVisibleImageLabel(), getComponentCount() - 1);
                 Insets insets = mapPanel.getInsets();
                 Dimension size = currentCamera.getVisibleImageLabel().getPreferredSize();
                 currentCamera.getVisibleImageLabel().setBounds(insets.left, insets.top, size.width, size.height);
-//                log(getComponentZOrder(currentCamera.getVisibleImageLabel()));
                 mapPanel.repaint();
 
                 isCameraChanging = false;
@@ -608,36 +572,26 @@ public class GUI extends JFrame{
 
     public void updateCurrentCamera(){
         log("Updating camera");
-        int     x       = currentCamera.getx(),
-                y       = currentCamera.gety(),
+        int     x       = currentCamera.getX(),
+                y       = currentCamera.getY(),
                 azimuth = currentCamera.getAzimuth(),
                 r       = currentCamera.getR(),
                 angle   = currentCamera.getAngle();
         boolean isChanged = false;
         try{
-//            log(xTextField.getText());
-//            log(yTextField.getText());
-//            log(azimuthTextField.getText());
-//            log(rTextField.getText());
-//            log(angleTextField.getText());
             int     newX        = Integer.parseInt(xTextField.getText()),
                     newY        = Integer.parseInt(yTextField.getText()),
                     newAzimuth  = Integer.parseInt(azimuthTextField.getText()),
                     newR        = Integer.parseInt(rTextField.getText()),
                     newAngle    = Integer.parseInt(angleTextField.getText());
-//            log(newY);
-//            log(mapPanel.getHeight());
             if (x != newX || y != newY || azimuth != newAzimuth || r != newR || angle != newAngle){
                 x = newX < 0 ? 0 : newX > mapPanel.getWidth() ? mapPanel.getWidth() : newX;
-//                x       = newX;
                 y = newY < 0 ? 0 : newY > mapPanel.getHeight() ? mapPanel.getHeight() : newY;
-//                y       = newY;
                 azimuth = newAzimuth;
                 r       = newR;
                 angle   = newAngle;
-//                log("new x y " + x + " " + y);
-                currentCamera.setx(x);
-                currentCamera.sety(y);
+                currentCamera.setX(x);
+                currentCamera.setY(y);
                 currentCamera.setAzimuth(azimuth);
                 currentCamera.setR(r);
                 currentCamera.setAngle(angle);
@@ -648,16 +602,10 @@ public class GUI extends JFrame{
                 currentCamera.setBounds(x + insets.left - size.width / 2, y + insets.top - size.height / 2, size.width, size.height);
                 size = currentCamera.getFOVLabel().getPreferredSize();
                 currentCamera.getFOVLabel().setBounds(x + insets.left - size.width / 2, y + insets.top - size.height / 2, size.width, size.height);
-//                currentCamera.clearVisibleImage();
                 TrackingSystem.calculateVisibleForCamera(currentCamera);
-//                currentCamera.redrawVisibleImage();
                 mapPanel.repaint();
                 log("Image was redrawed. New xy "+x+" "+y);
-//                log("start angle " + currentCamera.getArc().getAngleStart() +
-//                        " end angle " + (currentCamera.getArc().getAngleStart() +
-//                        currentCamera.getArc().getAngleExtent()));
-//                System.out.print(TrackingSystem.getCameraList().get(TrackingSystem.getCameraList().indexOf(currentCamera)).getx());
-            }
+           }
         }
         catch (IllegalArgumentException ex){
         }

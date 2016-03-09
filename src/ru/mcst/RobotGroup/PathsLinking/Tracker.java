@@ -33,6 +33,7 @@ class Tracker extends Thread{
                 }
                 g2d.dispose();
                 MapUnderlay.changeTrajectoriesImage(trajectories);
+                MapUnderlay.drawAllCameras();
                 GUI.getMapPanel().repaint();
             }
             try{

@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Created by bocharov_n on 14.10.15.
  */
-public class Camera extends RoundButton{
+public class Camera{
 
     private int x, y, azimuth, r, angle;
     private BufferedImage FOV, visibleImage;
@@ -20,28 +20,26 @@ public class Camera extends RoundButton{
     private Arc2D arc;
     private double accuracy = 1.0;
 
-    public Camera(String label){
-        super(label);
-        
-        x = 1;
-        y = 1;
-        azimuth = 0;
-        r = 3;
-        angle = 90;
-        visiblePoints = new ArrayList<VisitedPoint>();
-        arc = null;
-        this.FOV = new BufferedImage(2 * r + 1, 2 * r + 1, BufferedImage.TYPE_INT_ARGB);
-        this.visibleImage = new BufferedImage(x + r + 1, y + r + 1, BufferedImage.TYPE_INT_ARGB);
-        FOVLabel = new JLabel(new ImageIcon(FOV));
-        visibleImageLabel = new JLabel(new ImageIcon(visibleImage));
-        redrawFOV();
+//    public Camera(String label){
+//        super(label);
+//
+//        x = 1;
+//        y = 1;
+//        azimuth = 0;
+//        r = 3;
+//        angle = 90;
+//        visiblePoints = new ArrayList<VisitedPoint>();
+//        arc = null;
+//        this.FOV = new BufferedImage(2 * r + 1, 2 * r + 1, BufferedImage.TYPE_INT_ARGB);
+//        this.visibleImage = new BufferedImage(x + r + 1, y + r + 1, BufferedImage.TYPE_INT_ARGB);
+//        FOVLabel = new JLabel(new ImageIcon(FOV));
+//        visibleImageLabel = new JLabel(new ImageIcon(visibleImage));
+//        redrawFOV();
+//
+//
+//    }
 
-
-    }
-
-    public Camera(String label, int x, int y, int azimuth, int r, int angle){
-        super(label);
-
+    public Camera(int x, int y, int azimuth, int r, int angle){
         this.x = x;
         this.y = y;
         this.azimuth = azimuth;
@@ -151,19 +149,19 @@ public class Camera extends RoundButton{
 
     public void setArc(Arc2D arc) {this.arc = arc;}
 
-    public int getx() {
+    public int getX() {
         return x;
     }
 
-    public void setx(int x) {
+    public void setX(int x) {
         this.x = x;
     }
 
-    public int gety() {
+    public int getY() {
         return y;
     }
 
-    public void sety(int y) {
+    public void setY(int y) {
         this.y = y;
     }
 
