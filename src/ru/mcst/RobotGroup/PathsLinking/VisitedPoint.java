@@ -5,7 +5,7 @@ import java.awt.geom.Point2D;
 /**
  * Created by bocharov_n on 19.02.16.
  */
-public class VisitedPoint extends Point2D.Double {
+class VisitedPoint extends Point2D.Double {
     private double v, t;
     public VisitedPoint(){
         super();

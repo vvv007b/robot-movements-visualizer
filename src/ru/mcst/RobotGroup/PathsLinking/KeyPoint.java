@@ -3,7 +3,7 @@ package ru.mcst.RobotGroup.PathsLinking;
 /**
  * Created by bocharov_n on 13.11.15.
  */
-public class KeyPoint extends RoundButton {
+class KeyPoint extends RoundButton {
     private int x, y;
     private double t, v;
                                                 //V  - how many pixels in one time quant

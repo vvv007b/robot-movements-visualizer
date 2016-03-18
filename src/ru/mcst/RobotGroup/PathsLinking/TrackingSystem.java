@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * Created by bocharov_n on 27.11.15.
  */
-public class TrackingSystem {
+class TrackingSystem {
     private static List<Camera> cameraList = new ArrayList<Camera>();
     private static List<Trajectory> trajectoryList = new ArrayList<Trajectory>();
 //    private static Map<Camera,Point[]> visible = new HashMap<>();
@@ -41,8 +41,8 @@ public class TrackingSystem {
             calculateVisibleForCamera(curCamera);
             HashSet<VisitedPoint> points = new HashSet<VisitedPoint>(curCamera.getVisiblePoints());
             Map<DoubleKey, List<VisitedPoint>> acc = new HashMap<DoubleKey, List<VisitedPoint>>();
-            double x = curCamera.getx(),
-                    y = curCamera.gety(),
+            double x = curCamera.getX(),
+                    y = curCamera.getY(),
                     r = curCamera.getR();
             double startR = Math.pow(Math.pow(x - r, 2) + Math.pow(y - r, 2), 0.5),
                     endR = Math.pow(Math.pow(x + r, 2) + Math.pow(y + r, 2), 0.5);
@@ -134,7 +134,7 @@ public class TrackingSystem {
         outVectors.clear();
         List<VisitedPoint> cornerPoints = new ArrayList<VisitedPoint>();
         for(Camera curCamera:getCameraList()){
-            System.out.println("Camera:" + curCamera.getx() + " " + curCamera.gety() + "have " +
+            System.out.println("Camera:" + curCamera.getX() + " " + curCamera.getY() + "have " +
                     curCamera.getVisiblePoints().size() + " visible points");
             for(VisitedPoint point: curCamera.getVisiblePoints()){
                 if (curCamera.isOnCorner(point)) {
@@ -182,29 +182,29 @@ public class TrackingSystem {
 
     public static void calculateVisibleForCamera(Camera camera){
         camera.getVisiblePoints().clear();
-        camera.clearVisibleImage();
+//        camera.clearVisibleImage();
         for(Trajectory tr:trajectoryList){
             tr.calculatePointList();
             for(VisitedPoint point:tr.getPointList()){
-                if (isVisible(point, camera)){
+                if (camera.isVisible(point)){
                     camera.addVisiblePoint(point);
                 }
             }
         }
-        camera.redrawVisibleImage();
+//        camera.redrawVisibleImage();
     }
 
     public static void calculateVisible(){
 
         for(Camera curCamera:cameraList){
             curCamera.getVisiblePoints().clear();
-            curCamera.clearVisibleImage();
+//            curCamera.clearVisibleImage();
         }
         for(Trajectory tr:trajectoryList){
             tr.calculatePointList();
             for(VisitedPoint point: tr.getPointList()){
                 for(Camera curCamera:cameraList){
-                    if(isVisible(point, curCamera)){
+                    if(curCamera.isVisible(point)){
                         curCamera.addVisiblePoint(point);
 //                        System.out.println("wow");
                     }
@@ -213,51 +213,34 @@ public class TrackingSystem {
         }
         for(VisitedPoint point: loadedPoints){
             for(Camera curCamera:cameraList){
-                if(isVisible(point, curCamera)){
+                if(curCamera.isVisible(point)){
                     curCamera.addVisiblePoint(point);
                 }
             }
         }
-        for(Camera curCamera:cameraList){
-            curCamera.redrawVisibleImage();
-        }
+//        for(Camera curCamera:cameraList){
+////            curCamera.redrawVisibleImage();
+//        }
     }
 
     public static void calculateVisibleAfterLoading(){
         for(Camera curCamera:cameraList){
             curCamera.getVisiblePoints().clear();
-            curCamera.clearVisibleImage();
+//            curCamera.clearVisibleImage();
         }
         for(VisitedPoint point: loadedPoints){
             for(Camera curCamera:cameraList){
-                if(isVisible(point, curCamera)){
+                if(curCamera.isVisible(point)){
                     curCamera.addVisiblePoint(point);
                 }
             }
         }
     }
 
-    private static boolean isVisible(Point2D point, Camera camera){
-        double x = point.getX(), y = point.getY();
-        boolean isInCircle = Math.pow(camera.getx() - x, 2) + Math.pow(camera.gety() - y, 2) <= Math.pow(camera.getR(), 2);
-//        if(Math.pow(camera.getx() - x, 2) + Math.pow(camera.gety() - y, 2) <= Math.pow(camera.getR(), 2)) isInCircle = true;
-        double startx = camera.getx() - camera.getR() + camera.getArc().getStartPoint().getX(),
-                starty = camera.gety() - camera.getR() + camera.getArc().getStartPoint().getY(),
-                endx = camera.getx() - camera.getR() + camera.getArc().getEndPoint().getX(),
-                endy = camera.gety() - camera.getR() + camera.getArc().getEndPoint().getY();
-        Point2D startPoint = new Point2D.Double(startx, starty),
-                endPoint = new Point2D.Double(endx, endy),
-                centerPoint = new Point2D.Float(camera.getx(), camera.gety());
-
-        Vec2d sectorStart = new Vec2d(startPoint.getX() - centerPoint.getX(), startPoint.getY() - centerPoint.getY()),
-                sectorEnd = new Vec2d(endPoint.getX() - centerPoint.getX(), endPoint.getY() - centerPoint.getY()),
-                relPoint = new Vec2d(x - centerPoint.getX(), y - centerPoint.getY());
-        return isInCircle && !areClockwise(sectorStart, relPoint) && areClockwise(sectorEnd, relPoint);
-    }
 
     public static boolean isVisible(Point2D p){
         for(Camera curCamera:cameraList){
-            if (isVisible(p, curCamera)) return true;
+            if (curCamera.isVisible(p)) return true;
         }
         return false;
     }

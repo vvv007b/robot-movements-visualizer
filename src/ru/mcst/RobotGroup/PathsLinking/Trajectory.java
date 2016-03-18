@@ -10,7 +10,7 @@ import java.util.Random;
 /**
  * Created by bocharov_n on 13.11.15.
  */
-public class Trajectory {
+class Trajectory {
     private List<KeyPoint> keyPointList;
     private List<VisitedPoint> pointList;
     private JLabel trajectoryLabel;

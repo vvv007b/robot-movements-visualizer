@@ -3,7 +3,7 @@ package ru.mcst.RobotGroup.PathsLinking;
 /**
  * Created by bocharov_n on 11.12.15.
  */
-public class DoubleKey {
+class DoubleKey {
     private Object key1;
     private Object key2;
 
