@@ -38,7 +38,6 @@ public class GUI extends JFrame{
     private JButton removeKeyPointButton;
     private JButton removeTrajectoryButton;
     private JButton calculateLinesButton;
-    private JButton loadTrajectoriesButton;
     private JButton startButton;
     private JScrollPane mapScrollPane;
     private JRadioButton selectCameraRadioButton;
@@ -373,65 +372,6 @@ public class GUI extends JFrame{
             }
         });
 
-        loadTrajectoriesButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int returnVal = fc.showOpenDialog(rootPanel);
-                if( returnVal == JFileChooser.APPROVE_OPTION){
-                    File file = fc.getSelectedFile();
-                    BufferedReader reader = null;
-                    try{
-                        reader = new BufferedReader(new FileReader(file));
-                        String size[] = reader.readLine().split(" ");
-                        int newWidth = Integer.parseInt(size[0]),
-                                newHeight = Integer.parseInt(size[1]);
-                        mapPanel.setSize(newWidth, newHeight);
-                        mapPanel.setPreferredSize(new Dimension(newWidth,newHeight));
-
-                        log(mapPanel.getWidth()+" "+ mapPanel.getHeight());
-                        rootPanel.repaint();
-                        BufferedImage loadedPoints = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
-                        Graphics2D g2d = loadedPoints.createGraphics();
-                        g2d.setComposite(AlphaComposite.Clear);
-                        g2d.fillRect(0, 0, newWidth, newHeight);
-                        g2d.setColor(Color.BLACK);
-                        g2d.setComposite(AlphaComposite.Src);
-                        String line = null;
-                        while((line = reader.readLine()) != null){
-                            String point[] = line.split(" ");
-                            int x = Integer.parseInt(point[0]),
-                                    y = Integer.parseInt(point[1]);
-                            g2d.fillOval(x, y, 4, 4);
-                            TrackingSystem.addPoint(new VisitedPoint((double)x,(double)y));
-
-                        }
-                        g2d.dispose();
-                        if (loadedPointsLabel!=null) mapPanel.remove(loadedPointsLabel);
-                        loadedPointsLabel = new JLabel(new ImageIcon(loadedPoints));
-                        mapPanel.add(loadedPointsLabel);
-                        loadedPointsLabel.setBounds(insets.left, insets.top,
-                                loadedPointsLabel.getPreferredSize().width, loadedPointsLabel.getPreferredSize().height);
-//                        pack();
-                        repaint();
-                        TrackingSystem.setWidth(mapPanel.getWidth());
-                        TrackingSystem.setHeight(mapPanel.getHeight());
-                        TrackingSystem.calculateVisibleAfterLoading();
-                    }
-                    catch(IOException ex){
-                        ex.printStackTrace();
-                    }
-                    finally {
-                        try{
-                            if (reader != null)
-                                reader.close();
-                        }
-                        catch (IOException ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                }
-            }
-        });
 
         startButton.addActionListener(new ActionListener() {
             @Override
