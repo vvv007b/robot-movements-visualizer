@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 
-public class RoundButton extends JButton {
+class RoundButton extends JButton {
     public RoundButton(String label) {
         super(label);
 

@@ -3,7 +3,7 @@ package ru.mcst.RobotGroup.PathsLinking;
 /**
  * Created by bocharov_n on 19.02.16.
  */
-public class InOutVector {
+class InOutVector {
     VisitedPoint startPoint, endPoint;
 
     public InOutVector(){
