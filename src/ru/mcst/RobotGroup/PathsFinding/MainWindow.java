@@ -117,7 +117,7 @@ public class MainWindow extends JFrame implements ChangeListener {
 
         pack();
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("Robot");
         setSize(1001, 720);
         setVisible(true);
@@ -517,6 +517,8 @@ public class MainWindow extends JFrame implements ChangeListener {
             }
         };
 
+        t.setDaemon(true);
+        t_draw.setDaemon(true);
         t.start();
         t_draw.start();
     }

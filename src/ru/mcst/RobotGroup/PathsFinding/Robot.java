@@ -210,37 +210,30 @@ class Robot implements Cloneable {
 				toDelete=standing;
                 //finishToDelete=map.getFinish();
 				finishToDelete=finish;
-                makeSmoothStop();
-				if(robotBlocking!=null || standing!=finish) {
-					mapChangedSignal=true; // to research path
-					stopSignal=false; // to move
-					findExact=true;
-					try {
-						Thread.sleep(500);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
+				// if we did not manually stopped robot
+                if(!stopSignal) {
+					makeSmoothStop();
+					if (robotBlocking != null || standing != finish) {
+						mapChangedSignal = true; // to research path
+						stopSignal = false; // to move
+						findExact = true;
+						try {
+							Thread.sleep(500);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						if (triesCounter > 0) {
+							// robotBlocking=null; -- ЗАЧЕМ?
+							--triesCounter;
+							makeNodeUnderRobot();
+							toDelete = standing;
+							continue;
+						}
 					}
-					if(triesCounter>0) {
-						// robotBlocking=null; -- ЗАЧЕМ?
-						--triesCounter;
-						makeNodeUnderRobot();
-						toDelete=standing;
-						continue;
-					}
+				} else {	// i need this tautology because makeSmoothStop sets stopSignal and i need to check it before
+					makeSmoothStop();
 				}
-            	map.removeNode(start);
-                //if(map.getFinish()!=null) {
-				if(finish!=null) {
-	            	//List<Node nodesToDelete=map.getNodes((int)map.getFinish().getX(), (int)map.getFinish().getY(), 0);
-
-					// i don't need this when i can't change finish direction while moving
-//					List<Node> nodesToDelete=map.getNodes((int)finishNode.getX(), (int)finishNode.getY(), 0);
-//	            	for(Node n:nodesToDelete) {
-//	            		if(n.getIsRobotMade()) {
-//	            			map.removeNode(n);
-//	            		}
-//	            	}
-                }
+				map.removeNode(start);
                 map.removeNode(finish);
                 map.removeNode(toDelete);
             	return time;

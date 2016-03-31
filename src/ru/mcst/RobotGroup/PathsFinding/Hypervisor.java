@@ -279,4 +279,12 @@ public class Hypervisor {
             return null;
         return robots.get(0).getMap().getImage();
     }
+    public static ArrayList<Double> getSpeeds() {
+        if (robots.size() == 0)
+            return null;
+        ArrayList<Double> result = new ArrayList<Double>();
+        for (Robot robot : robots)
+            result.add(robot.getSpeed());
+        return result;
+    }
 }
