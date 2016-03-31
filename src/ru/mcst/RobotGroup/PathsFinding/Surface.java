@@ -26,7 +26,9 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
     private boolean showReality=false;
     // ����������� ������
 	private Image robotImage;
+	private Image robotImageOriginal;
 	private Image robotImageSelected;
+	private Image robotImageSelectedOriginal;
 	// ������� ����
     private int nodeDiameter=10;
     // ���������� �� ����
@@ -55,7 +57,9 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
 		robots.add(robot);
 		//robots.add(new Robot());
         robotImage=new ImageIcon(getClass().getResource("/robotR2D2.png")).getImage();
+		robotImageOriginal=new ImageIcon(getClass().getResource("/robotR2D2.png")).getImage();
 		robotImageSelected=new ImageIcon(getClass().getResource("/robotR2D2Selected.png")).getImage();
+		robotImageSelectedOriginal=new ImageIcon(getClass().getResource("/robotR2D2Selected.png")).getImage();
         finishDirectionImage=new ImageIcon(getClass().getResource("/arrow.png")).getImage();
         
         screen=null;
@@ -375,12 +379,12 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
 	public void resizeRobot(int size) {
 		BufferedImage resized=new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2d=resized.createGraphics();
-		g2d.drawImage(robotImage, 0, 0, size, size, null);
+		g2d.drawImage(robotImageOriginal, 0, 0, size, size, null);
 		robotImage=resized;
 
 		resized=new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
 		g2d=resized.createGraphics();
-		g2d.drawImage(robotImageSelected, 0, 0, size, size, null);
+		g2d.drawImage(robotImageSelectedOriginal, 0, 0, size, size, null);
 		robotImageSelected=resized;
 		g2d.dispose();
 	}
