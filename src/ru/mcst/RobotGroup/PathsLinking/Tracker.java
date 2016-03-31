@@ -5,7 +5,6 @@ import ru.mcst.RobotGroup.PathsFinding.Hypervisor;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -14,18 +13,20 @@ import java.util.Random;
  */
 class Tracker extends Thread{
     private Camera camera;
-    private ArrayList<ArrayList<Point2D>> trajectories;
+    private ArrayList<RobotTrajectory> trajectories;
     private ArrayList<Integer> visibleRobots;
     private ArrayList<Color> colors;
-    private ArrayList<ArrayList<Point2D>> robotsTrajectories;
+    private ArrayList<RobotTrajectory> robotsTrajectories;
+    //private ArrayList<Integer> robotsTrajectoriesDirections;
 
     public Tracker(Camera camera){
         super();
         this.camera = camera;
-        trajectories = new ArrayList<ArrayList<Point2D>>();
+        trajectories = new ArrayList<RobotTrajectory>();
         visibleRobots = new ArrayList<Integer>();
         colors = new ArrayList<Color>();
-        robotsTrajectories = new ArrayList<ArrayList<Point2D>>();
+        robotsTrajectories = new ArrayList<RobotTrajectory>();
+        //robotsTrajectoriesDirections = new ArrayList<Integer>();        //0 - nothing; 1 - in && out; 2 - in; 3 - out
     }
 
     public void run(){
@@ -46,7 +47,8 @@ class Tracker extends Thread{
             }
             if(robotsTrajectories.size() < allCoordinates.size()){
                 for(int i = 0; i < allCoordinates.size(); i++){
-                    robotsTrajectories.add(new ArrayList<Point2D>());
+                    robotsTrajectories.add(new RobotTrajectory());
+                    //robotsTrajectoriesDirections.add(0);
                 }
             }
 
@@ -63,24 +65,32 @@ class Tracker extends Thread{
 
                 for (int i = 0; i < allCoordinates.size(); i++){
                     double[] coord = allCoordinates.get(i);
-                    if (camera.isVisible(new Point2D.Double(coord[0], coord[1]))) {
+                    if (camera.isVisible(new Point2D.Double(coord[0], coord[1])) && Hypervisor.getSpeeds().get(i) > 0) {
                         currentVisibleRobots.add(i);
                         g2d.setColor(colors.get(i));
-                        g2d.fillOval((int) coord[0], (int) coord[1], 5, 5);
-                        if(visibleRobots.indexOf(i) == -1){        //Вообще, наверное, эту проверку вместе с очисткой можно убрать к хуям
-                            robotsTrajectories.get(i).clear();   //Очищаем прошлую траекторию робота
+                        g2d.fillOval((int) coord[0] - 3, (int) coord[1] - 3, 6, 6);
+                        if(visibleRobots.indexOf(i) == -1){        //Вообще, наверное, эту проверку вместе с очисткой можно убрать к хуям. или нет.
+                            robotsTrajectories.get(i).getPoints().clear();   //Очищаем прошлую траекторию робота
+                            robotsTrajectories.get(i).setDirection(2); // Выставляем флаг входа\выхода в положение "только вход"
+                            System.out.println("Robot " + i + " entered scope");
                         }
-                        robotsTrajectories.get(i).add(new Point2D.Double(coord[0], coord[1]));  //Добавляем его координату
+                        robotsTrajectories.get(i).getPoints().add(new Point2D.Double(coord[0], coord[1]));  //Добавляем его координату
                     }
                 }                                                   //TODO: подумать, не может ли быть пропуск итерации при перекрытии областей видимости камер.
                 for(int i:visibleRobots){
                     if (currentVisibleRobots.indexOf(i) == -1){
-                        ArrayList<Point2D> trajectory = new ArrayList<Point2D>();
-                        for(Point2D point2D:robotsTrajectories.get(i)){
-                            trajectory.add(point2D);
+                        RobotTrajectory trajectory = new RobotTrajectory();
+                        for(Point2D point2D:robotsTrajectories.get(i).getPoints()){
+                            trajectory.getPoints().add(point2D);
                         }
+                        System.out.println("Robot " + i + " exited scope");
+                        if(robotsTrajectories.get(i).getDirection() == 2)
+                            trajectory.setDirection(1);
+                        if(robotsTrajectories.get(i).getDirection() == 0)
+                            trajectory.setDirection(3);
                         this.trajectories.add(trajectory);
-                        robotsTrajectories.get(i).clear();
+                        robotsTrajectories.get(i).getPoints().clear();
+                        robotsTrajectories.get(i).setDirection(0);
                         Random rand = new Random();
                         float r = rand.nextFloat();
                         float g = rand.nextFloat();
@@ -94,7 +104,7 @@ class Tracker extends Thread{
                 GUI.getMapPanel().repaint();
             }
             try{
-                this.sleep(25);
+                sleep(25);
             }
             catch(InterruptedException ex){
                 ex.printStackTrace();
@@ -103,11 +113,29 @@ class Tracker extends Thread{
         }
     }
 
+    public void finishAllTrajectories(){
+        for(RobotTrajectory robotTrajectory:robotsTrajectories){
+            if(!robotTrajectory.getPoints().isEmpty()){
+                trajectories.add(new RobotTrajectory(robotTrajectory));
+            }
+        }
+    }
+
+    public void clear(){
+        trajectories.clear();
+        robotsTrajectories.clear();
+        visibleRobots.clear();
+    }
+
     public Camera getCamera() {
         return camera;
     }
 
     public void setCamera(Camera camera) {
         this.camera = camera;
+    }
+
+    public ArrayList<RobotTrajectory> getTrajectories() {
+        return trajectories;
     }
 }

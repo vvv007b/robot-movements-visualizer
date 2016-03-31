@@ -1,22 +1,25 @@
 package ru.mcst.RobotGroup.PathsLinking;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.Arc2D;
 import java.awt.image.BufferedImage;
 
 /**
  * Created by bocharov_n on 02.03.16.
  */
-class MapUnderlay extends JPanel implements MouseListener{
+class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
     public static final int SELECT_CAMERA_TOOL = 0;
     public static final int ADD_CAMERA_TOOL = 1;
 
     private GUI parentGUI;
 
-    private static BufferedImage mapLayer, trajectoriesLayer, camerasLayer;
+    private static BufferedImage mapLayer, trajectoriesLayer, camerasLayer, linksLayer;
     private int selectedTool;
     private Camera currentCamera;
     private final int cameraSize = 16;
@@ -26,8 +29,10 @@ class MapUnderlay extends JPanel implements MouseListener{
         mapLayer = null;
         trajectoriesLayer = null;
         camerasLayer = null;
+        linksLayer = null;
         currentCamera = null;
         addMouseListener(this);
+        addMouseMotionListener(this);
         parentGUI = gui;
     }
 
@@ -45,6 +50,9 @@ class MapUnderlay extends JPanel implements MouseListener{
         }
         if(trajectoriesLayer != null){
             g2d.drawImage(trajectoriesLayer, 0, 0, null);
+        }
+        if(linksLayer != null){
+            g2d.drawImage(linksLayer, 0, 0, null);
         }
         g2d.dispose();
     }
@@ -89,9 +97,11 @@ class MapUnderlay extends JPanel implements MouseListener{
         mapLayer = new BufferedImage(image.getWidth(null),image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
         trajectoriesLayer = new BufferedImage(image.getWidth(null),image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
         camerasLayer = new BufferedImage(image.getWidth(null),image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+        linksLayer = new BufferedImage(image.getWidth(null),image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = mapLayer.createGraphics();
         g2d.drawImage(image, 0, 0, null);
         g2d.dispose();
+
     }
 
     public static void changeTrajectoriesLayer(BufferedImage trajectories) {
@@ -115,6 +125,27 @@ class MapUnderlay extends JPanel implements MouseListener{
         g2d.fillRect(0, 0, trajectoriesLayer.getWidth(), trajectoriesLayer.getHeight());
         g2d.dispose();
     }
+
+    public void clearLinksLayer(){
+        Graphics2D g2d = linksLayer.createGraphics();
+        g2d.setComposite(AlphaComposite.Clear);
+        g2d.fillRect(0, 0, linksLayer.getWidth(), linksLayer.getHeight());
+        g2d.dispose();
+    }
+
+    public void fillCircle(int x, int y, Color color){
+        Graphics2D g2d = linksLayer.createGraphics();
+        g2d.setColor(color);
+        g2d.fillOval(x - 10, y - 10, 20, 20);
+        g2d.dispose();
+        repaint();
+    }
+
+    public void setSelectedTool(int selectedTool) {
+        this.selectedTool = selectedTool;
+    }
+
+
 
     @Override
     public void mouseClicked(MouseEvent e) {
@@ -173,7 +204,16 @@ class MapUnderlay extends JPanel implements MouseListener{
     }
 
 
-    public void setSelectedTool(int selectedTool) {
-        this.selectedTool = selectedTool;
+    @Override
+    public void mouseDragged(MouseEvent e) {
+//        System.out.println("mouse dragged");
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+//        System.out.println("mouse moved");
+        parentGUI.getxLabel().setText("x:" + e.getX());
+        parentGUI.getyLabel().setText("y:" + e.getY());
+        parentGUI.repaint();
     }
 }
