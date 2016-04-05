@@ -26,7 +26,6 @@ class Tracker extends Thread{
         visibleRobots = new ArrayList<Integer>();
         colors = new ArrayList<Color>();
         robotsTrajectories = new ArrayList<RobotTrajectory>();
-        //robotsTrajectoriesDirections = new ArrayList<Integer>();        //0 - nothing; 1 - in && out; 2 - in; 3 - out
     }
 
     public void run(){
@@ -75,20 +74,31 @@ class Tracker extends Thread{
                             System.out.println("Robot " + i + " entered scope");
                         }
                         robotsTrajectories.get(i).getPoints().add(new Point2D.Double(coord[0], coord[1]));  //Добавляем его координату
+                        //Проверяем одновременную видимость с нескольких камер
+                        for(Camera curCamera:TrackingSystem.getCameraList()){
+                            if (curCamera.getTracker().isRobotVisibleNow(i) &&
+                                    robotsTrajectories.get(i).getConnectedTrajectories().indexOf(curCamera.getTracker().getRobotsTrajectories().get(i)) == -1 &&
+                                    curCamera != this.getCamera()){
+                                System.out.println("double vision");
+                                robotsTrajectories.get(i).getConnectedTrajectories().add(curCamera.getTracker().getRobotsTrajectories().get(i));
+                            }
+                        }
+
                     }
                 }                                                   //TODO: подумать, не может ли быть пропуск итерации при перекрытии областей видимости камер.
                 for(int i:visibleRobots){
                     if (currentVisibleRobots.indexOf(i) == -1){
-                        RobotTrajectory trajectory = new RobotTrajectory();
-                        for(Point2D point2D:robotsTrajectories.get(i).getPoints()){
-                            trajectory.getPoints().add(point2D);
-                        }
+                        RobotTrajectory trajectory = robotsTrajectories.get(i);
+//                        for(Point2D point2D:robotsTrajectories.get(i).getPoints()){
+//                            trajectory.getPoints().add(point2D);
+//                        }
                         System.out.println("Robot " + i + " exited scope");
                         if(robotsTrajectories.get(i).getDirection() == 2)
                             trajectory.setDirection(1);
                         if(robotsTrajectories.get(i).getDirection() == 0)
                             trajectory.setDirection(3);
                         this.trajectories.add(trajectory);
+                        robotsTrajectories.set(i, new RobotTrajectory());
                         robotsTrajectories.get(i).getPoints().clear();
                         robotsTrajectories.get(i).setDirection(0);
                         Random rand = new Random();
@@ -125,6 +135,14 @@ class Tracker extends Thread{
         trajectories.clear();
         robotsTrajectories.clear();
         visibleRobots.clear();
+    }
+
+    public boolean isRobotVisibleNow(int index){
+        return visibleRobots.indexOf(index) >= 0;
+    }
+
+    public ArrayList<RobotTrajectory> getRobotsTrajectories() {
+        return robotsTrajectories;
     }
 
     public Camera getCamera() {

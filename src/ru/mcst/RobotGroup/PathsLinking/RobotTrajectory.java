@@ -11,6 +11,7 @@ class RobotTrajectory {
     private int direction;             //0 - nothing; 1 - in && out; 2 - only in; 3 - only out
     private Color connectionsColor;
     private ArrayList<RobotTrajectory> connectedTrajectories;
+    private ArrayList<RobotTrajectory> prev, next;
     private InOutVector inVector, outVector;
 
     public RobotTrajectory(){
@@ -20,18 +21,8 @@ class RobotTrajectory {
         inVector = null;
         outVector = null;
         connectedTrajectories = new ArrayList<RobotTrajectory>();
-    }
-
-    public RobotTrajectory(ArrayList<Point2D> points, int directions){
-        points = new ArrayList<Point2D>();
-        for(Point2D point2D:points){
-            this.points.add(point2D);
-        }
-        this.direction = directions;
-        generateNewColor();
-        inVector = null;
-        outVector = null;
-        connectedTrajectories = new ArrayList<RobotTrajectory>();
+        prev = new ArrayList<RobotTrajectory>();
+        next = new ArrayList<RobotTrajectory>();
     }
 
     public RobotTrajectory(RobotTrajectory robotTrajectory){
@@ -44,6 +35,8 @@ class RobotTrajectory {
         inVector = null;
         outVector = null;
         connectedTrajectories = new ArrayList<RobotTrajectory>();
+        next = new ArrayList<RobotTrajectory>(robotTrajectory.getNext());
+        prev = new ArrayList<RobotTrajectory>(robotTrajectory.getPrev());
     }
 
     public void generateNewColor(){
@@ -98,5 +91,19 @@ class RobotTrajectory {
         this.connectedTrajectories = connectedTrajectories;
     }
 
+    public ArrayList<RobotTrajectory> getPrev() {
+        return prev;
+    }
 
+    public void setPrev(ArrayList<RobotTrajectory> prev) {
+        this.prev = prev;
+    }
+
+    public ArrayList<RobotTrajectory> getNext() {
+        return next;
+    }
+
+    public void setNext(ArrayList<RobotTrajectory> next) {
+        this.next = next;
+    }
 }
