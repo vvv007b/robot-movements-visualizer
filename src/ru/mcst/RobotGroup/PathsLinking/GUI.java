@@ -93,8 +93,6 @@ public class GUI extends JFrame{
     private void createMyComponents(){
 
         mapPanel.setLayout(new BorderLayout());
-//        mapPanel.setBorder(BorderFactory.createLineBorder(Color.black, 2));
-        final Insets insets = mapPanel.getInsets();
 
         ButtonGroup cameraToolsGroup = new ButtonGroup();
         cameraToolsGroup.add(selectCameraRadioButton);
