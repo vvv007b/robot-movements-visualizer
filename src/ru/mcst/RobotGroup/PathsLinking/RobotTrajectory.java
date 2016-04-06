@@ -8,10 +8,12 @@ import java.util.Random;
 
 class RobotTrajectory {
     private ArrayList<Point2D> points;
+    private ArrayList<Double> speeds;
+    private ArrayList<Long> times;
     private int direction;             //0 - nothing; 1 - in && out; 2 - only in; 3 - only out
     private Color connectionsColor;
     private ArrayList<RobotTrajectory> connectedTrajectories;
-    private ArrayList<RobotTrajectory> prev, next;
+//    private ArrayList<RobotTrajectory> prev, next;
     private InOutVector inVector, outVector;
 
     public RobotTrajectory(){
@@ -21,8 +23,10 @@ class RobotTrajectory {
         inVector = null;
         outVector = null;
         connectedTrajectories = new ArrayList<RobotTrajectory>();
-        prev = new ArrayList<RobotTrajectory>();
-        next = new ArrayList<RobotTrajectory>();
+        speeds = new ArrayList<Double>();
+        times = new ArrayList<Long>();
+//        prev = new ArrayList<RobotTrajectory>();
+//        next = new ArrayList<RobotTrajectory>();
     }
 
     public RobotTrajectory(RobotTrajectory robotTrajectory){
@@ -34,9 +38,11 @@ class RobotTrajectory {
         generateNewColor();
         inVector = null;
         outVector = null;
-        connectedTrajectories = new ArrayList<RobotTrajectory>();
-        next = new ArrayList<RobotTrajectory>(robotTrajectory.getNext());
-        prev = new ArrayList<RobotTrajectory>(robotTrajectory.getPrev());
+        connectedTrajectories = new ArrayList<RobotTrajectory>(robotTrajectory.getConnectedTrajectories());
+        speeds = new ArrayList<Double>(robotTrajectory.getSpeeds());
+        times = new ArrayList<Long>(robotTrajectory.getTimes());
+//        next = new ArrayList<RobotTrajectory>(robotTrajectory.getNext());
+//        prev = new ArrayList<RobotTrajectory>(robotTrajectory.getPrev());
     }
 
     public void generateNewColor(){
@@ -91,19 +97,26 @@ class RobotTrajectory {
         this.connectedTrajectories = connectedTrajectories;
     }
 
-    public ArrayList<RobotTrajectory> getPrev() {
-        return prev;
+    public ArrayList<Double> getSpeeds() {
+        return speeds;
     }
 
-    public void setPrev(ArrayList<RobotTrajectory> prev) {
-        this.prev = prev;
+    public ArrayList<Long> getTimes() {
+        return times;
     }
-
-    public ArrayList<RobotTrajectory> getNext() {
-        return next;
-    }
-
-    public void setNext(ArrayList<RobotTrajectory> next) {
-        this.next = next;
-    }
+    //    public ArrayList<RobotTrajectory> getPrev() {
+//        return prev;
+//    }
+//
+//    public void setPrev(ArrayList<RobotTrajectory> prev) {
+//        this.prev = prev;
+//    }
+//
+//    public ArrayList<RobotTrajectory> getNext() {
+//        return next;
+//    }
+//
+//    public void setNext(ArrayList<RobotTrajectory> next) {
+//        this.next = next;
+//    }
 }

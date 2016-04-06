@@ -1,13 +1,8 @@
 package ru.mcst.RobotGroup.PathsLinking;
 
-import com.sun.javafx.geom.Vec2d;
-
-import java.awt.geom.Point2D;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.*;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by bocharov_n on 27.11.15.
@@ -45,11 +40,13 @@ class TrackingSystem {
             for(RobotTrajectory robotTrajectory:camera.getTracker().getTrajectories()){
                 if(robotTrajectory.getPoints().size() >= 2) {
                     int direction = robotTrajectory.getDirection();
-                    InOutVector inVector  = new InOutVector(robotTrajectory.getPoints().get(0), robotTrajectory.getPoints().get(1),
-                            robotTrajectory, robotTrajectory.getConnectionsColor());
-                    InOutVector outVector = new InOutVector(robotTrajectory.getPoints().get(robotTrajectory.getPoints().size() - 2),
-                            robotTrajectory.getPoints().get(robotTrajectory.getPoints().size() - 1), robotTrajectory,
-                            robotTrajectory.getConnectionsColor());
+                    InOutVector inVector = new InOutVector(robotTrajectory, InOutVector.IN),
+                                outVector = new InOutVector(robotTrajectory, InOutVector.OUT);
+//                    InOutVector inVector  = new InOutVector(robotTrajectory.getPoints().get(0), robotTrajectory.getPoints().get(1),
+//                            robotTrajectory, robotTrajectory.getSpeeds().get(0), robotTrajectory.getConnectionsColor());
+//                    InOutVector outVector = new InOutVector(robotTrajectory.getPoints().get(robotTrajectory.getPoints().size() - 2),
+//                            robotTrajectory.getPoints().get(robotTrajectory.getPoints().size() - 1), robotTrajectory,
+//                            robotTrajectory.getSpeeds().get(robotTrajectory.getSpeeds().size() - 1), robotTrajectory.getConnectionsColor());
                     if (direction == 2 || direction == 1) {
                         inVectors.add(inVector);
                         robotTrajectory.setInVector(inVector);
@@ -66,14 +63,16 @@ class TrackingSystem {
         double azimuthAccuracy = 5,        //degrees
                 normalAccuracy = 50;        //pixels
         System.out.println("Detected " + inVectors.size() + " inVectors and " + outVectors.size() + " outVectors");
+
         for(InOutVector outVector:outVectors){
             for(InOutVector inVector:inVectors){
+                System.out.println(outVector.isPotentialFollowerTo(inVector));
 //                System.out.println(inVector.getAzimuth() + " " + outVector.getAzimuth());
-                if(Math.abs(inVector.getAzimuth() - outVector.getAzimuth()) < azimuthAccuracy &&        //TODO: combine
-                        Math.abs(inVector.getNormal() - outVector.getNormal()) < normalAccuracy &&      //TODO: this checks
-                        outVector.isBehind(inVector)){                                                  //TODO: modify this check to attend speed
+//                if(Math.abs(inVector.getAzimuth() - outVector.getAzimuth()) < azimuthAccuracy &&        //TODO: combine
+//                        Math.abs(inVector.getNormal() - outVector.getNormal()) < normalAccuracy){      //TODO: this checks                                                //TODO: modify this check to attend speed
 //                            mapPanel.fillCircle((int)inVector.startPoint.getX(), (int)inVector.startPoint.getY(), inVector.color);
 //                            mapPanel.fillCircle((int)outVector.endPoint.getX(), (int)outVector.endPoint.getY(), inVector.color);
+                if(outVector.isPotentialFollowerTo(inVector)){
                     if (inVector.getRobotTrajectory().getConnectedTrajectories().indexOf(outVector.getRobotTrajectory()) == - 1 &&
                             !inVector.getRobotTrajectory().equals(outVector.getRobotTrajectory()))
                         inVector.getRobotTrajectory().getConnectedTrajectories().add(outVector.getRobotTrajectory());

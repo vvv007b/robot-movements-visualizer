@@ -30,8 +30,8 @@ class Tracker extends Thread{
 
     public void run(){
         while (camera.isExist()){
-            ArrayList<double[]> allCoordinates = Hypervisor.getAllCoordinates();
-
+            ArrayList<double[]> allCoordinates = new ArrayList<double[]>(Hypervisor.getAllCoordinates());
+            long time = System.currentTimeMillis();
 
             // Here will be check if robots start moving, that change arrays size and create empty fields everywhere;
             // now there a stupid crutch
@@ -74,16 +74,17 @@ class Tracker extends Thread{
                             System.out.println("Robot " + i + " entered scope");
                         }
                         robotsTrajectories.get(i).getPoints().add(new Point2D.Double(coord[0], coord[1]));  //Добавляем его координату
+                        robotsTrajectories.get(i).getSpeeds().add(Hypervisor.getSpeeds().get(i));           //И скорость
+                        robotsTrajectories.get(i).getTimes().add(time);                                     //И текущее время
                         //Проверяем одновременную видимость с нескольких камер
                         for(Camera curCamera:TrackingSystem.getCameraList()){
-                            if (curCamera.getTracker().isRobotVisibleNow(i) &&
+                            if (    curCamera.getTracker().isRobotVisibleNow(i) &&
                                     robotsTrajectories.get(i).getConnectedTrajectories().indexOf(curCamera.getTracker().getRobotsTrajectories().get(i)) == -1 &&
                                     curCamera != this.getCamera()){
                                 System.out.println("double vision");
                                 robotsTrajectories.get(i).getConnectedTrajectories().add(curCamera.getTracker().getRobotsTrajectories().get(i));
                             }
                         }
-
                     }
                 }                                                   //TODO: подумать, не может ли быть пропуск итерации при перекрытии областей видимости камер.
                 for(int i:visibleRobots){

@@ -6,13 +6,10 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -190,14 +187,14 @@ public class GUI extends JFrame{
                 while (!toDrawList.isEmpty()){
                     RobotTrajectory rt = toDrawList.get(0);
                     if (rt.getInVector() != null)
-                        mapPanel.fillCircle((int)rt.getInVector().startPoint.getX(), (int)rt.getInVector().startPoint.getY(), rt.getConnectionsColor());
+                        mapPanel.fillCircle((int)rt.getInVector().getStartPoint().getX(), (int)rt.getInVector().getStartPoint().getY(), rt.getConnectionsColor());
                     if(rt.getOutVector() != null)
-                        mapPanel.fillCircle((int)rt.getOutVector().startPoint.getX(), (int)rt.getOutVector().startPoint.getY(), rt.getConnectionsColor());
+                        mapPanel.fillCircle((int)rt.getOutVector().getStartPoint().getX(), (int)rt.getOutVector().getStartPoint().getY(), rt.getConnectionsColor());
                     for(RobotTrajectory connectedRT:rt.getConnectedTrajectories()){
                         if (connectedRT.getInVector() != null)
-                            mapPanel.fillCircle((int)connectedRT.getInVector().startPoint.getX(), (int)connectedRT.getInVector().startPoint.getY(), rt.getConnectionsColor());
+                            mapPanel.fillCircle((int)connectedRT.getInVector().getStartPoint().getX(), (int)connectedRT.getInVector().getStartPoint().getY(), rt.getConnectionsColor());
                         if(connectedRT.getOutVector() != null)
-                            mapPanel.fillCircle((int)connectedRT.getOutVector().startPoint.getX(), (int)connectedRT.getOutVector().startPoint.getY(), rt.getConnectionsColor());
+                            mapPanel.fillCircle((int)connectedRT.getOutVector().getStartPoint().getX(), (int)connectedRT.getOutVector().getStartPoint().getY(), rt.getConnectionsColor());
                         if (toDrawList.indexOf(connectedRT) >= 0)
                             toDrawList.remove(connectedRT);
                     }
