@@ -74,9 +74,15 @@ class InOutVector {
         double n = 15;          //rotation degrees
 //        Vec2d vector = new Vec2d(endPoint.getX() - startPoint.getX(), endPoint.getY() - startPoint.getY());
         double x = endPoint.getX() - startPoint.getX(), y = endPoint.getY() - startPoint.getY();
+        
+        Vec2d wayVector = new Vec2d(vector.getStartPoint().getX() - endPoint.getX(), vector.getStartPoint().getY() - endPoint.getY());
         Vec2d sectorStart = new Vec2d(x * Math.cos(n) - y * Math.sin(n), x * Math.sin(n) + y * Math.cos(n)),
                 sectorEnd = new Vec2d(x * Math.cos(-n) - y * Math.sin(-n), x * Math.sin(-n) + y * Math.cos(-n));
-        Vec2d wayVector = new Vec2d(vector.getStartPoint().getX() - endPoint.getX(), vector.getStartPoint().getY() - endPoint.getY());
+        double wayVectorLength = Math.sqrt(Math.pow(wayVector.x, 2) + Math.pow(wayVector.y, 2)),
+                sectorStartLength = Math.sqrt(Math.pow(sectorStart.x, 2) + Math.pow(sectorStart.y, 2)),
+                sectorEndLength = Math.sqrt(Math.pow(sectorEnd.x, 2) + Math.pow(sectorEnd.y, 2));
+        sectorStart = new Vec2d(sectorStart.x * wayVectorLength / sectorStartLength, sectorStart.y * wayVectorLength / sectorStartLength);
+        sectorEnd = new Vec2d(sectorEnd.x * wayVectorLength / sectorEndLength, sectorEnd.y * wayVectorLength / sectorEndLength);
         double distance = Math.sqrt(Math.pow(endPoint.getX() - vector.getStartPoint().getX(), 2) +
                 Math.pow(endPoint.getY() - vector.getStartPoint().getY(), 2)),
                 possibleDistance = (this.speed + vector.speed) / 2 * ((vector.time - this.time) / 1000);
