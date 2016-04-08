@@ -30,6 +30,7 @@ public class GUI extends JFrame{
     private JRadioButton addCameraRadioButton;
     private JButton linkTrajectoriesButton;
     private JButton clearTrajectoriesButton;
+    private JRadioButton selectInOutVectorRadioButton;
     private static MapUnderlay mapPanel;
 
     private static Camera currentCamera;
@@ -91,9 +92,10 @@ public class GUI extends JFrame{
 
         mapPanel.setLayout(new BorderLayout());
 
-        ButtonGroup cameraToolsGroup = new ButtonGroup();
-        cameraToolsGroup.add(selectCameraRadioButton);
-        cameraToolsGroup.add(addCameraRadioButton);
+        ButtonGroup mapUnderlayToolsGroup = new ButtonGroup();
+        mapUnderlayToolsGroup.add(selectCameraRadioButton);
+        mapUnderlayToolsGroup.add(addCameraRadioButton);
+        mapUnderlayToolsGroup.add(selectInOutVectorRadioButton);
 
         xTextField.setEnabled(false);
         yTextField.setEnabled(false);
@@ -132,16 +134,21 @@ public class GUI extends JFrame{
         selectCameraRadioButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                mapPanel.setSelectedTool(mapPanel.SELECT_CAMERA_TOOL);
+                mapPanel.setSelectedTool(MapUnderlay.SELECT_CAMERA_TOOL);
             }
         });
         addCameraRadioButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                mapPanel.setSelectedTool(mapPanel.ADD_CAMERA_TOOL);
+                mapPanel.setSelectedTool(MapUnderlay.ADD_CAMERA_TOOL);
             }
         });
-
+        selectInOutVectorRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mapPanel.setSelectedTool(MapUnderlay.SELECT_INOUT_VECTOR);
+            }
+        });
         removeCameraButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -206,7 +213,6 @@ public class GUI extends JFrame{
 
         System.out.print("ui");
     }
-
 
     public void drawLine(StraightLine line){
         double a = line.getA();
@@ -282,8 +288,12 @@ public class GUI extends JFrame{
         return (double) tmp / factor;
     }
 
-    public static MapUnderlay getMapPanel() {
-        return mapPanel;
+    public static void inOutVectorNotification(InOutVector vector){
+        String message = (vector.getOrientation() == InOutVector.IN ? "In " : "Out ") +
+
+                "vector." + System.lineSeparator() + "x: " + vector.getX() + System.lineSeparator() +
+                "y: " + vector.getY() + System.lineSeparator() + "azimuth: " + vector.getAzimuth();
+        JOptionPane.showMessageDialog(mapPanel, message);
     }
 
     public void setCurrentCamera(Camera camera) {
@@ -310,6 +320,10 @@ public class GUI extends JFrame{
 
     public JLabel getyLabel() {
         return yLabel;
+    }
+
+    public static MapUnderlay getMapPanel() {
+        return mapPanel;
     }
 
     public JScrollPane getMapScrollPane() {

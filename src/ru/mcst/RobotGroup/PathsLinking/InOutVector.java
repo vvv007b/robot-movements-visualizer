@@ -16,6 +16,7 @@ class InOutVector {
     private Point2D startPoint, endPoint;
     private double speed;
     private long time;
+    private int orientation;
     private Color color;
 
     public InOutVector(){
@@ -23,11 +24,6 @@ class InOutVector {
         startPoint = null;
         endPoint = null;
         color = null;
-    }
-
-    public  InOutVector(RobotTrajectory robotTrajectory){
-        super();
-        this.robotTrajectory = robotTrajectory;
     }
 
     public InOutVector(RobotTrajectory robotTrajectory, int orientation){
@@ -47,15 +43,7 @@ class InOutVector {
         }
         this.robotTrajectory = robotTrajectory;
         this.color = robotTrajectory.getConnectionsColor();
-    }
-
-    public InOutVector(Point2D startPoint, Point2D endPoint, RobotTrajectory robotTrajectory, double speed, long time, Color color){
-        this.startPoint = startPoint;
-        this.endPoint = endPoint;
-        this.robotTrajectory = robotTrajectory;
-        this.color = color;
-        this.speed = speed;
-        this.time = time;
+        this.orientation = orientation;
     }
 
     public double getAzimuth(){
@@ -71,6 +59,8 @@ class InOutVector {
     }
 
     public boolean isPotentialFollowerTo(InOutVector vector){
+        double POSSIBLE_ANGLE = 90;
+
         double n = 15;          //rotation degrees
 //        Vec2d vector = new Vec2d(endPoint.getX() - startPoint.getX(), endPoint.getY() - startPoint.getY());
         double x = endPoint.getX() - startPoint.getX(), y = endPoint.getY() - startPoint.getY();
@@ -88,7 +78,7 @@ class InOutVector {
                 possibleDistance = (this.speed + vector.speed) / 2 * ((vector.time - this.time) / 1000);
 //        System.out.println(distance + " " + possibleDistance);
         boolean isInReachableDistance = distance < possibleDistance * 1.2 && distance > possibleDistance * 0.7;
-        boolean isAzimuthCorrect = Math.abs(this.getAzimuth() - vector.getAzimuth()) < 60;
+        boolean isAzimuthCorrect = Math.abs(this.getAzimuth() - vector.getAzimuth()) < POSSIBLE_ANGLE;
         return !areClockwise(sectorStart, wayVector) && areClockwise(sectorEnd, wayVector) && isInReachableDistance && isAzimuthCorrect;
     }
 
@@ -99,6 +89,14 @@ class InOutVector {
 
     public boolean isBehind(InOutVector vector){
         return (vector.getEndPoint().getX() - startPoint.getX()) / (endPoint.getX() - startPoint.getX()) > 0;
+    }
+
+    public double getX(){
+        return orientation == IN ? startPoint.getX() : endPoint.getX();
+    }
+
+    public double getY(){
+        return orientation == IN ? startPoint.getY() : endPoint.getY();
     }
 
     public RobotTrajectory getRobotTrajectory() {
@@ -115,5 +113,9 @@ class InOutVector {
 
     public double getSpeed() {
         return speed;
+    }
+
+    public int getOrientation() {
+        return orientation;
     }
 }

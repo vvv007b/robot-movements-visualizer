@@ -1,8 +1,6 @@
 package ru.mcst.RobotGroup.PathsLinking;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -16,13 +14,18 @@ import java.awt.image.BufferedImage;
 class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
     public static final int SELECT_CAMERA_TOOL = 0;
     public static final int ADD_CAMERA_TOOL = 1;
+    public static final int SELECT_INOUT_VECTOR = 2;
 
     private GUI parentGUI;
 
     private static BufferedImage mapLayer, trajectoriesLayer, camerasLayer, linksLayer;
     private int selectedTool;
     private Camera currentCamera;
-    private final int cameraSize = 16;
+    private InOutVector currentVector;
+    private final int cameraSize = 16,
+                        vectorCircleSize = 20;
+
+
 
     public MapUnderlay(GUI gui){
         super();
@@ -31,6 +34,7 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
         camerasLayer = null;
         linksLayer = null;
         currentCamera = null;
+        currentVector = null;
         addMouseListener(this);
         addMouseMotionListener(this);
         parentGUI = gui;
@@ -136,7 +140,7 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
     public void fillCircle(int x, int y, Color color){
         Graphics2D g2d = linksLayer.createGraphics();
         g2d.setColor(color);
-        g2d.fillOval(x - 10, y - 10, 20, 20);
+        g2d.fillOval(x - vectorCircleSize / 2, y - vectorCircleSize / 2, vectorCircleSize, vectorCircleSize);
         g2d.dispose();
         repaint();
     }
@@ -160,10 +164,11 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
     @Override
     public void mouseReleased(MouseEvent e) {
 //        System.out.println("mouse released");
+        double minDistance = 0;
         switch(selectedTool){
             case SELECT_CAMERA_TOOL:
                 Camera currentCamera = null;
-                double minDistance = cameraSize / 2 + 1;
+                minDistance = cameraSize / 2 + 1;
                 for(Camera camera:TrackingSystem.getCameraList()){
                     double distance = Math.sqrt(Math.pow(camera.getX() - e.getX(), 2) + Math.pow(camera.getY() - e.getY(), 2));
                     if(distance < minDistance){
@@ -187,7 +192,23 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
                 newCamera.setTracker(tracker);
                 tracker.setDaemon(true);
                 tracker.start();
-
+                break;
+            case SELECT_INOUT_VECTOR:
+                InOutVector currentVector = null;
+                minDistance = vectorCircleSize / 2 + 1;
+                for(InOutVector inOutVector:TrackingSystem.getInOutVectorsList()){
+                    double distance = Math.sqrt(Math.pow(inOutVector.getX() - e.getX(), 2) + Math.pow(inOutVector.getY() - e.getY(), 2));
+                    if(distance < minDistance){
+                        minDistance = distance;
+                        currentVector = inOutVector;
+                    }
+                }
+                if(currentVector != null){
+                    System.out.println("Vector " + (int)currentVector.getX() + " " + (int)currentVector.getY() + " selected");
+                    this.currentVector = currentVector;
+                    //set curVector and update fields
+                    GUI.inOutVectorNotification(currentVector);
+                }
                 break;
         }
         repaint();

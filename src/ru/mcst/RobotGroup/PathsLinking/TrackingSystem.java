@@ -14,7 +14,7 @@ class TrackingSystem {
 
 
     private static ArrayList<RobotTrajectory> trajectoriesList = new ArrayList<RobotTrajectory>();
-
+    private static ArrayList<InOutVector> inOutVectorsList = new ArrayList<InOutVector>();
 
     private static double angleSampleRate = 1;
     private static double radiusSampleRate = 1;
@@ -42,11 +42,6 @@ class TrackingSystem {
                     int direction = robotTrajectory.getDirection();
                     InOutVector inVector = new InOutVector(robotTrajectory, InOutVector.IN),
                                 outVector = new InOutVector(robotTrajectory, InOutVector.OUT);
-//                    InOutVector inVector  = new InOutVector(robotTrajectory.getPoints().get(0), robotTrajectory.getPoints().get(1),
-//                            robotTrajectory, robotTrajectory.getSpeeds().get(0), robotTrajectory.getConnectionsColor());
-//                    InOutVector outVector = new InOutVector(robotTrajectory.getPoints().get(robotTrajectory.getPoints().size() - 2),
-//                            robotTrajectory.getPoints().get(robotTrajectory.getPoints().size() - 1), robotTrajectory,
-//                            robotTrajectory.getSpeeds().get(robotTrajectory.getSpeeds().size() - 1), robotTrajectory.getConnectionsColor());
                     if (direction == 2 || direction == 1) {
                         inVectors.add(inVector);
                         robotTrajectory.setInVector(inVector);
@@ -59,19 +54,21 @@ class TrackingSystem {
                 }
             }
         }
-        //look for same azimuths
-        double azimuthAccuracy = 5,        //degrees
-                normalAccuracy = 50;        //pixels
+//        double azimuthAccuracy = 5,        //degrees
+//                normalAccuracy = 50;        //pixels
         System.out.println("Detected " + inVectors.size() + " inVectors and " + outVectors.size() + " outVectors");
+        //Generating list for GUI
+        for(InOutVector inVector:inVectors){
+            inOutVectorsList.add(inVector);
+        }
+        for(InOutVector outVector:outVectors){
+            inOutVectorsList.add(outVector);
+        }
+
 
         for(InOutVector outVector:outVectors){
             for(InOutVector inVector:inVectors){
-                System.out.println(outVector.isPotentialFollowerTo(inVector));
-//                System.out.println(inVector.getAzimuth() + " " + outVector.getAzimuth());
-//                if(Math.abs(inVector.getAzimuth() - outVector.getAzimuth()) < azimuthAccuracy &&        //TODO: combine
-//                        Math.abs(inVector.getNormal() - outVector.getNormal()) < normalAccuracy){      //TODO: this checks                                                //TODO: modify this check to attend speed
-//                            mapPanel.fillCircle((int)inVector.startPoint.getX(), (int)inVector.startPoint.getY(), inVector.color);
-//                            mapPanel.fillCircle((int)outVector.endPoint.getX(), (int)outVector.endPoint.getY(), inVector.color);
+//                System.out.println(outVector.isPotentialFollowerTo(inVector));
                 if(outVector.isPotentialFollowerTo(inVector)){
                     if (inVector.getRobotTrajectory().getConnectedTrajectories().indexOf(outVector.getRobotTrajectory()) == - 1 &&
                             !inVector.getRobotTrajectory().equals(outVector.getRobotTrajectory()))
@@ -193,6 +190,10 @@ class TrackingSystem {
 
     public static List<Camera> getCameraList() {
         return cameraList;
+    }
+
+    public static ArrayList<InOutVector> getInOutVectorsList() {
+        return inOutVectorsList;
     }
 
     public static void addCamera(Camera camera){

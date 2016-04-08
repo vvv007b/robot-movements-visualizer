@@ -46,6 +46,8 @@
             <rowspec value="center:max(d;4px):noGrow"/>
             <rowspec value="top:4dlu:noGrow"/>
             <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="top:4dlu:noGrow"/>
+            <rowspec value="center:max(d;4px):noGrow"/>
             <colspec value="center:d:grow"/>
             <colspec value="left:d:noGrow"/>
             <colspec value="fill:d:grow"/>
@@ -182,7 +184,7 @@
               </component>
               <component id="dbe9d" class="javax.swing.JLabel" binding="xLabel">
                 <constraints>
-                  <grid row="14" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="2" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="16" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="2" fill="0" indent="0" use-parent-layout="false"/>
                   <forms defaultalign-horz="false" defaultalign-vert="false"/>
                 </constraints>
                 <properties>
@@ -191,7 +193,7 @@
               </component>
               <component id="b94df" class="javax.swing.JLabel" binding="yLabel">
                 <constraints>
-                  <grid row="14" column="8" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="2" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="16" column="8" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="2" fill="0" indent="0" use-parent-layout="false"/>
                   <forms defaultalign-horz="false" defaultalign-vert="false"/>
                 </constraints>
                 <properties>
@@ -218,7 +220,7 @@
               </component>
               <component id="45c88" class="javax.swing.JButton" binding="linkTrajectoriesButton" default-binding="true">
                 <constraints>
-                  <grid row="10" column="0" row-span="1" col-span="9" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="12" column="0" row-span="1" col-span="9" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                   <forms/>
                 </constraints>
                 <properties>
@@ -227,11 +229,20 @@
               </component>
               <component id="e346e" class="javax.swing.JButton" binding="clearTrajectoriesButton" default-binding="true">
                 <constraints>
-                  <grid row="12" column="0" row-span="1" col-span="9" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="14" column="0" row-span="1" col-span="9" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                   <forms/>
                 </constraints>
                 <properties>
                   <text value="Clear trajectories"/>
+                </properties>
+              </component>
+              <component id="29008" class="javax.swing.JRadioButton" binding="selectInOutVectorRadioButton" default-binding="true">
+                <constraints>
+                  <grid row="10" column="0" row-span="1" col-span="9" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Select In\Out Vector"/>
                 </properties>
               </component>
             </children>
