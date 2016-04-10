@@ -24,13 +24,13 @@ class TrackingSystem {
     private static final int centerSuperiority = 200; // measured in percent.
     private static final int minimalPointsCount = 10;
 
-    public static void createTrajectoriesList(){
-        for(Camera curCamera:cameraList){
-            for(RobotTrajectory rt:curCamera.getTracker().getTrajectories()){
-                trajectoriesList.add(rt);
-            }
-        }
-    }
+//    public static void createTrajectoriesList(){
+//        for(Camera curCamera:cameraList){
+//            for(RobotTrajectory rt:curCamera.getTracker().getTrajectories()){
+//                trajectoriesList.add(rt);
+//            }
+//        }
+//    }
 
     public static void linkTrajectories(){
         ArrayList<InOutVector> inVectors = new ArrayList<InOutVector>(),
@@ -44,42 +44,53 @@ class TrackingSystem {
                                 outVector = new InOutVector(robotTrajectory, InOutVector.OUT);
                     if (direction == 2 || direction == 1) {
                         inVectors.add(inVector);
+                        inOutVectorsList.add(inVector);
                         robotTrajectory.setInVector(inVector);
                     }
                     if (direction == 3 || direction == 1) {
                         outVectors.add(outVector);
+                        inOutVectorsList.add(outVector);
                         robotTrajectory.setOutVector(outVector);
                     }
                     System.out.println(robotTrajectory.getDirection());
+                    trajectoriesList.add(robotTrajectory);                  //create trajectories list
                 }
             }
         }
 //        double azimuthAccuracy = 5,        //degrees
 //                normalAccuracy = 50;        //pixels
         System.out.println("Detected " + inVectors.size() + " inVectors and " + outVectors.size() + " outVectors");
-        //Generating list for GUI
-        for(InOutVector inVector:inVectors){
-            inOutVectorsList.add(inVector);
+
+        for (RobotTrajectory robotTrajectory:trajectoriesList){
+            for(RobotTrajectory next:robotTrajectory.getNext()){
+                next.getInVector().getPrev().add(robotTrajectory.getOutVector());
+            }
+            for(RobotTrajectory prev:robotTrajectory.getPrev()){
+                prev.getOutVector().getNext().add(robotTrajectory.getInVector());
+            }
         }
-        for(InOutVector outVector:outVectors){
-            inOutVectorsList.add(outVector);
-        }
+//            for(RobotTrajectory connectedTrajectory:robotTrajectory.getConnectedTrajectories()){
+//                robotTrajectory.getInVector().getPrev().add(connectedTrajectory.getOutVector());
+//                robotTrajectory.getOutVector().getNext().add(connectedTrajectory.getInVector());
+//            }
+//        }
 
 
         for(InOutVector outVector:outVectors){
             for(InOutVector inVector:inVectors){
 //                System.out.println(outVector.isPotentialFollowerTo(inVector));
-                if(outVector.isPotentialFollowerTo(inVector)){
-                    if (inVector.getRobotTrajectory().getConnectedTrajectories().indexOf(outVector.getRobotTrajectory()) == - 1 &&
-                            !inVector.getRobotTrajectory().equals(outVector.getRobotTrajectory()))
+                if(outVector.isPotentialFollowerTo(inVector) & !inVector.getRobotTrajectory().equals(outVector.getRobotTrajectory())){
+                    if (inVector.getRobotTrajectory().getConnectedTrajectories().indexOf(outVector.getRobotTrajectory()) == - 1)            //TODO: REMOVE IT
                         inVector.getRobotTrajectory().getConnectedTrajectories().add(outVector.getRobotTrajectory());
-                    if (outVector.getRobotTrajectory().getConnectedTrajectories().indexOf(inVector.getRobotTrajectory()) == - 1 &&
-                            !inVector.getRobotTrajectory().equals(outVector.getRobotTrajectory()))
+                    if (outVector.getRobotTrajectory().getConnectedTrajectories().indexOf(inVector.getRobotTrajectory()) == - 1)
                         outVector.getRobotTrajectory().getConnectedTrajectories().add(inVector.getRobotTrajectory());
+
+                    inVector.getPrev().add(outVector);
+                    outVector.getNext().add(inVector);
                 }
             }
         }
-        createTrajectoriesList();
+//        createTrajectoriesList();
         int i = 0;
         System.out.println(getTrajectoriesList().size() + " trajectories founded");
         for(RobotTrajectory rt:getTrajectoriesList()){
@@ -163,7 +174,7 @@ class TrackingSystem {
 //                            mean += acc.get(new DoubleKey(i + p * angleSampleRate, j + q * radiusSampleRate)).size();
 //                        }
 //                    }
-//                    mean /= 9;
+//                    mean /= (coreSize*coreSize) ;
 //                    int center = coreSize / 2;
 //                    if (mean * (1 + (double)centerSuperiority / 100) < acc.get(
 //                            new DoubleKey(i + center * angleSampleRate, j + center * radiusSampleRate)).size() &&

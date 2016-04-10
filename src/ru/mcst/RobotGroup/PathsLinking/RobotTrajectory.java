@@ -3,6 +3,7 @@ package ru.mcst.RobotGroup.PathsLinking;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
 
 
@@ -13,7 +14,7 @@ class RobotTrajectory {
     private int direction;             //0 - nothing; 1 - in && out; 2 - only in; 3 - only out
     private Color connectionsColor;
     private ArrayList<RobotTrajectory> connectedTrajectories;
-//    private ArrayList<RobotTrajectory> prev, next;
+    private HashSet<RobotTrajectory> prev, next;
     private InOutVector inVector, outVector;
 
     public RobotTrajectory(){
@@ -25,8 +26,8 @@ class RobotTrajectory {
         connectedTrajectories = new ArrayList<RobotTrajectory>();
         speeds = new ArrayList<Double>();
         times = new ArrayList<Long>();
-//        prev = new ArrayList<RobotTrajectory>();
-//        next = new ArrayList<RobotTrajectory>();
+        prev = new HashSet<RobotTrajectory>();
+        next = new HashSet<RobotTrajectory>();
     }
 
     public RobotTrajectory(RobotTrajectory robotTrajectory){
@@ -41,8 +42,8 @@ class RobotTrajectory {
         connectedTrajectories = new ArrayList<RobotTrajectory>(robotTrajectory.getConnectedTrajectories());
         speeds = new ArrayList<Double>(robotTrajectory.getSpeeds());
         times = new ArrayList<Long>(robotTrajectory.getTimes());
-//        next = new ArrayList<RobotTrajectory>(robotTrajectory.getNext());
-//        prev = new ArrayList<RobotTrajectory>(robotTrajectory.getPrev());
+        next = new HashSet<RobotTrajectory>(robotTrajectory.getNext());
+        prev = new HashSet<RobotTrajectory>(robotTrajectory.getPrev());
     }
 
     public void generateNewColor(){
@@ -104,19 +105,12 @@ class RobotTrajectory {
     public ArrayList<Long> getTimes() {
         return times;
     }
-    //    public ArrayList<RobotTrajectory> getPrev() {
-//        return prev;
-//    }
-//
-//    public void setPrev(ArrayList<RobotTrajectory> prev) {
-//        this.prev = prev;
-//    }
-//
-//    public ArrayList<RobotTrajectory> getNext() {
-//        return next;
-//    }
-//
-//    public void setNext(ArrayList<RobotTrajectory> next) {
-//        this.next = next;
-//    }
+
+    public HashSet<RobotTrajectory> getPrev() {
+        return prev;
+    }
+
+    public HashSet<RobotTrajectory> getNext() {
+        return next;
+    }
 }

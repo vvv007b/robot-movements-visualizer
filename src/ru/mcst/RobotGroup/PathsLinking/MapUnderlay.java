@@ -56,7 +56,29 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
             g2d.drawImage(trajectoriesLayer, 0, 0, null);
         }
         if(linksLayer != null){
+            updateLinksLayer();
             g2d.drawImage(linksLayer, 0, 0, null);
+        }
+        g2d.dispose();
+    }
+
+    private void updateLinksLayer(){
+        Graphics2D g2d = linksLayer.createGraphics();
+        g2d.setComposite(AlphaComposite.Clear);
+        g2d.fillRect(0, 0, linksLayer.getWidth(), linksLayer.getHeight());
+        g2d.setComposite(AlphaComposite.Src);
+        if(currentVector != null) {
+            for (InOutVector vector : TrackingSystem.getInOutVectorsList()) {
+                vector.drawVector(g2d, vector == currentVector, true);
+            }
+            for (InOutVector vector : currentVector.getOrientation() == 0 ? currentVector.getPrev() : currentVector.getNext()) {
+                vector.drawVector(g2d, true, false);
+            }
+        }
+        else{
+            for (InOutVector vector : TrackingSystem.getInOutVectorsList()) {
+                vector.drawVector(g2d, false, false);
+            }
         }
         g2d.dispose();
     }
@@ -207,7 +229,8 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
                     System.out.println("Vector " + (int)currentVector.getX() + " " + (int)currentVector.getY() + " selected");
                     this.currentVector = currentVector;
                     //set curVector and update fields
-                    GUI.inOutVectorNotification(currentVector);
+                    parentGUI.inOutVectorNotification(currentVector);
+                    parentGUI.setCurrentVector(currentVector);
                 }
                 break;
         }

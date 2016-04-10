@@ -4,6 +4,7 @@ import com.sun.javafx.geom.Vec2d;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.util.HashSet;
 
 /**
  * Created by bocharov_n on 19.02.16.
@@ -17,6 +18,7 @@ class InOutVector {
     private double speed;
     private long time;
     private int orientation;
+    private HashSet<InOutVector> prev, next;
     private Color color;
 
     public InOutVector(){
@@ -24,6 +26,8 @@ class InOutVector {
         startPoint = null;
         endPoint = null;
         color = null;
+        prev = new HashSet<InOutVector>();
+        next = new HashSet<InOutVector>();
     }
 
     public InOutVector(RobotTrajectory robotTrajectory, int orientation){
@@ -44,6 +48,23 @@ class InOutVector {
         this.robotTrajectory = robotTrajectory;
         this.color = robotTrajectory.getConnectionsColor();
         this.orientation = orientation;
+        prev = new HashSet<InOutVector>();
+        next = new HashSet<InOutVector>();
+    }
+
+    public void drawVector(Graphics2D g2d, boolean isFilled, boolean isBorder){
+        g2d.setComposite(AlphaComposite.Src);
+        g2d.setColor(Color.GRAY);
+        //TODO:make here a triangle
+        if (isFilled) g2d.fillRoundRect((int)(orientation == 0 ? startPoint.getX() : endPoint.getX()) - 5,
+                (int)(orientation == 0 ?  startPoint.getY() : endPoint.getY()) - 5, 10, 10, 2, 2);
+        else g2d.drawRoundRect((int)(orientation == 0 ? startPoint.getX() : endPoint.getX()) - 5,
+                (int)(orientation == 0 ?  startPoint.getY() : endPoint.getY()) - 5, 10, 10, 2, 2);
+        if (isBorder){
+            g2d.setColor(Color.BLACK);
+            g2d.drawRoundRect((int)(orientation == 0 ? startPoint.getX() : endPoint.getX()) - 5,
+                    (int)(orientation == 0 ?  startPoint.getY() : endPoint.getY()) - 5, 10, 10, 2, 2);
+        }
     }
 
     public double getAzimuth(){
@@ -86,7 +107,6 @@ class InOutVector {
         return -v1.x * v2.y + v1.y * v2.x <= 0;
     }
 
-
     public boolean isBehind(InOutVector vector){
         return (vector.getEndPoint().getX() - startPoint.getX()) / (endPoint.getX() - startPoint.getX()) > 0;
     }
@@ -117,5 +137,13 @@ class InOutVector {
 
     public int getOrientation() {
         return orientation;
+    }
+
+    public HashSet<InOutVector> getNext() {
+        return next;
+    }
+
+    public HashSet<InOutVector> getPrev() {
+        return prev;
     }
 }

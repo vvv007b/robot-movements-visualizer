@@ -35,7 +35,7 @@ public class GUI extends JFrame{
 
     private static Camera currentCamera;
     private static boolean isCameraChanging;  //crutch for changing textFields while cur camera changing
-
+    private static InOutVector currentVector;
 
     public GUI(){
         super();
@@ -328,5 +328,11 @@ public class GUI extends JFrame{
 
     public JScrollPane getMapScrollPane() {
         return mapScrollPane;
+    }
+
+    public void setCurrentVector(InOutVector currentVector) {
+        GUI.currentVector = currentVector;
+
+
     }
 }

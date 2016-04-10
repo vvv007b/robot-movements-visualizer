@@ -81,6 +81,12 @@ class Tracker extends Thread{
                             if (    curCamera.getTracker().isRobotVisibleNow(i) &&
                                     robotsTrajectories.get(i).getConnectedTrajectories().indexOf(curCamera.getTracker().getRobotsTrajectories().get(i)) == -1 &&
                                     curCamera != this.getCamera()){
+                                if (robotTrajectoryLength(i) > curCamera.getTracker().robotTrajectoryLength(i)){
+                                    robotsTrajectories.get(i).getNext().add(curCamera.getTracker().getRobotsTrajectories().get(i));
+                                }
+                                else{
+                                    robotsTrajectories.get(i).getPrev().add(curCamera.getTracker().getRobotsTrajectories().get(i));
+                                }
                                 System.out.println("double vision");
                                 robotsTrajectories.get(i).getConnectedTrajectories().add(curCamera.getTracker().getRobotsTrajectories().get(i));
                             }
@@ -140,6 +146,10 @@ class Tracker extends Thread{
 
     public boolean isRobotVisibleNow(int index){
         return visibleRobots.indexOf(index) >= 0;
+    }
+
+    public int robotTrajectoryLength(int index) {
+        return isRobotVisibleNow(index) ? robotsTrajectories.get(index).getPoints().size() : -1;
     }
 
     public ArrayList<RobotTrajectory> getRobotsTrajectories() {
