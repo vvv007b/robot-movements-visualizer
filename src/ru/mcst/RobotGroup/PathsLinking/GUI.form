@@ -48,11 +48,22 @@
             <rowspec value="center:max(d;4px):noGrow"/>
             <rowspec value="top:4dlu:noGrow"/>
             <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="top:4dlu:noGrow"/>
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="top:4dlu:noGrow"/>
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="top:4dlu:noGrow"/>
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="top:4dlu:noGrow"/>
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="top:4dlu:noGrow"/>
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="top:4dlu:noGrow"/>
+            <rowspec value="center:max(d;4px):noGrow"/>
             <colspec value="center:d:grow"/>
             <colspec value="left:d:noGrow"/>
             <colspec value="fill:d:grow"/>
             <colspec value="left:d:noGrow"/>
-            <colspec value="center:d:grow"/>
             <colspec value="left:d:noGrow"/>
             <colspec value="fill:d:grow"/>
             <colspec value="left:d:noGrow"/>
@@ -61,9 +72,9 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="a2cec" class="javax.swing.JLabel">
+              <component id="a2cec" class="javax.swing.JLabel" binding="cameraXLabel">
                 <constraints>
-                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="0" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                   <forms defaultalign-horz="false"/>
                 </constraints>
                 <properties>
@@ -74,144 +85,27 @@
                   <text value="x"/>
                 </properties>
               </component>
-              <component id="a1efe" class="javax.swing.JLabel">
+              <component id="dbe9d" class="javax.swing.JLabel" binding="mouseXLabel">
                 <constraints>
-                  <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                  <forms defaultalign-horz="false" defaultalign-vert="false"/>
-                </constraints>
-                <properties>
-                  <horizontalAlignment value="0"/>
-                  <text value="azimuth"/>
-                </properties>
-              </component>
-              <component id="4a8c9" class="javax.swing.JLabel">
-                <constraints>
-                  <grid row="0" column="8" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                  <forms defaultalign-horz="false"/>
-                </constraints>
-                <properties>
-                  <horizontalAlignment value="0"/>
-                  <preferredSize width="48" height="15"/>
-                  <text value="teta"/>
-                </properties>
-              </component>
-              <component id="605d7" class="javax.swing.JTextField" binding="xTextField">
-                <constraints>
-                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="150" height="-1"/>
-                  </grid>
-                  <forms defaultalign-horz="false"/>
-                </constraints>
-                <properties>
-                  <enabled value="true"/>
-                  <text value=""/>
-                </properties>
-              </component>
-              <component id="a9cb3" class="javax.swing.JTextField" binding="yTextField">
-                <constraints>
-                  <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="150" height="-1"/>
-                  </grid>
-                  <forms defaultalign-horz="false"/>
-                </constraints>
-                <properties>
-                  <text value=""/>
-                </properties>
-              </component>
-              <component id="3fe78" class="javax.swing.JLabel">
-                <constraints>
-                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                  <forms defaultalign-horz="false"/>
-                </constraints>
-                <properties>
-                  <horizontalAlignment value="0"/>
-                  <preferredSize width="48" height="15"/>
-                  <text value="y"/>
-                </properties>
-              </component>
-              <component id="eec2d" class="javax.swing.JTextField" binding="azimuthTextField">
-                <constraints>
-                  <grid row="2" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="150" height="-1"/>
-                  </grid>
-                  <forms defaultalign-horz="false"/>
-                </constraints>
-                <properties>
-                  <text value=""/>
-                </properties>
-              </component>
-              <component id="149ac" class="javax.swing.JTextField" binding="rTextField">
-                <constraints>
-                  <grid row="2" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="150" height="-1"/>
-                  </grid>
-                  <forms defaultalign-horz="false"/>
-                </constraints>
-                <properties>
-                  <text value=""/>
-                </properties>
-              </component>
-              <component id="2aa18" class="javax.swing.JLabel">
-                <constraints>
-                  <grid row="0" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                  <forms defaultalign-horz="false"/>
-                </constraints>
-                <properties>
-                  <horizontalAlignment value="0"/>
-                  <preferredSize width="48" height="15"/>
-                  <text value="r"/>
-                </properties>
-              </component>
-              <component id="2b55c" class="javax.swing.JTextField" binding="angleTextField">
-                <constraints>
-                  <grid row="2" column="8" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="150" height="-1"/>
-                  </grid>
-                  <forms defaultalign-horz="false"/>
-                </constraints>
-                <properties>
-                  <text value=""/>
-                </properties>
-              </component>
-              <component id="11307" class="javax.swing.JButton" binding="removeCameraButton">
-                <constraints>
-                  <grid row="4" column="0" row-span="1" col-span="9" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-                  <forms/>
-                </constraints>
-                <properties>
-                  <text value="Remove selected camera"/>
-                </properties>
-              </component>
-              <component id="dbe9d" class="javax.swing.JLabel" binding="xLabel">
-                <constraints>
-                  <grid row="16" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="2" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="28" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="2" fill="0" indent="0" use-parent-layout="false"/>
                   <forms defaultalign-horz="false" defaultalign-vert="false"/>
                 </constraints>
                 <properties>
                   <text value="x"/>
                 </properties>
               </component>
-              <component id="b94df" class="javax.swing.JLabel" binding="yLabel">
+              <component id="b94df" class="javax.swing.JLabel" binding="mouseYLabel">
                 <constraints>
-                  <grid row="16" column="8" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="2" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="28" column="7" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="2" fill="0" indent="0" use-parent-layout="false"/>
                   <forms defaultalign-horz="false" defaultalign-vert="false"/>
                 </constraints>
                 <properties>
                   <text value="y"/>
                 </properties>
               </component>
-              <component id="b5ee6" class="javax.swing.JRadioButton" binding="addCameraRadioButton" default-binding="true">
-                <constraints>
-                  <grid row="8" column="0" row-span="1" col-span="9" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                  <forms/>
-                </constraints>
-                <properties>
-                  <text value="Add camera"/>
-                </properties>
-              </component>
               <component id="e5d1c" class="javax.swing.JRadioButton" binding="selectCameraRadioButton" default-binding="true">
                 <constraints>
-                  <grid row="6" column="0" row-span="1" col-span="9" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="16" column="0" row-span="1" col-span="8" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
                 </constraints>
                 <properties>
@@ -220,7 +114,7 @@
               </component>
               <component id="45c88" class="javax.swing.JButton" binding="linkTrajectoriesButton" default-binding="true">
                 <constraints>
-                  <grid row="12" column="0" row-span="1" col-span="9" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="24" column="0" row-span="1" col-span="8" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                   <forms/>
                 </constraints>
                 <properties>
@@ -229,7 +123,7 @@
               </component>
               <component id="e346e" class="javax.swing.JButton" binding="clearTrajectoriesButton" default-binding="true">
                 <constraints>
-                  <grid row="14" column="0" row-span="1" col-span="9" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="26" column="0" row-span="1" col-span="8" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                   <forms/>
                 </constraints>
                 <properties>
@@ -238,11 +132,125 @@
               </component>
               <component id="29008" class="javax.swing.JRadioButton" binding="selectInOutVectorRadioButton" default-binding="true">
                 <constraints>
-                  <grid row="10" column="0" row-span="1" col-span="9" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="20" column="0" row-span="1" col-span="8" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
                 </constraints>
                 <properties>
                   <text value="Select In\Out Vector"/>
+                </properties>
+              </component>
+              <component id="c34f2" class="javax.swing.JSlider" binding="cameraAzimuthSlider">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="8" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                  <forms defaultalign-horz="false"/>
+                </constraints>
+                <properties>
+                  <enabled value="false"/>
+                  <majorTickSpacing value="90"/>
+                  <maximum value="359"/>
+                  <minorTickSpacing value="30"/>
+                  <paintLabels value="true"/>
+                  <paintTicks value="true"/>
+                  <value value="90"/>
+                  <valueIsAdjusting value="false"/>
+                </properties>
+              </component>
+              <component id="e3dc6" class="javax.swing.JSlider" binding="cameraRSlider">
+                <constraints>
+                  <grid row="8" column="0" row-span="1" col-span="8" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                  <forms defaultalign-horz="false"/>
+                </constraints>
+                <properties>
+                  <enabled value="false"/>
+                  <majorTickSpacing value="90"/>
+                  <maximum value="320"/>
+                  <minimum value="20"/>
+                  <minorTickSpacing value="30"/>
+                  <paintLabels value="true"/>
+                  <paintTicks value="true"/>
+                  <value value="100"/>
+                  <valueIsAdjusting value="false"/>
+                </properties>
+              </component>
+              <component id="e1b78" class="javax.swing.JSlider" binding="cameraAngleSlider">
+                <constraints>
+                  <grid row="12" column="0" row-span="1" col-span="8" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                  <forms defaultalign-horz="false"/>
+                </constraints>
+                <properties>
+                  <enabled value="false"/>
+                  <majorTickSpacing value="90"/>
+                  <maximum value="180"/>
+                  <minorTickSpacing value="30"/>
+                  <paintLabels value="true"/>
+                  <paintTicks value="true"/>
+                  <value value="90"/>
+                  <valueIsAdjusting value="false"/>
+                </properties>
+              </component>
+              <component id="d5003" class="javax.swing.JLabel" binding="cameraAzimuthTextField">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="8" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Camera azimuth:"/>
+                </properties>
+              </component>
+              <component id="46c19" class="javax.swing.JLabel" binding="cameraRTextField">
+                <constraints>
+                  <grid row="6" column="0" row-span="1" col-span="8" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Camera radius:"/>
+                </properties>
+              </component>
+              <component id="325e4" class="javax.swing.JLabel" binding="cameraAngleTextField">
+                <constraints>
+                  <grid row="10" column="0" row-span="1" col-span="8" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Camera angle of view:"/>
+                </properties>
+              </component>
+              <component id="b5ee6" class="javax.swing.JRadioButton" binding="addCameraRadioButton" default-binding="true">
+                <constraints>
+                  <grid row="14" column="0" row-span="1" col-span="8" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Add camera"/>
+                </properties>
+              </component>
+              <component id="58957" class="javax.swing.JRadioButton" binding="moveCameraRadioButton" default-binding="true">
+                <constraints>
+                  <grid row="18" column="0" row-span="1" col-span="8" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Move camera"/>
+                </properties>
+              </component>
+              <component id="11307" class="javax.swing.JButton" binding="removeCameraButton">
+                <constraints>
+                  <grid row="22" column="0" row-span="1" col-span="8" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Remove selected camera"/>
+                </properties>
+              </component>
+              <component id="3fe78" class="javax.swing.JLabel" binding="cameraYLabel">
+                <constraints>
+                  <grid row="0" column="5" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <forms defaultalign-horz="false"/>
+                </constraints>
+                <properties>
+                  <horizontalAlignment value="0"/>
+                  <preferredSize width="48" height="15"/>
+                  <text value="y"/>
                 </properties>
               </component>
             </children>

@@ -12,7 +12,6 @@ class TrackingSystem {
 //    private static Map<DoubleKey, List<VisitedPoint>> accumulator = new HashMap<DoubleKey, List<VisitedPoint>>();
 //    private static List<VisitedPoint> loadedPoints = new ArrayList<VisitedPoint>();
 
-
     private static ArrayList<RobotTrajectory> trajectoriesList = new ArrayList<RobotTrajectory>();
     private static ArrayList<InOutVector> inOutVectorsList = new ArrayList<InOutVector>();
 
@@ -24,13 +23,6 @@ class TrackingSystem {
     private static final int centerSuperiority = 200; // measured in percent.
     private static final int minimalPointsCount = 10;
 
-//    public static void createTrajectoriesList(){
-//        for(Camera curCamera:cameraList){
-//            for(RobotTrajectory rt:curCamera.getTracker().getTrajectories()){
-//                trajectoriesList.add(rt);
-//            }
-//        }
-//    }
 
     public static void linkTrajectories(){
         ArrayList<InOutVector> inVectors = new ArrayList<InOutVector>(),

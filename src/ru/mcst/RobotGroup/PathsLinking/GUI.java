@@ -3,13 +3,11 @@ package ru.mcst.RobotGroup.PathsLinking;
 import ru.mcst.RobotGroup.PathsFinding.Hypervisor;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 /**
@@ -17,30 +15,32 @@ import java.util.ArrayList;
  */
 public class GUI extends JFrame{
     private JPanel rootPanel;
-    private JTextField xTextField;
-    private JTextField yTextField;
-    private JTextField azimuthTextField;
-    private JTextField rTextField;
-    private JTextField angleTextField;
     private JButton removeCameraButton;
-    private JLabel xLabel;
-    private JLabel yLabel;
+    private JLabel mouseXLabel;
+    private JLabel mouseYLabel;
     private JScrollPane mapScrollPane;
     private JRadioButton selectCameraRadioButton;
     private JRadioButton addCameraRadioButton;
     private JButton linkTrajectoriesButton;
     private JButton clearTrajectoriesButton;
     private JRadioButton selectInOutVectorRadioButton;
+    private JSlider cameraAzimuthSlider;
+    private JSlider cameraRSlider;
+    private JSlider cameraAngleSlider;
+    private JLabel cameraAzimuthTextField;
+    private JLabel cameraRTextField;
+    private JLabel cameraAngleTextField;
+    private JRadioButton moveCameraRadioButton;
+    private JLabel cameraXLabel;
+    private JLabel cameraYLabel;
     private static MapUnderlay mapPanel;
 
     private static Camera currentCamera;
-    private static boolean isCameraChanging;  //crutch for changing textFields while cur camera changing
     private static InOutVector currentVector;
 
     public GUI(){
         super();
         currentCamera   = null;
-        isCameraChanging = false;
         createMyComponents();
         startMapListenerDaemon();
         setContentPane(rootPanel);
@@ -82,10 +82,7 @@ public class GUI extends JFrame{
 
     private void createUIComponents() {
         mapPanel = new MapUnderlay(this);
-//        mapScrollPane.add(mapPanel);
         mapScrollPane=new JScrollPane(mapPanel);
-
-
     }
 
     private void createMyComponents(){
@@ -96,40 +93,9 @@ public class GUI extends JFrame{
         mapUnderlayToolsGroup.add(selectCameraRadioButton);
         mapUnderlayToolsGroup.add(addCameraRadioButton);
         mapUnderlayToolsGroup.add(selectInOutVectorRadioButton);
+        mapUnderlayToolsGroup.add(moveCameraRadioButton);
 
-        xTextField.setEnabled(false);
-        yTextField.setEnabled(false);
-        azimuthTextField.setEnabled(false);
-        rTextField.setEnabled(false);
-        angleTextField.setEnabled(false);
         removeCameraButton.setEnabled(false);
-
-
-        final DocumentListener cameraChangerDL = new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-//                log("insert");
-                if (!isCameraChanging) updateCurrentCamera();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-//                log("remove");
-                if (!isCameraChanging) updateCurrentCamera();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-//                log("change");
-                if (!isCameraChanging) updateCurrentCamera();
-            }
-        };
-
-        xTextField.getDocument().addDocumentListener(cameraChangerDL);
-        yTextField.getDocument().addDocumentListener(cameraChangerDL);
-        angleTextField.getDocument().addDocumentListener(cameraChangerDL);
-        rTextField.getDocument().addDocumentListener(cameraChangerDL);
-        azimuthTextField.getDocument().addDocumentListener(cameraChangerDL);
 
         selectCameraRadioButton.addActionListener(new ActionListener() {
             @Override
@@ -149,25 +115,58 @@ public class GUI extends JFrame{
                 mapPanel.setSelectedTool(MapUnderlay.SELECT_INOUT_VECTOR);
             }
         });
+        moveCameraRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mapPanel.setSelectedTool(MapUnderlay.MOVE_CAMERA);
+            }
+        });
+
+        cameraAzimuthSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                currentCamera.setAzimuth(cameraAzimuthSlider.getValue());
+                currentCamera.redrawFOV();
+                mapPanel.repaint();
+                cameraAzimuthTextField.setText("Camera azimuth:" + cameraAzimuthSlider.getValue());
+            }
+        });
+        cameraAngleSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                currentCamera.setAngle(cameraAngleSlider.getValue());
+                currentCamera.redrawFOV();
+                mapPanel.repaint();
+                cameraAngleTextField.setText("Camera angle of view: " + cameraAngleSlider.getValue());
+            }
+        });
+        cameraRSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                currentCamera.setR(cameraRSlider.getValue());
+                currentCamera.redrawFOV();
+                mapPanel.repaint();
+                cameraRTextField.setText("Camera radius: " + cameraRSlider.getValue());
+            }
+        });
         removeCameraButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 TrackingSystem.removeCamera(currentCamera);
                 currentCamera.setExist(false);
-                isCameraChanging = true;
 
                 currentCamera = null;
-                xTextField.setText("");
-                yTextField.setText("");
-                azimuthTextField.setText("");
-                rTextField.setText("");
-                angleTextField.setText("");
-                xTextField.setEnabled(false);
-                yTextField.setEnabled(false);
-                rTextField.setEnabled(false);
-                angleTextField.setEnabled(false);
-                azimuthTextField.setEnabled(false);
-                isCameraChanging = false;
+                cameraXLabel.setText("X: ");
+                cameraYLabel.setText("Y: ");
+                cameraAzimuthSlider.setEnabled(false);
+//                cameraAzimuthSlider.setValue(0);
+                cameraAzimuthTextField.setText("Camera azimuth:");
+                cameraAngleSlider.setEnabled(false);
+//                cameraAngleSlider.setValue(0);
+                cameraAngleTextField.setText("Camera angle of view:");
+                cameraRSlider.setEnabled(false);
+//                cameraRSlider.setValue(20);
+                cameraRTextField.setText("Camera radius:");
                 mapPanel.repaint();
 
                 removeCameraButton.setEnabled(false);
@@ -181,6 +180,7 @@ public class GUI extends JFrame{
                     camera.getTracker().clear();
                 }
                 TrackingSystem.getTrajectoriesList().clear();
+                TrackingSystem.getInOutVectorsList().clear();
                 mapPanel.clearTrajectoriesLayer();
                 mapPanel.clearLinksLayer();
             }
@@ -214,7 +214,7 @@ public class GUI extends JFrame{
         System.out.print("ui");
     }
 
-    public void drawLine(StraightLine line){
+    /*public void drawLine(StraightLine line){
         double a = line.getA();
         double r = line.getR();
 
@@ -233,106 +233,69 @@ public class GUI extends JFrame{
         BufferedImage lineImage = new BufferedImage(mapPanel.getWidth(), mapPanel.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = lineImage.createGraphics();
         g2d.setComposite(AlphaComposite.Clear);
-        g2d.fillRect(0,0,lineImage.getWidth(),lineImage.getHeight());
+        g2d.fillRect(0, 0, lineImage.getWidth(), lineImage.getHeight());
         g2d.setComposite(AlphaComposite.Src);
         g2d.setColor(Color.RED);
-        g2d.drawLine((int)firstPoint.getX(),(int)firstPoint.getY(),(int)secondPoint.getX(),(int)secondPoint.getY());
+        g2d.drawLine((int) firstPoint.getX(), (int) firstPoint.getY(), (int) secondPoint.getX(), (int) secondPoint.getY());
         g2d.dispose();
         JLabel lineLabel = new JLabel(new ImageIcon(lineImage));
         mapPanel.add(lineLabel);
         Insets insets = mapPanel.getInsets();
         Dimension size = lineLabel.getPreferredSize();
         lineLabel.setBounds(insets.left, insets.top, size.width, size.height);
-    }
-
-    public void updateCurrentCamera(){
-        System.out.println("Updating camera");
-        int     x       = currentCamera.getX(),
-                y       = currentCamera.getY(),
-                azimuth = currentCamera.getAzimuth(),
-                r       = currentCamera.getR(),
-                angle   = currentCamera.getAngle();
-        try{
-            int     newX        = Integer.parseInt(xTextField.getText()),
-                    newY        = Integer.parseInt(yTextField.getText()),
-                    newAzimuth  = Integer.parseInt(azimuthTextField.getText()),
-                    newR        = Integer.parseInt(rTextField.getText()),
-                    newAngle    = Integer.parseInt(angleTextField.getText());
-            if (x != newX || y != newY || azimuth != newAzimuth || r != newR || angle != newAngle){
-                x = newX < 0 ? 0 : newX > mapPanel.getWidth() ? mapPanel.getWidth() : newX;
-                y = newY < 0 ? 0 : newY > mapPanel.getHeight() ? mapPanel.getHeight() : newY;
-                azimuth = newAzimuth;
-                r       = newR;
-                angle   = newAngle;
-                currentCamera.setX(x);
-                currentCamera.setY(y);
-                currentCamera.setAzimuth(azimuth);
-                currentCamera.setR(r);
-                currentCamera.setAngle(angle);
-                currentCamera.redrawFOV();
-                mapPanel.repaint();
-                System.out.println("Image was redrawed. New xy "+x+" "+y);
-            }
-        }
-        catch (IllegalArgumentException ex){
-            System.out.println("Incorrect value(s) in camera parameters fields");
-        }
-    }
-
-    public static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
-
-        long factor = (long) Math.pow(10, places);
-        value = value * factor;
-        long tmp = Math.round(value);
-        return (double) tmp / factor;
-    }
+    }*/
 
     public static void inOutVectorNotification(InOutVector vector){
         String message = (vector.getOrientation() == InOutVector.IN ? "In " : "Out ") +
 
                 "vector." + System.lineSeparator() + "x: " + vector.getX() + System.lineSeparator() +
-                "y: " + vector.getY() + System.lineSeparator() + "azimuth: " + vector.getAzimuth();
+                "y: " + vector.getY() + System.lineSeparator() + "azimuth: " + vector.getAzimuth() +
+                System.lineSeparator() + "speed: " + vector.getSpeed() + System.lineSeparator() +
+                "time: " + vector.getTime();
         JOptionPane.showMessageDialog(mapPanel, message);
     }
 
     public void setCurrentCamera(Camera camera) {
         GUI.currentCamera = camera;
 
-        isCameraChanging = true;
-        xTextField.setText(Integer.toString(camera.getX()));
-        yTextField.setText(Integer.toString(camera.getY()));
-        rTextField.setText(Integer.toString(camera.getR()));
-        azimuthTextField.setText(Integer.toString(camera.getAzimuth()));
-        angleTextField.setText(Integer.toString(camera.getAngle()));
-        xTextField.setEnabled(true);
-        yTextField.setEnabled(true);
-        rTextField.setEnabled(true);
-        azimuthTextField.setEnabled(true);
-        angleTextField.setEnabled(true);
+        cameraXLabel.setText("X: " + camera.getX());
+        cameraYLabel.setText("Y: " + camera.getY());
         removeCameraButton.setEnabled(true);
-        isCameraChanging = false;
+
+        cameraAzimuthSlider.setEnabled(true);
+        cameraAngleSlider.setEnabled(true);
+        cameraRSlider.setEnabled(true);
+        cameraAzimuthSlider.setValue(camera.getAzimuth());
+        cameraAngleSlider.setValue(camera.getAngle());
+        cameraRSlider.setValue(camera.getR());
+        cameraAzimuthTextField.setText("Camera azimuth: " + cameraAzimuthSlider.getValue());
+        cameraAngleTextField.setText("Camera angle of view: " + cameraAngleSlider.getValue());
+        cameraRTextField.setText("Camera radius: " + cameraRSlider.getValue());
+
     }
 
-    public JLabel getxLabel() {
-        return xLabel;
+    public JLabel getMouseXLabel() {
+        return mouseXLabel;
     }
 
-    public JLabel getyLabel() {
-        return yLabel;
+    public JLabel getMouseYLabel() {
+        return mouseYLabel;
+    }
+
+    public JLabel getCameraXLabel() {
+        return cameraXLabel;
+    }
+
+    public JLabel getCameraYLabel() {
+        return cameraYLabel;
     }
 
     public static MapUnderlay getMapPanel() {
         return mapPanel;
     }
 
-    public JScrollPane getMapScrollPane() {
-        return mapScrollPane;
-    }
-
     public void setCurrentVector(InOutVector currentVector) {
         GUI.currentVector = currentVector;
-
-
     }
+
 }

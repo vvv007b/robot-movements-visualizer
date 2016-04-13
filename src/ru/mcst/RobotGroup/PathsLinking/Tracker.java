@@ -31,6 +31,7 @@ class Tracker extends Thread{
     public void run(){
         while (camera.isExist()){
             ArrayList<double[]> allCoordinates = new ArrayList<double[]>(Hypervisor.getAllCoordinates());
+            ArrayList<Double> speeds = new ArrayList<Double>(Hypervisor.getSpeeds());
             long time = System.currentTimeMillis();
 
             // Here will be check if robots start moving, that change arrays size and create empty fields everywhere;
@@ -64,7 +65,7 @@ class Tracker extends Thread{
 
                 for (int i = 0; i < allCoordinates.size(); i++){
                     double[] coord = allCoordinates.get(i);
-                    if (camera.isVisible(new Point2D.Double(coord[0], coord[1])) && Hypervisor.getSpeeds().get(i) > 0) {
+                    if (camera.isVisible(new Point2D.Double(coord[0], coord[1])) && speeds.get(i) > 0) {
                         currentVisibleRobots.add(i);
                         g2d.setColor(colors.get(i));
                         g2d.fillOval((int) coord[0] - 3, (int) coord[1] - 3, 6, 6);
@@ -74,7 +75,7 @@ class Tracker extends Thread{
                             System.out.println("Robot " + i + " entered scope");
                         }
                         robotsTrajectories.get(i).getPoints().add(new Point2D.Double(coord[0], coord[1]));  //Добавляем его координату
-                        robotsTrajectories.get(i).getSpeeds().add(Hypervisor.getSpeeds().get(i));           //И скорость
+                        robotsTrajectories.get(i).getSpeeds().add(speeds.get(i));           //И скорость
                         robotsTrajectories.get(i).getTimes().add(time);                                     //И текущее время
                         //Проверяем одновременную видимость с нескольких камер
                         for(Camera curCamera:TrackingSystem.getCameraList()){
@@ -92,7 +93,7 @@ class Tracker extends Thread{
                             }
                         }
                     }
-                }                                                   //TODO: подумать, не может ли быть пропуск итерации при перекрытии областей видимости камер.
+                }
                 for(int i:visibleRobots){
                     if (currentVisibleRobots.indexOf(i) == -1){
                         RobotTrajectory trajectory = robotsTrajectories.get(i);

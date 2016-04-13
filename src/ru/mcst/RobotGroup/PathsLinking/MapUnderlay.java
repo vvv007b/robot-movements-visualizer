@@ -15,6 +15,7 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
     public static final int SELECT_CAMERA_TOOL = 0;
     public static final int ADD_CAMERA_TOOL = 1;
     public static final int SELECT_INOUT_VECTOR = 2;
+    public static final int MOVE_CAMERA = 3;
 
     private GUI parentGUI;
 
@@ -172,20 +173,16 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
     }
 
 
+    private void moveCamera(int x, int y) {
+        currentCamera.setX(x);
+        currentCamera.setY(y);
+        currentCamera.redrawFOV();
+        parentGUI.getCameraXLabel().setText("X: " + x);
+        parentGUI.getCameraYLabel().setText("Y: " + y);
+    }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-//        System.out.println("mouse released");
         double minDistance = 0;
         switch(selectedTool){
             case SELECT_CAMERA_TOOL:
@@ -233,8 +230,22 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
                     parentGUI.setCurrentVector(currentVector);
                 }
                 break;
+            case MOVE_CAMERA:
+                moveCamera(e.getX(), e.getY());
+                break;
         }
         repaint();
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+//        System.out.println("mouse released");
+
     }
 
     @Override
@@ -250,14 +261,19 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
 
     @Override
     public void mouseDragged(MouseEvent e) {
-//        System.out.println("mouse dragged");
+        switch (selectedTool){
+            case MOVE_CAMERA:
+                moveCamera(e.getX(), e.getY());
+                break;
+        }
+        repaint();
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
 //        System.out.println("mouse moved");
-        parentGUI.getxLabel().setText("x:" + e.getX());
-        parentGUI.getyLabel().setText("y:" + e.getY());
+        parentGUI.getMouseXLabel().setText("x:" + e.getX());
+        parentGUI.getMouseYLabel().setText("y:" + e.getY());
         parentGUI.repaint();
     }
 }
