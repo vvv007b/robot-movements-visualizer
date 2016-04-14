@@ -1,8 +1,6 @@
 package ru.mcst.RobotGroup.PathsLinking;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -16,13 +14,19 @@ import java.awt.image.BufferedImage;
 class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
     public static final int SELECT_CAMERA_TOOL = 0;
     public static final int ADD_CAMERA_TOOL = 1;
+    public static final int SELECT_INOUT_VECTOR = 2;
+    public static final int MOVE_CAMERA = 3;
 
     private GUI parentGUI;
 
     private static BufferedImage mapLayer, trajectoriesLayer, camerasLayer, linksLayer;
     private int selectedTool;
     private Camera currentCamera;
-    private final int cameraSize = 16;
+    private InOutVector currentVector;
+    private final int cameraSize = 16,
+                        vectorCircleSize = 20;
+
+
 
     public MapUnderlay(GUI gui){
         super();
@@ -31,6 +35,7 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
         camerasLayer = null;
         linksLayer = null;
         currentCamera = null;
+        currentVector = null;
         addMouseListener(this);
         addMouseMotionListener(this);
         parentGUI = gui;
@@ -52,7 +57,29 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
             g2d.drawImage(trajectoriesLayer, 0, 0, null);
         }
         if(linksLayer != null){
+            updateLinksLayer();
             g2d.drawImage(linksLayer, 0, 0, null);
+        }
+        g2d.dispose();
+    }
+
+    private void updateLinksLayer(){
+        Graphics2D g2d = linksLayer.createGraphics();
+        g2d.setComposite(AlphaComposite.Clear);
+        g2d.fillRect(0, 0, linksLayer.getWidth(), linksLayer.getHeight());
+        g2d.setComposite(AlphaComposite.Src);
+        if(currentVector != null) {
+            for (InOutVector vector : TrackingSystem.getInOutVectorsList()) {
+                vector.drawVector(g2d, vector == currentVector, true);
+            }
+            for (InOutVector vector : currentVector.getOrientation() == 0 ? currentVector.getPrev() : currentVector.getNext()) {
+                vector.drawVector(g2d, true, false);
+            }
+        }
+        else{
+            for (InOutVector vector : TrackingSystem.getInOutVectorsList()) {
+                vector.drawVector(g2d, false, false);
+            }
         }
         g2d.dispose();
     }
@@ -136,7 +163,7 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
     public void fillCircle(int x, int y, Color color){
         Graphics2D g2d = linksLayer.createGraphics();
         g2d.setColor(color);
-        g2d.fillOval(x - 10, y - 10, 20, 20);
+        g2d.fillOval(x - vectorCircleSize / 2, y - vectorCircleSize / 2, vectorCircleSize, vectorCircleSize);
         g2d.dispose();
         repaint();
     }
@@ -146,24 +173,21 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
     }
 
 
+    private void moveCamera(int x, int y) {
+        currentCamera.setX(x);
+        currentCamera.setY(y);
+        currentCamera.redrawFOV();
+        parentGUI.getCameraXLabel().setText("X: " + x);
+        parentGUI.getCameraYLabel().setText("Y: " + y);
+    }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-//        System.out.println("mouse released");
+        double minDistance = 0;
         switch(selectedTool){
             case SELECT_CAMERA_TOOL:
                 Camera currentCamera = null;
-                double minDistance = cameraSize / 2 + 1;
+                minDistance = cameraSize / 2 + 1;
                 for(Camera camera:TrackingSystem.getCameraList()){
                     double distance = Math.sqrt(Math.pow(camera.getX() - e.getX(), 2) + Math.pow(camera.getY() - e.getY(), 2));
                     if(distance < minDistance){
@@ -187,10 +211,41 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
                 newCamera.setTracker(tracker);
                 tracker.setDaemon(true);
                 tracker.start();
-
+                break;
+            case SELECT_INOUT_VECTOR:
+                InOutVector currentVector = null;
+                minDistance = vectorCircleSize / 2 + 1;
+                for(InOutVector inOutVector:TrackingSystem.getInOutVectorsList()){
+                    double distance = Math.sqrt(Math.pow(inOutVector.getX() - e.getX(), 2) + Math.pow(inOutVector.getY() - e.getY(), 2));
+                    if(distance < minDistance){
+                        minDistance = distance;
+                        currentVector = inOutVector;
+                    }
+                }
+                if(currentVector != null){
+                    System.out.println("Vector " + (int)currentVector.getX() + " " + (int)currentVector.getY() + " selected");
+                    this.currentVector = currentVector;
+                    //set curVector and update fields
+                    parentGUI.inOutVectorNotification(currentVector);
+                    parentGUI.setCurrentVector(currentVector);
+                }
+                break;
+            case MOVE_CAMERA:
+                moveCamera(e.getX(), e.getY());
                 break;
         }
         repaint();
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+//        System.out.println("mouse released");
+
     }
 
     @Override
@@ -206,14 +261,19 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
 
     @Override
     public void mouseDragged(MouseEvent e) {
-//        System.out.println("mouse dragged");
+        switch (selectedTool){
+            case MOVE_CAMERA:
+                moveCamera(e.getX(), e.getY());
+                break;
+        }
+        repaint();
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
 //        System.out.println("mouse moved");
-        parentGUI.getxLabel().setText("x:" + e.getX());
-        parentGUI.getyLabel().setText("y:" + e.getY());
+        parentGUI.getMouseXLabel().setText("x:" + e.getX());
+        parentGUI.getMouseYLabel().setText("y:" + e.getY());
         parentGUI.repaint();
     }
 }

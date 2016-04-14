@@ -3,14 +3,18 @@ package ru.mcst.RobotGroup.PathsLinking;
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
 
 
 class RobotTrajectory {
     private ArrayList<Point2D> points;
+    private ArrayList<Double> speeds;
+    private ArrayList<Long> times;
     private int direction;             //0 - nothing; 1 - in && out; 2 - only in; 3 - only out
     private Color connectionsColor;
     private ArrayList<RobotTrajectory> connectedTrajectories;
+    private HashSet<RobotTrajectory> prev, next;
     private InOutVector inVector, outVector;
 
     public RobotTrajectory(){
@@ -20,18 +24,10 @@ class RobotTrajectory {
         inVector = null;
         outVector = null;
         connectedTrajectories = new ArrayList<RobotTrajectory>();
-    }
-
-    public RobotTrajectory(ArrayList<Point2D> points, int directions){
-        points = new ArrayList<Point2D>();
-        for(Point2D point2D:points){
-            this.points.add(point2D);
-        }
-        this.direction = directions;
-        generateNewColor();
-        inVector = null;
-        outVector = null;
-        connectedTrajectories = new ArrayList<RobotTrajectory>();
+        speeds = new ArrayList<Double>();
+        times = new ArrayList<Long>();
+        prev = new HashSet<RobotTrajectory>();
+        next = new HashSet<RobotTrajectory>();
     }
 
     public RobotTrajectory(RobotTrajectory robotTrajectory){
@@ -43,7 +39,11 @@ class RobotTrajectory {
         generateNewColor();
         inVector = null;
         outVector = null;
-        connectedTrajectories = new ArrayList<RobotTrajectory>();
+        connectedTrajectories = new ArrayList<RobotTrajectory>(robotTrajectory.getConnectedTrajectories());
+        speeds = new ArrayList<Double>(robotTrajectory.getSpeeds());
+        times = new ArrayList<Long>(robotTrajectory.getTimes());
+        next = new HashSet<RobotTrajectory>(robotTrajectory.getNext());
+        prev = new HashSet<RobotTrajectory>(robotTrajectory.getPrev());
     }
 
     public void generateNewColor(){
@@ -98,5 +98,19 @@ class RobotTrajectory {
         this.connectedTrajectories = connectedTrajectories;
     }
 
+    public ArrayList<Double> getSpeeds() {
+        return speeds;
+    }
 
+    public ArrayList<Long> getTimes() {
+        return times;
+    }
+
+    public HashSet<RobotTrajectory> getPrev() {
+        return prev;
+    }
+
+    public HashSet<RobotTrajectory> getNext() {
+        return next;
+    }
 }

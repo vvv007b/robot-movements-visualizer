@@ -1,13 +1,8 @@
 package ru.mcst.RobotGroup.PathsLinking;
 
-import com.sun.javafx.geom.Vec2d;
-
-import java.awt.geom.Point2D;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.*;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by bocharov_n on 27.11.15.
@@ -17,9 +12,8 @@ class TrackingSystem {
 //    private static Map<DoubleKey, List<VisitedPoint>> accumulator = new HashMap<DoubleKey, List<VisitedPoint>>();
 //    private static List<VisitedPoint> loadedPoints = new ArrayList<VisitedPoint>();
 
-
     private static ArrayList<RobotTrajectory> trajectoriesList = new ArrayList<RobotTrajectory>();
-
+    private static ArrayList<InOutVector> inOutVectorsList = new ArrayList<InOutVector>();
 
     private static double angleSampleRate = 1;
     private static double radiusSampleRate = 1;
@@ -29,13 +23,6 @@ class TrackingSystem {
     private static final int centerSuperiority = 200; // measured in percent.
     private static final int minimalPointsCount = 10;
 
-    public static void createTrajectoriesList(){
-        for(Camera curCamera:cameraList){
-            for(RobotTrajectory rt:curCamera.getTracker().getTrajectories()){
-                trajectoriesList.add(rt);
-            }
-        }
-    }
 
     public static void linkTrajectories(){
         ArrayList<InOutVector> inVectors = new ArrayList<InOutVector>(),
@@ -45,45 +32,57 @@ class TrackingSystem {
             for(RobotTrajectory robotTrajectory:camera.getTracker().getTrajectories()){
                 if(robotTrajectory.getPoints().size() >= 2) {
                     int direction = robotTrajectory.getDirection();
-                    InOutVector inVector  = new InOutVector(robotTrajectory.getPoints().get(0), robotTrajectory.getPoints().get(1),
-                            robotTrajectory, robotTrajectory.getConnectionsColor());
-                    InOutVector outVector = new InOutVector(robotTrajectory.getPoints().get(robotTrajectory.getPoints().size() - 2),
-                            robotTrajectory.getPoints().get(robotTrajectory.getPoints().size() - 1), robotTrajectory,
-                            robotTrajectory.getConnectionsColor());
+                    InOutVector inVector = new InOutVector(robotTrajectory, InOutVector.IN),
+                                outVector = new InOutVector(robotTrajectory, InOutVector.OUT);
                     if (direction == 2 || direction == 1) {
                         inVectors.add(inVector);
+                        inOutVectorsList.add(inVector);
                         robotTrajectory.setInVector(inVector);
                     }
                     if (direction == 3 || direction == 1) {
                         outVectors.add(outVector);
+                        inOutVectorsList.add(outVector);
                         robotTrajectory.setOutVector(outVector);
                     }
                     System.out.println(robotTrajectory.getDirection());
+                    trajectoriesList.add(robotTrajectory);                  //create trajectories list
                 }
             }
         }
-        //look for same azimuths
-        double azimuthAccuracy = 5,        //degrees
-                normalAccuracy = 50;        //pixels
+//        double azimuthAccuracy = 5,        //degrees
+//                normalAccuracy = 50;        //pixels
         System.out.println("Detected " + inVectors.size() + " inVectors and " + outVectors.size() + " outVectors");
+
+        for (RobotTrajectory robotTrajectory:trajectoriesList){
+            for(RobotTrajectory next:robotTrajectory.getNext()){
+                next.getInVector().getPrev().add(robotTrajectory.getOutVector());
+            }
+            for(RobotTrajectory prev:robotTrajectory.getPrev()){
+                prev.getOutVector().getNext().add(robotTrajectory.getInVector());
+            }
+        }
+//            for(RobotTrajectory connectedTrajectory:robotTrajectory.getConnectedTrajectories()){
+//                robotTrajectory.getInVector().getPrev().add(connectedTrajectory.getOutVector());
+//                robotTrajectory.getOutVector().getNext().add(connectedTrajectory.getInVector());
+//            }
+//        }
+
+
         for(InOutVector outVector:outVectors){
             for(InOutVector inVector:inVectors){
-//                System.out.println(inVector.getAzimuth() + " " + outVector.getAzimuth());
-                if(Math.abs(inVector.getAzimuth() - outVector.getAzimuth()) < azimuthAccuracy &&        //TODO: combine
-                        Math.abs(inVector.getNormal() - outVector.getNormal()) < normalAccuracy &&      //TODO: this checks
-                        outVector.isBehind(inVector)){                                                  //TODO: modify this check to attend speed
-//                            mapPanel.fillCircle((int)inVector.startPoint.getX(), (int)inVector.startPoint.getY(), inVector.color);
-//                            mapPanel.fillCircle((int)outVector.endPoint.getX(), (int)outVector.endPoint.getY(), inVector.color);
-                    if (inVector.getRobotTrajectory().getConnectedTrajectories().indexOf(outVector.getRobotTrajectory()) == - 1 &&
-                            !inVector.getRobotTrajectory().equals(outVector.getRobotTrajectory()))
+//                System.out.println(outVector.isPotentialFollowerTo(inVector));
+                if(outVector.isPotentialFollowerTo(inVector) & !inVector.getRobotTrajectory().equals(outVector.getRobotTrajectory())){
+                    if (inVector.getRobotTrajectory().getConnectedTrajectories().indexOf(outVector.getRobotTrajectory()) == - 1)            //TODO: REMOVE IT
                         inVector.getRobotTrajectory().getConnectedTrajectories().add(outVector.getRobotTrajectory());
-                    if (outVector.getRobotTrajectory().getConnectedTrajectories().indexOf(inVector.getRobotTrajectory()) == - 1 &&
-                            !inVector.getRobotTrajectory().equals(outVector.getRobotTrajectory()))
+                    if (outVector.getRobotTrajectory().getConnectedTrajectories().indexOf(inVector.getRobotTrajectory()) == - 1)
                         outVector.getRobotTrajectory().getConnectedTrajectories().add(inVector.getRobotTrajectory());
+
+                    inVector.getPrev().add(outVector);
+                    outVector.getNext().add(inVector);
                 }
             }
         }
-        createTrajectoriesList();
+//        createTrajectoriesList();
         int i = 0;
         System.out.println(getTrajectoriesList().size() + " trajectories founded");
         for(RobotTrajectory rt:getTrajectoriesList()){
@@ -167,7 +166,7 @@ class TrackingSystem {
 //                            mean += acc.get(new DoubleKey(i + p * angleSampleRate, j + q * radiusSampleRate)).size();
 //                        }
 //                    }
-//                    mean /= 9;
+//                    mean /= (coreSize*coreSize) ;
 //                    int center = coreSize / 2;
 //                    if (mean * (1 + (double)centerSuperiority / 100) < acc.get(
 //                            new DoubleKey(i + center * angleSampleRate, j + center * radiusSampleRate)).size() &&
@@ -194,6 +193,10 @@ class TrackingSystem {
 
     public static List<Camera> getCameraList() {
         return cameraList;
+    }
+
+    public static ArrayList<InOutVector> getInOutVectorsList() {
+        return inOutVectorsList;
     }
 
     public static void addCamera(Camera camera){

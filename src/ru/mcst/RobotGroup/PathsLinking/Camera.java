@@ -2,13 +2,8 @@ package ru.mcst.RobotGroup.PathsLinking;
 
 import com.sun.javafx.geom.Vec2d;
 
-import javax.swing.*;
-import java.awt.*;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by bocharov_n on 14.10.15.
@@ -68,7 +63,7 @@ class Camera {
         return isInCircle && !areClockwise(sectorStart, relPoint) && areClockwise(sectorEnd, relPoint);
     }
 
-    private static boolean areClockwise(Vec2d v1, Vec2d v2){
+    private boolean areClockwise(Vec2d v1, Vec2d v2){
         return -v1.x * v2.y + v1.y * v2.x <= 0;
     }
 
