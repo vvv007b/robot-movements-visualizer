@@ -17,6 +17,12 @@ class Robot implements Cloneable {
     private double y;
     // �������� ������
 	private double speed;
+
+	private double cachedX;
+	private double cachedY;
+	private  double cachedSpeed;
+	private boolean consistentCachedSpeedCoordinates=true;
+	//private boolean consistentSpeedCoordinates=true;
 	// ������������ �������� ������
 	private int maxSpeed;
 	// ����������� �������� �����
@@ -57,6 +63,9 @@ class Robot implements Cloneable {
         x=ROBOT_NOWHERE_X;
         y=ROBOT_NOWHERE_Y;
         speed=0;
+		cachedX=x;
+		cachedY=y;
+		cachedSpeed=speed;
         maxSpeed=100;
         minSpeed=40;
         acceleration=1;
@@ -70,6 +79,9 @@ class Robot implements Cloneable {
         x=ROBOT_NOWHERE_X;
         y=ROBOT_NOWHERE_Y;
         speed=0;
+		cachedX=x;
+		cachedY=y;
+		cachedSpeed=speed;
         maxSpeed=100;
         minSpeed=40;
         acceleration=1;
@@ -386,6 +398,7 @@ class Robot implements Cloneable {
 					y=segment.getOriginY()-distance*Math.sin(segment.getStartAngle());
 					azimuth=segment.getStartAngle();
 				}
+				cacheSpeedCoordinates();
 				try {    		            
 					Thread.sleep(1);
 				} catch(InterruptedException ex) {
@@ -394,6 +407,7 @@ class Robot implements Cloneable {
 			} else {
 				distance-=segment.getLength();
 				++i;
+				cacheSpeedCoordinates();
 				if(i>=link.getSegments().length)
 	    			break;
 			}
@@ -410,7 +424,8 @@ class Robot implements Cloneable {
 		}
     	return false;
     }
-    // ������� �������� ��������
+
+	// ������� �������� ��������
     private void checkSensors() {
     	if(map.getRealityMap()==null) {
     		checkForGrayBorderForward();
@@ -618,6 +633,45 @@ class Robot implements Cloneable {
 			return links.get(links.size()-1).getChild();
 		else
 			return null;
+	}
+	// blocking operation!
+	public void setConsistentCachedSpeedCoordinates(boolean consistentCachedSpeedCoordinates) {
+		if(consistentCachedSpeedCoordinates==false)
+			while (!consistentCachedSpeedCoordinates){}
+		this.consistentCachedSpeedCoordinates = consistentCachedSpeedCoordinates;
+	}
+	// blocking operation!
+	private void cacheSpeedCoordinates() {
+		while(!consistentCachedSpeedCoordinates){}
+		consistentCachedSpeedCoordinates=false;
+		cachedX=x;
+		cachedY=y;
+		cachedSpeed=speed;
+		consistentCachedSpeedCoordinates=true;
+	}
+	// blocking operation!
+	public double getCachedX() {
+		while (!consistentCachedSpeedCoordinates){}
+		return cachedX;
+	}
+	// blocking operation!
+	public double getCachedY() {
+		while (!consistentCachedSpeedCoordinates){}
+		return cachedY;
+	}
+	// blocking operation!
+	public double getCachedSpeed() {
+		while (!consistentCachedSpeedCoordinates){}
+		return cachedSpeed;
+	}
+	public double[] getCachedCoordinates() {
+		while (!consistentCachedSpeedCoordinates) {}
+		consistentCachedSpeedCoordinates=false;
+		double[] result=new double[2];
+		result[0]=x;
+		result[1]=y;
+		consistentCachedSpeedCoordinates=true;
+		return result;
 	}
 }
 
