@@ -1,6 +1,5 @@
 package ru.mcst.RobotGroup.PathsLinking;
 
-import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -12,7 +11,6 @@ class RobotTrajectory {
     private ArrayList<Double> speeds;
     private ArrayList<Long> times;
     private int direction;             //0 - nothing; 1 - in && out; 2 - only in; 3 - only out
-    private Color connectionsColor;
     private ArrayList<RobotTrajectory> connectedTrajectories;
     private HashSet<RobotTrajectory> prev, next;
     private InOutVector inVector, outVector;
@@ -51,7 +49,6 @@ class RobotTrajectory {
         float r = random.nextFloat();
         float g = random.nextFloat();
         float b = random.nextFloat();
-        connectionsColor = new Color(r, g, b);
     }
 
     public ArrayList<Point2D> getPoints() {
@@ -64,14 +61,6 @@ class RobotTrajectory {
 
     public void setDirection(int direction) {
         this.direction = direction;
-    }
-
-    public Color getConnectionsColor() {
-        return connectionsColor;
-    }
-
-    public void setConnectionsColor(Color connectionsColor) {
-        this.connectionsColor = connectionsColor;
     }
 
     public InOutVector getInVector() {
