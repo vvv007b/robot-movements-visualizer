@@ -32,7 +32,8 @@ class Tracker extends Thread{
         while (camera.isExist()){
             ArrayList<double[]> allCoordinates = new ArrayList<double[]>(Hypervisor.getAllCoordinates());
             ArrayList<Double> speeds = new ArrayList<Double>(Hypervisor.getSpeeds());
-            long time = System.currentTimeMillis();
+            ArrayList<Long> times = new ArrayList<Long>(Hypervisor.getUpdateTimes());
+//            long time = System.currentTimeMillis();
 
             // Here will be check if robots start moving, that change arrays size and create empty fields everywhere;
             // now there a stupid crutch
@@ -83,7 +84,7 @@ class Tracker extends Thread{
                         if(!currentPoint.equals(prevPoint)) {
                             robotsTrajectories.get(i).getPoints().add(currentPoint);  //Добавляем его координату
                             robotsTrajectories.get(i).getSpeeds().add(speeds.get(i));           //И скорость
-                            robotsTrajectories.get(i).getTimes().add(time);                                     //И текущее время
+                            robotsTrajectories.get(i).getTimes().add(times.get(i));                                     //И текущее время
                             //Проверяем одновременную видимость с нескольких камер
                             for (Camera curCamera : TrackingSystem.getCameraList()) {
                                 if (curCamera.getTracker().isRobotVisibleNow(i) &&

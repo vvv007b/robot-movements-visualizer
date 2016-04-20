@@ -20,6 +20,7 @@ class InOutVector {
     private long time;
     private int orientation;
     private HashSet<InOutVector> prev, next;
+    long  startTime, endTime;
 
     public InOutVector(){
         robotTrajectory = null;
@@ -62,6 +63,8 @@ class InOutVector {
         }
 //        this.speed = robotTrajectory.getSpeeds().get(startIndex);
         this.time = robotTrajectory.getTimes().get(startIndex);
+        this.startTime = robotTrajectory.getTimes().get(startIndex);
+        this.endTime = robotTrajectory.getTimes().get(endIndex);
         this.robotTrajectory = robotTrajectory;
         this.orientation = orientation;
         prev = new HashSet<InOutVector>();
@@ -112,12 +115,18 @@ class InOutVector {
         sectorEnd = new Vec2d(sectorEnd.x * wayVectorLength / sectorEndLength, sectorEnd.y * wayVectorLength / sectorEndLength);
         double distance = Math.sqrt(Math.pow(endPoint.getX() - vector.getStartPoint().getX(), 2) +
                 Math.pow(endPoint.getY() - vector.getStartPoint().getY(), 2)),
-               possibleDistance = (this.speed + vector.speed) / 2 * ((vector.time - this.time) / 1000);
+               possibleDistance = (this.speed + vector.speed) / 2 * ((double)(vector.time - this.time) / 1000);
 //        System.out.println(distance + " " + possibleDistance);
         boolean isInReachableDistance = (distance < possibleDistance * 1.2 && distance > possibleDistance * 0.7) || (
                 distance < possibleDistance + 5 && distance > possibleDistance - 5);
         boolean isAzimuthCorrect = Math.abs(this.getAzimuth() - vector.getAzimuth()) < POSSIBLE_ANGLE;
-        return !areClockwise(sectorStart, wayVector) && areClockwise(sectorEnd, wayVector) && isInReachableDistance && isAzimuthCorrect;
+        boolean isInSector = !areClockwise(sectorStart, wayVector) && areClockwise(sectorEnd, wayVector);
+        System.out.println(isInReachableDistance);
+        System.out.println(isAzimuthCorrect);
+        System.out.println(isInSector);
+        System.out.println(distance + " " + possibleDistance);
+
+        return isInSector && isInReachableDistance && isAzimuthCorrect;
     }
 
     private boolean areClockwise(Vec2d v1, Vec2d v2){

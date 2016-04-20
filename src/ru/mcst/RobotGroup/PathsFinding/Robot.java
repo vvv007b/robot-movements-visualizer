@@ -405,8 +405,8 @@ class Robot implements Cloneable {
 				}
 				cacheSpeedCoordinates();
 				try {    		            
-					//Thread.sleep(1);
-					Thread.sleep(sleepTime-(System.currentTimeMillis()-startedTime));
+//					Thread.sleep(1);
+					Thread.sleep((sleepTime-(System.currentTimeMillis()-startedTime )< 0 ? 0 : sleepTime-(System.currentTimeMillis()-startedTime)));
 					startedTime=System.currentTimeMillis();
 					updateTime=System.currentTimeMillis();
 				} catch(InterruptedException ex) {

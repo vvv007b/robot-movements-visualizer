@@ -247,11 +247,22 @@ public class GUI extends JFrame{
     public static void inOutVectorNotification(InOutVector vector){
         String message = (vector.getOrientation() == InOutVector.IN ? "In " : "Out ") +
 
-                "vector." + System.lineSeparator() + "x: " + vector.getX() + System.lineSeparator() +
-                "y: " + vector.getY() + System.lineSeparator() + "azimuth: " + vector.getAzimuth() +
-                System.lineSeparator() + "speed: " + vector.getSpeed() + System.lineSeparator() +
-                "acceleration: " + vector.getAcceleration() + System.lineSeparator() +
-                "time: " + vector.getTime();
+                "vector: " + TrackingSystem.getInOutVectorsList().indexOf(vector) + System.lineSeparator() +
+                "x: " + vector.getX() + System.lineSeparator() +
+                "y: " + vector.getY() + System.lineSeparator() +
+                "azimuth: " + vector.getAzimuth() + System.lineSeparator() +
+                "speed: " + vector.getSpeed() + System.lineSeparator() +
+                "acceleration: " + vector.getAcceleration() + System.lineSeparator()  +
+                "start time: " + vector.startTime + System.lineSeparator() +
+                "end time: " + vector.endTime + System.lineSeparator() +
+                "delta time: " + (vector.endTime - vector.startTime) + System.lineSeparator();
+        if(vector.getOrientation() == InOutVector.OUT)
+            for(InOutVector inOutVector:TrackingSystem.getInOutVectorsList()){
+                if (inOutVector.getOrientation() == InOutVector.IN){
+                    System.out.println("vector " + TrackingSystem.getInOutVectorsList().indexOf(inOutVector));
+                    vector.isPotentialFollowerTo(inOutVector);
+                }
+            }
         JOptionPane.showMessageDialog(mapPanel, message);
     }
 
