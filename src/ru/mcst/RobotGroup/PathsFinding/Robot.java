@@ -19,6 +19,8 @@ class Robot implements Cloneable {
     // �������� ������
 	private double speed;
 
+	private long updateTime=0;
+
 	private double cachedX;
 	private double cachedY;
 	private  double cachedSpeed;
@@ -329,6 +331,7 @@ class Robot implements Cloneable {
     	int step=map.getScale()/5;
     	int sensorCounter=0;
 		long startedTime=System.currentTimeMillis();
+		updateTime=System.currentTimeMillis();
     	while(globalDistance<link.getLength() && !mapChangedSignal){
     		if(sensorCounter==0) {
     			checkSensors();
@@ -405,6 +408,7 @@ class Robot implements Cloneable {
 					//Thread.sleep(1);
 					Thread.sleep(sleepTime-(System.currentTimeMillis()-startedTime));
 					startedTime=System.currentTimeMillis();
+					updateTime=System.currentTimeMillis();
 				} catch(InterruptedException ex) {
 				    Thread.currentThread().interrupt();
 				}
@@ -676,6 +680,10 @@ class Robot implements Cloneable {
 		result[1]=y;
 		consistentCachedSpeedCoordinates=true;
 		return result;
+	}
+
+	public long getUpdateTime() {
+		return updateTime;
 	}
 }
 

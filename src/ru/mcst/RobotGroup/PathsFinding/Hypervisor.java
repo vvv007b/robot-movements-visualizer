@@ -222,4 +222,11 @@ public class Hypervisor {
         //}
         return result;
     }
+
+    public static ArrayList<Long> getUpdateTimes() {
+        ArrayList<Long> result=new ArrayList<Long>();
+        for(Robot r:robots)
+            result.add(r.getUpdateTime());
+        return result;
+    }
 }
