@@ -1,7 +1,6 @@
 package ru.mcst.RobotGroup.PathsFinding;
 
-import java.awt.Point;
-import java.awt.image.BufferedImage;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +8,8 @@ import java.util.List;
 class Robot implements Cloneable {
 	public static final int ROBOT_NOWHERE_X=-1000;
 	public static final int ROBOT_NOWHERE_Y=-1000;
+	private final int speedDivider = 100;
+	private final int sleepTime=1000/speedDivider;
 
 	// �����
 	private MapInfo map;
@@ -327,6 +328,7 @@ class Robot implements Cloneable {
     	int i=0;
     	int step=map.getScale()/5;
     	int sensorCounter=0;
+		long startedTime=System.currentTimeMillis();
     	while(globalDistance<link.getLength() && !mapChangedSignal){
     		if(sensorCounter==0) {
     			checkSensors();
@@ -363,11 +365,11 @@ class Robot implements Cloneable {
     			return false;
     		changeSpeed();
     		if(internalStopSignal && speed==0) {
-    			distance+=(double)1/1000;
-    			globalDistance+=(double)1/1000;
+    			distance+=(double)1/ speedDivider;
+    			globalDistance+=(double)1/ speedDivider;
     		} else {
-    			distance+=speed/1000;
-    			globalDistance+=speed/1000;
+    			distance+=speed/ speedDivider;
+    			globalDistance+=speed/ speedDivider;
     		}
     		if(stopSignal && speed==0) {
 				return true;
@@ -400,7 +402,9 @@ class Robot implements Cloneable {
 				}
 				cacheSpeedCoordinates();
 				try {    		            
-					Thread.sleep(1);
+					//Thread.sleep(1);
+					Thread.sleep(sleepTime-(System.currentTimeMillis()-startedTime));
+					startedTime=System.currentTimeMillis();
 				} catch(InterruptedException ex) {
 				    Thread.currentThread().interrupt();
 				}
@@ -525,28 +529,28 @@ class Robot implements Cloneable {
     private void changeSpeed() {
     	if(stopSignal || internalStopSignal) {
     		if(speed>0) {
-    			speed-=deceleration/1000;
+    			speed-=deceleration/ speedDivider;
     			if(speed<0)
     				speed=0;
     		}
     	} else {
 	    	if(maxSpeedSignal) {
 				if(speed<maxSpeed) {
-					speed+=acceleration/1000;
+					speed+=acceleration/ speedDivider;
 					if(speed>maxSpeed)
 						speed=maxSpeed;
 				} else {
-					speed-=deceleration/1000;
+					speed-=deceleration/ speedDivider;
 					if(speed<maxSpeed)
 						speed=maxSpeed;
 				}
 			} else {
 				if(speed>minSpeed) {
-					speed-=deceleration/1000;
+					speed-=deceleration/ speedDivider;
 					if(speed<minSpeed)
 						speed=minSpeed;
 				} else {
-					speed+=acceleration/1000;
+					speed+=acceleration/ speedDivider;
 					if(speed>minSpeed)
 						speed=minSpeed;
 				}

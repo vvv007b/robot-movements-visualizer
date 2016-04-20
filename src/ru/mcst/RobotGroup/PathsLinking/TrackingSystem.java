@@ -32,20 +32,22 @@ class TrackingSystem {
             for(RobotTrajectory robotTrajectory:camera.getTracker().getTrajectories()){
                 if(robotTrajectory.getPoints().size() >= 2) {
                     int direction = robotTrajectory.getDirection();
-                    InOutVector inVector = new InOutVector(robotTrajectory, InOutVector.IN),
+                    if (robotTrajectory.getPoints().size() >= 3) {
+                        InOutVector inVector = new InOutVector(robotTrajectory, InOutVector.IN),
                                 outVector = new InOutVector(robotTrajectory, InOutVector.OUT);
-                    if (direction == 2 || direction == 1) {
-                        inVectors.add(inVector);
-                        inOutVectorsList.add(inVector);
-                        robotTrajectory.setInVector(inVector);
+                        if (direction == 2 || direction == 1) {
+                            inVectors.add(inVector);
+                            inOutVectorsList.add(inVector);
+                            robotTrajectory.setInVector(inVector);
+                        }
+                        if (direction == 3 || direction == 1) {
+                            outVectors.add(outVector);
+                            inOutVectorsList.add(outVector);
+                            robotTrajectory.setOutVector(outVector);
+                        }
+                        System.out.println(robotTrajectory.getDirection());
+                        trajectoriesList.add(robotTrajectory);                  //create trajectories list
                     }
-                    if (direction == 3 || direction == 1) {
-                        outVectors.add(outVector);
-                        inOutVectorsList.add(outVector);
-                        robotTrajectory.setOutVector(outVector);
-                    }
-                    System.out.println(robotTrajectory.getDirection());
-                    trajectoriesList.add(robotTrajectory);                  //create trajectories list
                 }
             }
         }

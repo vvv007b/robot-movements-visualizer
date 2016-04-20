@@ -16,37 +16,53 @@ class InOutVector {
     private RobotTrajectory robotTrajectory;
     private Point2D startPoint, endPoint;
     private double speed;
+    private double acceleration;
     private long time;
     private int orientation;
     private HashSet<InOutVector> prev, next;
-    private Color color;
 
     public InOutVector(){
         robotTrajectory = null;
         startPoint = null;
         endPoint = null;
-        color = null;
         prev = new HashSet<InOutVector>();
         next = new HashSet<InOutVector>();
     }
 
     public InOutVector(RobotTrajectory robotTrajectory, int orientation){
+        int startIndex = 0, endIndex = 1;
+        double speed = 0;
         switch (orientation){
             case IN:
-                this.startPoint = robotTrajectory.getPoints().get(0);
-                this.endPoint = robotTrajectory.getPoints().get(1);
-                this.speed = robotTrajectory.getSpeeds().get(0);
-                this.time = robotTrajectory.getTimes().get(0);
+                startIndex = 0;
+                endIndex = 1;
+                this.startPoint = robotTrajectory.getPoints().get(startIndex);
+                this.endPoint = robotTrajectory.getPoints().get(endIndex);
+                this.speed = 1000 * Math.sqrt(Math.pow(endPoint.getX() - startPoint.getX(), 2) +
+                        Math.pow(endPoint.getY() - startPoint.getY(), 2)) /
+                        (robotTrajectory.getTimes().get(endIndex) - robotTrajectory.getTimes().get(startIndex));
+                speed = 1000 * Math.sqrt(Math.pow(robotTrajectory.getPoints().get(endIndex + 1).getX() - robotTrajectory.getPoints().get(endIndex).getX(), 2) +
+                        Math.pow(robotTrajectory.getPoints().get(endIndex + 1).getY() - robotTrajectory.getPoints().get(endIndex).getY(), 2)) /
+                        (robotTrajectory.getTimes().get(endIndex + 1) - robotTrajectory.getTimes().get(endIndex));
+                this.acceleration = 1000 * (speed - this.speed) / (robotTrajectory.getTimes().get(endIndex + 1) - robotTrajectory.getTimes().get(endIndex));
                 break;
             case OUT:
-                this.startPoint = robotTrajectory.getPoints().get(robotTrajectory.getPoints().size() - 2);
-                this.endPoint = robotTrajectory.getPoints().get(robotTrajectory.getPoints().size() - 1);
-                this.speed = robotTrajectory.getSpeeds().get(robotTrajectory.getSpeeds().size() - 1);
-                this.time = robotTrajectory.getTimes().get(robotTrajectory.getTimes().size() - 1);
+                startIndex = robotTrajectory.getPoints().size() - 2;
+                endIndex = robotTrajectory.getPoints().size() - 1;
+                this.startPoint = robotTrajectory.getPoints().get(startIndex);
+                this.endPoint = robotTrajectory.getPoints().get(endIndex);
+                this.speed = 1000 * Math.sqrt(Math.pow(endPoint.getX() - startPoint.getX(), 2) +
+                        Math.pow(endPoint.getY() - startPoint.getY(), 2)) /
+                        (robotTrajectory.getTimes().get(endIndex) - robotTrajectory.getTimes().get(startIndex));
+                speed = 1000 * Math.sqrt(Math.pow(robotTrajectory.getPoints().get(startIndex).getX() - robotTrajectory.getPoints().get(startIndex - 1).getX(), 2) +
+                        Math.pow(robotTrajectory.getPoints().get(startIndex).getY() - robotTrajectory.getPoints().get(startIndex - 1).getY(), 2)) /
+                        (robotTrajectory.getTimes().get(startIndex) - robotTrajectory.getTimes().get(startIndex - 1));
+                this.acceleration = 1000 * (this.speed - speed) / (robotTrajectory.getTimes().get(startIndex) - robotTrajectory.getTimes().get(startIndex - 1));
                 break;
         }
+//        this.speed = robotTrajectory.getSpeeds().get(startIndex);
+        this.time = robotTrajectory.getTimes().get(startIndex);
         this.robotTrajectory = robotTrajectory;
-        this.color = robotTrajectory.getConnectionsColor();
         this.orientation = orientation;
         prev = new HashSet<InOutVector>();
         next = new HashSet<InOutVector>();
@@ -96,15 +112,12 @@ class InOutVector {
         sectorEnd = new Vec2d(sectorEnd.x * wayVectorLength / sectorEndLength, sectorEnd.y * wayVectorLength / sectorEndLength);
         double distance = Math.sqrt(Math.pow(endPoint.getX() - vector.getStartPoint().getX(), 2) +
                 Math.pow(endPoint.getY() - vector.getStartPoint().getY(), 2)),
-                possibleDistance = (this.speed + vector.speed) / 2 * ((vector.time - this.time) / 1000);
+               possibleDistance = (this.speed + vector.speed) / 2 * ((vector.time - this.time) / 1000);
 //        System.out.println(distance + " " + possibleDistance);
         boolean isInReachableDistance = (distance < possibleDistance * 1.2 && distance > possibleDistance * 0.7) || (
                 distance < possibleDistance + 5 && distance > possibleDistance - 5);
         boolean isAzimuthCorrect = Math.abs(this.getAzimuth() - vector.getAzimuth()) < POSSIBLE_ANGLE;
-        boolean isInLargeSector = !areClockwise(sectorStart, wayVector) && areClockwise(sectorEnd, wayVector) && isInReachableDistance && isAzimuthCorrect;
-
-//        boolean isInSmallSector;
-        return isInLargeSector ;
+        return !areClockwise(sectorStart, wayVector) && areClockwise(sectorEnd, wayVector) && isInReachableDistance && isAzimuthCorrect;
     }
 
     private boolean areClockwise(Vec2d v1, Vec2d v2){
@@ -137,6 +150,10 @@ class InOutVector {
 
     public double getSpeed() {
         return speed;
+    }
+
+    public double getAcceleration() {
+        return acceleration;
     }
 
     public long getTime() {

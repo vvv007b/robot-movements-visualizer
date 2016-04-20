@@ -65,31 +65,38 @@ class Tracker extends Thread{
 
                 for (int i = 0; i < allCoordinates.size(); i++){
                     double[] coord = allCoordinates.get(i);
-                    if (camera.isVisible(new Point2D.Double(coord[0], coord[1])) && speeds.get(i) > 0) {
+
+                    Point2D currentPoint = new Point2D.Double(coord[0], coord[1]);
+                    if (camera.isVisible(currentPoint) & speeds.get(i) > 0) {
                         currentVisibleRobots.add(i);
                         g2d.setColor(colors.get(i));
                         g2d.fillOval((int) coord[0] - 3, (int) coord[1] - 3, 6, 6);
-                        if(visibleRobots.indexOf(i) == -1){        //Вообще, наверное, эту проверку вместе с очисткой можно убрать к хуям. или нет.
+                        if(visibleRobots.indexOf(i) == -1){
                             robotsTrajectories.get(i).getPoints().clear();   //Очищаем прошлую траекторию робота
                             robotsTrajectories.get(i).setDirection(2); // Выставляем флаг входа\выхода в положение "только вход"
                             System.out.println("Robot " + i + " entered scope");
                         }
-                        robotsTrajectories.get(i).getPoints().add(new Point2D.Double(coord[0], coord[1]));  //Добавляем его координату
-                        robotsTrajectories.get(i).getSpeeds().add(speeds.get(i));           //И скорость
-                        robotsTrajectories.get(i).getTimes().add(time);                                     //И текущее время
-                        //Проверяем одновременную видимость с нескольких камер
-                        for(Camera curCamera:TrackingSystem.getCameraList()){
-                            if (    curCamera.getTracker().isRobotVisibleNow(i) &&
-                                    robotsTrajectories.get(i).getConnectedTrajectories().indexOf(curCamera.getTracker().getRobotsTrajectories().get(i)) == -1 &&
-                                    curCamera != this.getCamera()){
-                                if (robotTrajectoryLength(i) > curCamera.getTracker().robotTrajectoryLength(i)){
-                                    robotsTrajectories.get(i).getNext().add(curCamera.getTracker().getRobotsTrajectories().get(i));
+                        Point2D prevPoint;
+                        if(robotsTrajectories.get(i).getPoints().size() > 0)
+                            prevPoint = robotsTrajectories.get(i).getPoints().get(robotsTrajectories.get(i).getPoints().size() - 1);
+                        else prevPoint = new Point2D.Double(-1, -1);            //impossible point
+                        if(!currentPoint.equals(prevPoint)) {
+                            robotsTrajectories.get(i).getPoints().add(currentPoint);  //Добавляем его координату
+                            robotsTrajectories.get(i).getSpeeds().add(speeds.get(i));           //И скорость
+                            robotsTrajectories.get(i).getTimes().add(time);                                     //И текущее время
+                            //Проверяем одновременную видимость с нескольких камер
+                            for (Camera curCamera : TrackingSystem.getCameraList()) {
+                                if (curCamera.getTracker().isRobotVisibleNow(i) &&
+                                        robotsTrajectories.get(i).getConnectedTrajectories().indexOf(curCamera.getTracker().getRobotsTrajectories().get(i)) == -1 &&
+                                        curCamera != this.getCamera()) {
+                                    if (robotTrajectoryLength(i) > curCamera.getTracker().robotTrajectoryLength(i)) {
+                                        robotsTrajectories.get(i).getNext().add(curCamera.getTracker().getRobotsTrajectories().get(i));
+                                    } else {
+                                        robotsTrajectories.get(i).getPrev().add(curCamera.getTracker().getRobotsTrajectories().get(i));
+                                    }
+                                    System.out.println("double vision");
+                                    robotsTrajectories.get(i).getConnectedTrajectories().add(curCamera.getTracker().getRobotsTrajectories().get(i));
                                 }
-                                else{
-                                    robotsTrajectories.get(i).getPrev().add(curCamera.getTracker().getRobotsTrajectories().get(i));
-                                }
-                                System.out.println("double vision");
-                                robotsTrajectories.get(i).getConnectedTrajectories().add(curCamera.getTracker().getRobotsTrajectories().get(i));
                             }
                         }
                     }

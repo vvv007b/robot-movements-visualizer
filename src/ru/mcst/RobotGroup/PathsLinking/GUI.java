@@ -8,7 +8,6 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 /**
  * Created by bocharov_n on 22.10.15.
@@ -190,24 +189,24 @@ public class GUI extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 TrackingSystem.linkTrajectories();
-                ArrayList<RobotTrajectory> toDrawList = new ArrayList<RobotTrajectory>(TrackingSystem.getTrajectoriesList());
-                while (!toDrawList.isEmpty()){
-                    RobotTrajectory rt = toDrawList.get(0);
-                    if (rt.getInVector() != null)
-                        mapPanel.fillCircle((int)rt.getInVector().getStartPoint().getX(), (int)rt.getInVector().getStartPoint().getY(), rt.getConnectionsColor());
-                    if(rt.getOutVector() != null)
-                        mapPanel.fillCircle((int)rt.getOutVector().getStartPoint().getX(), (int)rt.getOutVector().getStartPoint().getY(), rt.getConnectionsColor());
-                    for(RobotTrajectory connectedRT:rt.getConnectedTrajectories()){
-                        if (connectedRT.getInVector() != null)
-                            mapPanel.fillCircle((int)connectedRT.getInVector().getStartPoint().getX(), (int)connectedRT.getInVector().getStartPoint().getY(), rt.getConnectionsColor());
-                        if(connectedRT.getOutVector() != null)
-                            mapPanel.fillCircle((int)connectedRT.getOutVector().getStartPoint().getX(), (int)connectedRT.getOutVector().getStartPoint().getY(), rt.getConnectionsColor());
-                        if (toDrawList.indexOf(connectedRT) >= 0)
-                            toDrawList.remove(connectedRT);
-                    }
-                    if (toDrawList.indexOf(rt) >= 0)
-                        toDrawList.remove(rt);
-                }
+//                ArrayList<RobotTrajectory> toDrawList = new ArrayList<RobotTrajectory>(TrackingSystem.getTrajectoriesList());
+//                while (!toDrawList.isEmpty()){
+//                    RobotTrajectory rt = toDrawList.get(0);
+//                    if (rt.getInVector() != null)
+//                        mapPanel.fillCircle((int)rt.getInVector().getStartPoint().getX(), (int)rt.getInVector().getStartPoint().getY(), rt.getConnectionsColor());
+//                    if(rt.getOutVector() != null)
+//                        mapPanel.fillCircle((int)rt.getOutVector().getStartPoint().getX(), (int)rt.getOutVector().getStartPoint().getY(), rt.getConnectionsColor());
+//                    for(RobotTrajectory connectedRT:rt.getConnectedTrajectories()){
+//                        if (connectedRT.getInVector() != null)
+//                            mapPanel.fillCircle((int)connectedRT.getInVector().getStartPoint().getX(), (int)connectedRT.getInVector().getStartPoint().getY(), rt.getConnectionsColor());
+//                        if(connectedRT.getOutVector() != null)
+//                            mapPanel.fillCircle((int)connectedRT.getOutVector().getStartPoint().getX(), (int)connectedRT.getOutVector().getStartPoint().getY(), rt.getConnectionsColor());
+//                        if (toDrawList.indexOf(connectedRT) >= 0)
+//                            toDrawList.remove(connectedRT);
+//                    }
+//                    if (toDrawList.indexOf(rt) >= 0)
+//                        toDrawList.remove(rt);
+//                }
             }
         });
 
@@ -251,6 +250,7 @@ public class GUI extends JFrame{
                 "vector." + System.lineSeparator() + "x: " + vector.getX() + System.lineSeparator() +
                 "y: " + vector.getY() + System.lineSeparator() + "azimuth: " + vector.getAzimuth() +
                 System.lineSeparator() + "speed: " + vector.getSpeed() + System.lineSeparator() +
+                "acceleration: " + vector.getAcceleration() + System.lineSeparator() +
                 "time: " + vector.getTime();
         JOptionPane.showMessageDialog(mapPanel, message);
     }
