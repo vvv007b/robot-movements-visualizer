@@ -153,6 +153,10 @@ class Tracker extends Thread{
         visibleRobots.clear();
     }
 
+    public int getVisibleRobotsCount() {
+        return visibleRobots.size();
+    }
+
     public boolean isRobotVisibleNow(int index){
         return visibleRobots.indexOf(index) >= 0;
     }

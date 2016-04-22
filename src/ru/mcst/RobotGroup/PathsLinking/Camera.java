@@ -23,18 +23,14 @@ class Camera {
         this.r = r;
         this.angle = angle;
         arc = null;
+        arc = new Arc2D.Double(0.0, 0.5, r, r, 0.0, 60.0, Arc2D.CHORD);
         redrawFOV();
         isExist = true;
         tracker = null;
-
     }
 
     public void redrawFOV(){
-        arc = new Arc2D.Double(0.0, 0.5, r, r, 0.0, 60.0, Arc2D.CHORD);         //TODO: is this string necessary?
-
         arc.setArcByCenter(r, r, r, azimuth - angle / 2, angle, Arc2D.OPEN);
-
-
     }
 
     public boolean isOnCorner(Point2D p){
@@ -124,4 +120,5 @@ class Camera {
     public void setTracker(Tracker tracker) {
         this.tracker = tracker;
     }
+
 }

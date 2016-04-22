@@ -121,10 +121,10 @@ class InOutVector {
                 distance < possibleDistance + 5 && distance > possibleDistance - 5);
         boolean isAzimuthCorrect = Math.abs(this.getAzimuth() - vector.getAzimuth()) < POSSIBLE_ANGLE;
         boolean isInSector = !areClockwise(sectorStart, wayVector) && areClockwise(sectorEnd, wayVector);
-        System.out.println(isInReachableDistance);
-        System.out.println(isAzimuthCorrect);
-        System.out.println(isInSector);
-        System.out.println(distance + " " + possibleDistance);
+//        System.out.println(isInReachableDistance);
+//        System.out.println(isAzimuthCorrect);
+//        System.out.println(isInSector);
+//        System.out.println(distance + " " + possibleDistance);
 
         return isInSector && isInReachableDistance && isAzimuthCorrect;
     }

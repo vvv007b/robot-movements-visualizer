@@ -32,6 +32,7 @@ public class GUI extends JFrame{
     private JRadioButton moveCameraRadioButton;
     private JLabel cameraXLabel;
     private JLabel cameraYLabel;
+    private JLabel statusLabel;
     private static MapUnderlay mapPanel;
 
     private static Camera currentCamera;
@@ -189,24 +190,6 @@ public class GUI extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 TrackingSystem.linkTrajectories();
-//                ArrayList<RobotTrajectory> toDrawList = new ArrayList<RobotTrajectory>(TrackingSystem.getTrajectoriesList());
-//                while (!toDrawList.isEmpty()){
-//                    RobotTrajectory rt = toDrawList.get(0);
-//                    if (rt.getInVector() != null)
-//                        mapPanel.fillCircle((int)rt.getInVector().getStartPoint().getX(), (int)rt.getInVector().getStartPoint().getY(), rt.getConnectionsColor());
-//                    if(rt.getOutVector() != null)
-//                        mapPanel.fillCircle((int)rt.getOutVector().getStartPoint().getX(), (int)rt.getOutVector().getStartPoint().getY(), rt.getConnectionsColor());
-//                    for(RobotTrajectory connectedRT:rt.getConnectedTrajectories()){
-//                        if (connectedRT.getInVector() != null)
-//                            mapPanel.fillCircle((int)connectedRT.getInVector().getStartPoint().getX(), (int)connectedRT.getInVector().getStartPoint().getY(), rt.getConnectionsColor());
-//                        if(connectedRT.getOutVector() != null)
-//                            mapPanel.fillCircle((int)connectedRT.getOutVector().getStartPoint().getX(), (int)connectedRT.getOutVector().getStartPoint().getY(), rt.getConnectionsColor());
-//                        if (toDrawList.indexOf(connectedRT) >= 0)
-//                            toDrawList.remove(connectedRT);
-//                    }
-//                    if (toDrawList.indexOf(rt) >= 0)
-//                        toDrawList.remove(rt);
-//                }
             }
         });
 
@@ -244,7 +227,17 @@ public class GUI extends JFrame{
         lineLabel.setBounds(insets.left, insets.top, size.width, size.height);
     }*/
 
-    public static void inOutVectorNotification(InOutVector vector){
+    public void updateStatus(){
+        String status = "<html>";
+        for(Camera curCamera:TrackingSystem.getCameraList()){
+            status += "Camera " + TrackingSystem.getCameraList().indexOf(curCamera) + " see " + curCamera.getTracker().getVisibleRobotsCount() +
+                    " robots<br>";
+        }
+        status += "</html>";
+        statusLabel.setText(status);
+    }
+
+    public void inOutVectorNotification(InOutVector vector){
         String message = (vector.getOrientation() == InOutVector.IN ? "In " : "Out ") +
 
                 "vector: " + TrackingSystem.getInOutVectorsList().indexOf(vector) + System.lineSeparator() +
@@ -256,13 +249,13 @@ public class GUI extends JFrame{
                 "start time: " + vector.startTime + System.lineSeparator() +
                 "end time: " + vector.endTime + System.lineSeparator() +
                 "delta time: " + (vector.endTime - vector.startTime) + System.lineSeparator();
-        if(vector.getOrientation() == InOutVector.OUT)
-            for(InOutVector inOutVector:TrackingSystem.getInOutVectorsList()){
-                if (inOutVector.getOrientation() == InOutVector.IN){
-                    System.out.println("vector " + TrackingSystem.getInOutVectorsList().indexOf(inOutVector));
-                    vector.isPotentialFollowerTo(inOutVector);
-                }
-            }
+//        if(vector.getOrientation() == InOutVector.OUT)
+//            for(InOutVector inOutVector:TrackingSystem.getInOutVectorsList()){
+//                if (inOutVector.getOrientation() == InOutVector.IN){
+//                    System.out.println("vector " + TrackingSystem.getInOutVectorsList().indexOf(inOutVector));
+//                    vector.isPotentialFollowerTo(inOutVector);
+//                }
+//            }
         JOptionPane.showMessageDialog(mapPanel, message);
     }
 
