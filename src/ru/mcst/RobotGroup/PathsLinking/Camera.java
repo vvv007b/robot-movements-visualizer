@@ -12,9 +12,9 @@ class Camera {
 
     private int x, y, azimuth, r, angle;
     private Arc2D arc;
-    private double accuracy = 1.0;
     private boolean isExist;
     private Tracker tracker;
+    private int index;
 
     public Camera(int x, int y, int azimuth, int r, int angle){
         this.x = x;
@@ -22,11 +22,11 @@ class Camera {
         this.azimuth = azimuth;
         this.r = r;
         this.angle = angle;
-        arc = null;
-        arc = new Arc2D.Double(0.0, 0.5, r, r, 0.0, 60.0, Arc2D.CHORD);
+        this.arc = new Arc2D.Double(0.0, 0.5, r, r, 0.0, 60.0, Arc2D.CHORD);             //random parameters for creating new arc
         redrawFOV();
-        isExist = true;
-        tracker = null;
+        this.isExist = true;
+        this.tracker = null;
+        this.index = TrackingSystem.getCameraList().size();
     }
 
     public void redrawFOV(){
@@ -34,11 +34,12 @@ class Camera {
     }
 
     public boolean isOnCorner(Point2D p){
-        boolean isOnArc = Math.abs(Math.sqrt(Math.pow(this.x - p.getX(), 2) + Math.pow(this.y - p.getY(), 2)) - this.r) < this.accuracy;
+        double accuracy = 1.0;
+        boolean isOnArc = Math.abs(Math.sqrt(Math.pow(this.x - p.getX(), 2) + Math.pow(this.y - p.getY(), 2)) - this.r) < accuracy;
         boolean isOnLeftLine = Math.abs(p.getY() - this.y -
-                Math.tan(Math.toRadians(this.azimuth + this.angle / 2)) * (p.getX() - this.x)) < this.accuracy;
+                Math.tan(Math.toRadians(this.azimuth + this.angle / 2)) * (p.getX() - this.x)) < accuracy;
         boolean isOnRightLine = Math.abs(p.getY() - this.y -
-                Math.tan(Math.toRadians(this.azimuth - this.angle / 2)) * (p.getX() - this.x)) < this.accuracy;
+                Math.tan(Math.toRadians(this.azimuth - this.angle / 2)) * (p.getX() - this.x)) < accuracy;
         return isOnArc || isOnLeftLine || isOnRightLine;
     }
 
@@ -51,7 +52,7 @@ class Camera {
                 endY = this.getY() - this.getR() + this.getArc().getEndPoint().getY();
         Point2D startPoint = new Point2D.Double(startX, startY),
                 endPoint = new Point2D.Double(endX, endY),
-                centerPoint = new Point2D.Float(this.getX(), this.getY());
+                centerPoint = new Point2D.Double(this.getX(), this.getY());
 
         Vec2d sectorStart = new Vec2d(startPoint.getX() - centerPoint.getX(), startPoint.getY() - centerPoint.getY()),
                 sectorEnd = new Vec2d(endPoint.getX() - centerPoint.getX(), endPoint.getY() - centerPoint.getY()),
@@ -121,4 +122,7 @@ class Camera {
         this.tracker = tracker;
     }
 
+    public int getIndex() {
+        return index;
+    }
 }

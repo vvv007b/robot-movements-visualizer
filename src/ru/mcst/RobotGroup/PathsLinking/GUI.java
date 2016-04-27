@@ -196,6 +196,61 @@ public class GUI extends JFrame{
         System.out.print("ui");
     }
 
+
+
+    public void updateStatus(){
+        String status = "<html>";
+        for(Camera curCamera:TrackingSystem.getCameraList()){
+            status += "Camera " + TrackingSystem.getCameraList().indexOf(curCamera) + " see " + curCamera.getTracker().getVisibleRobotsCount() +
+                    " robots<br>";
+        }
+        status += "</html>";
+        statusLabel.setText(status);
+    }
+
+    public void inOutVectorNotification(InOutVector vector){
+        String message = (vector.getOrientation() == InOutVector.IN ? "In " : "Out ") +
+
+                "vector: " + TrackingSystem.getInOutVectorsList().indexOf(vector) + System.lineSeparator() +
+                "x: " + vector.getX() + System.lineSeparator() +
+                "y: " + vector.getY() + System.lineSeparator() +
+                "azimuth: " + vector.getAzimuth() + System.lineSeparator() +
+                "speed: " + vector.getSpeed() + System.lineSeparator() +
+                "acceleration: " + vector.getAcceleration() + System.lineSeparator()  +
+                "start time: " + vector.startTime + System.lineSeparator() +
+                "end time: " + vector.endTime + System.lineSeparator() +
+                "delta time: " + (vector.endTime - vector.startTime) + System.lineSeparator() +
+                "connections: " + (vector.getOrientation() == InOutVector.IN ? vector.getPrev().size() : vector.getNext().size());
+//        if(vector.getOrientation() == InOutVector.OUT)
+//            for(InOutVector inOutVector:TrackingSystem.getInOutVectorsList()){
+//                if (inOutVector.getOrientation() == InOutVector.IN){
+//                    System.out.println("vector " + TrackingSystem.getInOutVectorsList().indexOf(inOutVector));
+//                    vector.isPotentialFollowerTo(inOutVector);
+//                }
+//            }
+//        JOptionPane.showMessageDialog(mapPanel, message);
+        System.out.println(message);
+    }
+
+    public void setCurrentCamera(Camera camera) {
+        GUI.currentCamera = camera;
+
+        cameraXLabel.setText("X: " + camera.getX());
+        cameraYLabel.setText("Y: " + camera.getY());
+        removeCameraButton.setEnabled(true);
+
+        cameraAzimuthSlider.setEnabled(true);
+        cameraAngleSlider.setEnabled(true);
+        cameraRSlider.setEnabled(true);
+        cameraAzimuthSlider.setValue(camera.getAzimuth());
+        cameraAngleSlider.setValue(camera.getAngle());
+        cameraRSlider.setValue(camera.getR());
+        cameraAzimuthTextField.setText("Camera azimuth: " + cameraAzimuthSlider.getValue());
+        cameraAngleTextField.setText("Camera angle of view: " + cameraAngleSlider.getValue());
+        cameraRTextField.setText("Camera radius: " + cameraRSlider.getValue());
+
+    }
+
     /*public void drawLine(StraightLine line){
         double a = line.getA();
         double r = line.getR();
@@ -226,57 +281,6 @@ public class GUI extends JFrame{
         Dimension size = lineLabel.getPreferredSize();
         lineLabel.setBounds(insets.left, insets.top, size.width, size.height);
     }*/
-
-    public void updateStatus(){
-        String status = "<html>";
-        for(Camera curCamera:TrackingSystem.getCameraList()){
-            status += "Camera " + TrackingSystem.getCameraList().indexOf(curCamera) + " see " + curCamera.getTracker().getVisibleRobotsCount() +
-                    " robots<br>";
-        }
-        status += "</html>";
-        statusLabel.setText(status);
-    }
-
-    public void inOutVectorNotification(InOutVector vector){
-        String message = (vector.getOrientation() == InOutVector.IN ? "In " : "Out ") +
-
-                "vector: " + TrackingSystem.getInOutVectorsList().indexOf(vector) + System.lineSeparator() +
-                "x: " + vector.getX() + System.lineSeparator() +
-                "y: " + vector.getY() + System.lineSeparator() +
-                "azimuth: " + vector.getAzimuth() + System.lineSeparator() +
-                "speed: " + vector.getSpeed() + System.lineSeparator() +
-                "acceleration: " + vector.getAcceleration() + System.lineSeparator()  +
-                "start time: " + vector.startTime + System.lineSeparator() +
-                "end time: " + vector.endTime + System.lineSeparator() +
-                "delta time: " + (vector.endTime - vector.startTime) + System.lineSeparator();
-//        if(vector.getOrientation() == InOutVector.OUT)
-//            for(InOutVector inOutVector:TrackingSystem.getInOutVectorsList()){
-//                if (inOutVector.getOrientation() == InOutVector.IN){
-//                    System.out.println("vector " + TrackingSystem.getInOutVectorsList().indexOf(inOutVector));
-//                    vector.isPotentialFollowerTo(inOutVector);
-//                }
-//            }
-        JOptionPane.showMessageDialog(mapPanel, message);
-    }
-
-    public void setCurrentCamera(Camera camera) {
-        GUI.currentCamera = camera;
-
-        cameraXLabel.setText("X: " + camera.getX());
-        cameraYLabel.setText("Y: " + camera.getY());
-        removeCameraButton.setEnabled(true);
-
-        cameraAzimuthSlider.setEnabled(true);
-        cameraAngleSlider.setEnabled(true);
-        cameraRSlider.setEnabled(true);
-        cameraAzimuthSlider.setValue(camera.getAzimuth());
-        cameraAngleSlider.setValue(camera.getAngle());
-        cameraRSlider.setValue(camera.getR());
-        cameraAzimuthTextField.setText("Camera azimuth: " + cameraAzimuthSlider.getValue());
-        cameraAngleTextField.setText("Camera angle of view: " + cameraAngleSlider.getValue());
-        cameraRTextField.setText("Camera radius: " + cameraRSlider.getValue());
-
-    }
 
     public JLabel getMouseXLabel() {
         return mouseXLabel;

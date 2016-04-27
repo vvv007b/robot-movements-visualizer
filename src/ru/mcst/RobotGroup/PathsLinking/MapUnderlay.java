@@ -188,7 +188,7 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
                 }
 
                 if (currentCamera != null) {
-                    System.out.println("Camera " + currentCamera.getX() + " " + currentCamera.getY() + " selected");
+                    System.out.println("Camera " + currentCamera.getIndex() + " at " + currentCamera.getX() + " " + currentCamera.getY() + " selected");
                     this.currentCamera = currentCamera;
                     parentGUI.setCurrentCamera(currentCamera);
                 }

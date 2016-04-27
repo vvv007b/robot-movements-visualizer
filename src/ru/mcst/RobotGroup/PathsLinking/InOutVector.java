@@ -133,10 +133,6 @@ class InOutVector {
         return -v1.x * v2.y + v1.y * v2.x <= 0;
     }
 
-//    public boolean isBehind(InOutVector vector){
-//        return (vector.getEndPoint().getX() - startPoint.getX()) / (endPoint.getX() - startPoint.getX()) > 0;
-//    }
-
     public double getX(){
         return orientation == IN ? startPoint.getX() : endPoint.getX();
     }

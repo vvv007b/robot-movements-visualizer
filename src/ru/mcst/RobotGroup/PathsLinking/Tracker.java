@@ -29,6 +29,7 @@ class Tracker extends Thread{
     }
 
     public void run(){
+        System.out.println("Tracker start");
         while (camera.isExist()){
             ArrayList<double[]> allCoordinates = new ArrayList<double[]>(Hypervisor.getAllCoordinates());
             ArrayList<Double> speeds = new ArrayList<Double>(Hypervisor.getSpeeds());
@@ -68,7 +69,7 @@ class Tracker extends Thread{
                     double[] coord = allCoordinates.get(i);
 
                     Point2D currentPoint = new Point2D.Double(coord[0], coord[1]);
-                    if (camera.isVisible(currentPoint) & speeds.get(i) > 0) {
+                    if (camera.isVisible(currentPoint) && speeds.get(i) > 0) {
                         currentVisibleRobots.add(i);
                         g2d.setColor(colors.get(i));
                         g2d.fillOval((int) coord[0] - 3, (int) coord[1] - 3, 6, 6);
@@ -137,6 +138,7 @@ class Tracker extends Thread{
             }
 
         }
+        System.out.println("Tracker end");
     }
 
     public void finishAllTrajectories(){
@@ -171,10 +173,6 @@ class Tracker extends Thread{
 
     public Camera getCamera() {
         return camera;
-    }
-
-    public void setCamera(Camera camera) {
-        this.camera = camera;
     }
 
     public ArrayList<RobotTrajectory> getTrajectories() {
