@@ -17,6 +17,7 @@ class Tracker extends Thread{
     private ArrayList<Integer> visibleRobots;
     private ArrayList<Color> colors;
     private ArrayList<RobotTrajectory> robotsTrajectories;
+    private boolean markForClear;
     //private ArrayList<Integer> robotsTrajectoriesDirections;
 
     public Tracker(Camera camera){
@@ -26,11 +27,19 @@ class Tracker extends Thread{
         visibleRobots = new ArrayList<Integer>();
         colors = new ArrayList<Color>();
         robotsTrajectories = new ArrayList<RobotTrajectory>();
+        this.setName("Camera " + camera.getIndex());
+        markForClear = false;
     }
 
     public void run(){
         System.out.println("Tracker start");
         while (camera.isExist()){
+            if(markForClear){
+                markForClear = false;
+                trajectories.clear();
+                robotsTrajectories.clear();
+                visibleRobots.clear();
+            }
             ArrayList<double[]> allCoordinates = new ArrayList<double[]>(Hypervisor.getAllCoordinates());
             ArrayList<Double> speeds = new ArrayList<Double>(Hypervisor.getSpeeds());
             ArrayList<Long> times = new ArrayList<Long>(Hypervisor.getUpdateTimes());
@@ -177,5 +186,9 @@ class Tracker extends Thread{
 
     public ArrayList<RobotTrajectory> getTrajectories() {
         return trajectories;
+    }
+
+    public void setMarkForClear(boolean markForClear) {
+        this.markForClear = markForClear;
     }
 }

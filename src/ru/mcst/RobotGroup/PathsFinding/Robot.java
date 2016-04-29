@@ -216,6 +216,7 @@ class Robot implements Cloneable {
                 map.removeNode(finish);
                 map.removeNode(toDelete);
 				robotBlocking=null;
+				cacheSpeedCoordinates();
             	return time;
             }
             if(!mapChangedSignal)	{ //���� ������������ �� �� �� ��������� ����� (��������, �� ��� ������ ����)
@@ -251,6 +252,7 @@ class Robot implements Cloneable {
 				map.removeNode(start);
                 map.removeNode(finish);
                 map.removeNode(toDelete);
+				cacheSpeedCoordinates();
             	return time;
             }
                         
@@ -406,7 +408,7 @@ class Robot implements Cloneable {
 				cacheSpeedCoordinates();
 				try {    		            
 //					Thread.sleep(1);
-					Thread.sleep((sleepTime-(System.currentTimeMillis()-startedTime ))< 0 ? 0 : sleepTime-(System.currentTimeMillis()-startedTime));
+					Thread.sleep((sleepTime-(System.currentTimeMillis()-startedTime ))< 0 ? 0 : (sleepTime-(System.currentTimeMillis()-startedTime)));
 					startedTime=System.currentTimeMillis();
 					updateTime=System.currentTimeMillis();
 				} catch(InterruptedException ex) {

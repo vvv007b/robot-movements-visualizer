@@ -153,6 +153,9 @@ public class GUI extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 TrackingSystem.removeCamera(currentCamera);
+                for(int i = 0; i < TrackingSystem.getCameraList().size(); i++){
+                    TrackingSystem.getCameraList().get(i).setIndex(i);
+                }
                 currentCamera.setExist(false);
 
                 currentCamera = null;
@@ -177,7 +180,8 @@ public class GUI extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 for(Camera camera:TrackingSystem.getCameraList()){
-                    camera.getTracker().clear();
+//                    camera.getTracker().clear();
+                    camera.getTracker().setMarkForClear(true);
                 }
                 TrackingSystem.getTrajectoriesList().clear();
                 TrackingSystem.getInOutVectorsList().clear();
