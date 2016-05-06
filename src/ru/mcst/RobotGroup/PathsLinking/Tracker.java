@@ -18,6 +18,7 @@ class Tracker extends Thread{
     private ArrayList<Color> colors;
     private ArrayList<RobotTrajectory> robotsTrajectories;
     private boolean markForClear;
+//    private int iterationsCounter;
     //private ArrayList<Integer> robotsTrajectoriesDirections;
 
     public Tracker(Camera camera){
@@ -40,13 +41,10 @@ class Tracker extends Thread{
                 robotsTrajectories.clear();
                 visibleRobots.clear();
             }
-            ArrayList<double[]> allCoordinates = new ArrayList<double[]>(Hypervisor.getAllCoordinates());
-            ArrayList<Double> speeds = new ArrayList<Double>(Hypervisor.getSpeeds());
-            ArrayList<Long> times = new ArrayList<Long>(Hypervisor.getUpdateTimes());
+            ArrayList<double[]> allCoordinates = Hypervisor.getAllCoordinates();
+            ArrayList<Double> speeds = Hypervisor.getSpeeds();
+            ArrayList<Long> times = Hypervisor.getUpdateTimes();
 //            long time = System.currentTimeMillis();
-
-            // Here will be check if robots start moving, that change arrays size and create empty fields everywhere;
-            // now there a stupid crutch
             if(colors.size() < allCoordinates.size()){
                 for(int i = 0; i < allCoordinates.size(); i++){
                     Random rand = new Random();
@@ -76,7 +74,6 @@ class Tracker extends Thread{
 
                 for (int i = 0; i < allCoordinates.size(); i++){
                     double[] coord = allCoordinates.get(i);
-
                     Point2D currentPoint = new Point2D.Double(coord[0], coord[1]);
                     if (camera.isVisible(currentPoint) && speeds.get(i) > 0) {
                         currentVisibleRobots.add(i);
@@ -99,7 +96,7 @@ class Tracker extends Thread{
                             for (Camera curCamera : TrackingSystem.getCameraList()) {
                                 if (curCamera.getTracker().isRobotVisibleNow(i) &&
                                         robotsTrajectories.get(i).getConnectedTrajectories().indexOf(curCamera.getTracker().getRobotsTrajectories().get(i)) == -1 &&
-                                        curCamera != this.getCamera()) {
+                                        curCamera != camera) {
                                     if (robotTrajectoryLength(i) > curCamera.getTracker().robotTrajectoryLength(i)) {
                                         robotsTrajectories.get(i).getNext().add(curCamera.getTracker().getRobotsTrajectories().get(i));
                                     } else {
@@ -143,6 +140,7 @@ class Tracker extends Thread{
                 sleep(25);
             }
             catch(InterruptedException ex){
+                System.out.println("Some error in thread sleep");
                 ex.printStackTrace();
             }
 

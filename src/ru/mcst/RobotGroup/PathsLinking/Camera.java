@@ -4,7 +4,6 @@ import com.sun.javafx.geom.Vec2d;
 
 import java.awt.geom.Arc2D;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 
 /**
  * Created by bocharov_n on 14.10.15.
@@ -16,13 +15,13 @@ class Camera {
     private boolean isExist;
     private Tracker tracker;
     private int index;
-    private boolean isInCircleGlobal, areClockWiseGlobal1, areClockWiseGlobal2;
-    private Point2D curPointGlobal;
-    private ArrayList<Boolean> isInCircleGlobalList = new ArrayList<Boolean>(),
-            areClockWiseGlobal1List = new ArrayList<Boolean>(),
-            areClockWiseGlobal2List = new ArrayList<Boolean>();
-    private ArrayList<Point2D> curPointGlobalList = new ArrayList<Point2D>();
-    private ArrayList<Long> timesGlobalList = new ArrayList<Long>();
+//    private boolean isInCircleGlobal, areClockWiseGlobal1, areClockWiseGlobal2;
+//    private Point2D curPointGlobal;
+//    private ArrayList<Boolean> isInCircleGlobalList = new ArrayList<Boolean>(),
+//            areClockWiseGlobal1List = new ArrayList<Boolean>(),
+//            areClockWiseGlobal2List = new ArrayList<Boolean>();
+//    private ArrayList<Point2D> curPointGlobalList = new ArrayList<Point2D>();
+//    private ArrayList<Long> timesGlobalList = new ArrayList<Long>();
 
     public Camera(int x, int y, int azimuth, int r, int angle){
         this.x = x;
@@ -65,23 +64,23 @@ class Camera {
         Vec2d sectorStart = new Vec2d(startPoint.getX() - centerPoint.getX(), startPoint.getY() - centerPoint.getY()),
                 sectorEnd = new Vec2d(endPoint.getX() - centerPoint.getX(), endPoint.getY() - centerPoint.getY()),
                 relPoint = new Vec2d(x - centerPoint.getX(), y - centerPoint.getY());
-        curPointGlobal = point;
-        isInCircleGlobal = isInCircle;
-        areClockWiseGlobal1 = !areClockwise(sectorStart, relPoint);
-        areClockWiseGlobal2 = areClockwise(sectorEnd, relPoint);
-        curPointGlobalList.add(point);
-        isInCircleGlobalList.add(isInCircle);
-        areClockWiseGlobal1List.add(!areClockwise(sectorStart, relPoint));
-        areClockWiseGlobal2List.add(areClockwise(sectorEnd, relPoint));
-        timesGlobalList.add(System.currentTimeMillis());
-        while(curPointGlobalList.size() >= 50){
-            curPointGlobalList.remove(0);
-            isInCircleGlobalList.remove(0);
-            areClockWiseGlobal1List.remove(0);
-            areClockWiseGlobal2List.remove(0);
-            timesGlobalList.remove(0);
-        }
-        return  isInCircleGlobal && areClockWiseGlobal1 && areClockWiseGlobal2;
+//        curPointGlobal = point;
+//        isInCircleGlobal = isInCircle;
+//        areClockWiseGlobal1 = !areClockwise(sectorStart, relPoint);
+//        areClockWiseGlobal2 = areClockwise(sectorEnd, relPoint);
+//        curPointGlobalList.add(point);
+//        isInCircleGlobalList.add(isInCircle);
+//        areClockWiseGlobal1List.add(!areClockwise(sectorStart, relPoint));
+//        areClockWiseGlobal2List.add(areClockwise(sectorEnd, relPoint));
+//        timesGlobalList.add(System.currentTimeMillis());
+//        while(curPointGlobalList.size() >= 50){
+//            curPointGlobalList.remove(0);
+//            isInCircleGlobalList.remove(0);
+//            areClockWiseGlobal1List.remove(0);
+//            areClockWiseGlobal2List.remove(0);
+//            timesGlobalList.remove(0);
+//        }
+        return  isInCircle && !areClockwise(sectorStart, relPoint) && areClockwise(sectorEnd, relPoint);
 //        return isInCircle && !areClockwise(sectorStart, relPoint) && areClockwise(sectorEnd, relPoint);
     }
 

@@ -87,8 +87,9 @@ class InOutVector {
     }
 
     public double getAzimuth(){
-        return ( endPoint.getX() - startPoint.getX() == 0 ) ? 90 :
-        Math.toDegrees(Math.atan((endPoint.getY() - startPoint.getY()) / (endPoint.getX() - startPoint.getX())));
+        double x = endPoint.getX() - startPoint.getX(),
+                y = endPoint.getY() - startPoint.getY();
+        return ( x == 0 ) ? 90 : (x < 0 && y > 0) ? (180 + Math.toDegrees(Math.atan(y / x))) : Math.toDegrees(Math.atan(y / x));
     }
 
     public double getNormal(){
