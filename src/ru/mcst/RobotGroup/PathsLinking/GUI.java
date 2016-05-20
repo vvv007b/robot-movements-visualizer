@@ -40,6 +40,7 @@ public class GUI extends JFrame{
 
     public GUI(){
         super();
+        long startUITime = System.currentTimeMillis();
         currentCamera   = null;
         createMyComponents();
         startMapListenerDaemon();
@@ -48,6 +49,7 @@ public class GUI extends JFrame{
         pack();
         setSize(1001, 720);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        System.out.println("UI load time: " + (System.currentTimeMillis() - startUITime));
     }
 
     private void startMapListenerDaemon(){
@@ -183,6 +185,8 @@ public class GUI extends JFrame{
 //                    camera.getTracker().clear();
                     camera.getTracker().setMarkForClear(true);
                 }
+                setCurrentVector(null);
+                mapPanel.setCurrentVector(null);
                 TrackingSystem.getTrajectoriesList().clear();
                 TrackingSystem.getInOutVectorsList().clear();
                 mapPanel.clearTrajectoriesLayer();
@@ -193,11 +197,11 @@ public class GUI extends JFrame{
         linkTrajectoriesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                long startTime = System.currentTimeMillis();
                 TrackingSystem.linkTrajectories();
+                System.out.println("Trajectories link time(ms): " + (System.currentTimeMillis() - startTime));
             }
         });
-
-        System.out.print("ui");
     }
 
 
@@ -268,7 +272,7 @@ public class GUI extends JFrame{
         Point2D firstPoint = null, secondPoint = null;
         if(point1.getY() >= 0) firstPoint = point1;
         else firstPoint = point2;
-        if(point4.getX() >= 0 && point4.getY() >= 0) secondPoint = point4;
+        secondPoint = point4;
         if(point3.getX() >= 0 && point3.getY() >= 0) secondPoint = point3;
         if(point2.getX() >= 0 && point2.getY() >= 0) secondPoint = point2;
         BufferedImage lineImage = new BufferedImage(mapPanel.getWidth(), mapPanel.getHeight(), BufferedImage.TYPE_INT_ARGB);

@@ -163,6 +163,9 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
         this.selectedTool = selectedTool;
     }
 
+    public void setCurrentVector(InOutVector currentVector) {
+        this.currentVector = currentVector;
+    }
 
     private void moveCamera(int x, int y) {
         currentCamera.setX(x);
@@ -174,6 +177,7 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        long startTime = System.currentTimeMillis();
         double minDistance;
         switch(selectedTool){
             case SELECT_CAMERA_TOOL:
@@ -226,6 +230,7 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
                 break;
         }
         repaint();
+        System.out.println("Click event handling(ms): " + (System.currentTimeMillis() - startTime));
     }
 
     @Override

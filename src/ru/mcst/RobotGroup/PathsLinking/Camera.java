@@ -15,13 +15,6 @@ class Camera {
     private boolean isExist;
     private Tracker tracker;
     private int index;
-//    private boolean isInCircleGlobal, areClockWiseGlobal1, areClockWiseGlobal2;
-//    private Point2D curPointGlobal;
-//    private ArrayList<Boolean> isInCircleGlobalList = new ArrayList<Boolean>(),
-//            areClockWiseGlobal1List = new ArrayList<Boolean>(),
-//            areClockWiseGlobal2List = new ArrayList<Boolean>();
-//    private ArrayList<Point2D> curPointGlobalList = new ArrayList<Point2D>();
-//    private ArrayList<Long> timesGlobalList = new ArrayList<Long>();
 
     public Camera(int x, int y, int azimuth, int r, int angle){
         this.x = x;
@@ -40,16 +33,6 @@ class Camera {
         arc.setArcByCenter(r, r, r, azimuth - angle / 2, angle, Arc2D.OPEN);
     }
 
-    public boolean isOnCorner(Point2D p){
-        double accuracy = 1.0;
-        boolean isOnArc = Math.abs(Math.sqrt(Math.pow(this.x - p.getX(), 2) + Math.pow(this.y - p.getY(), 2)) - this.r) < accuracy;
-        boolean isOnLeftLine = Math.abs(p.getY() - this.y -
-                Math.tan(Math.toRadians(this.azimuth + this.angle / 2)) * (p.getX() - this.x)) < accuracy;
-        boolean isOnRightLine = Math.abs(p.getY() - this.y -
-                Math.tan(Math.toRadians(this.azimuth - this.angle / 2)) * (p.getX() - this.x)) < accuracy;
-        return isOnArc || isOnLeftLine || isOnRightLine;
-    }
-
     public boolean isVisible(Point2D point){
         double x = point.getX(), y = point.getY();
         boolean isInCircle = Math.pow(this.getX() - x, 2) + Math.pow(this.getY() - y, 2) <= Math.pow(this.getR(), 2);
@@ -64,24 +47,7 @@ class Camera {
         Vec2d sectorStart = new Vec2d(startPoint.getX() - centerPoint.getX(), startPoint.getY() - centerPoint.getY()),
                 sectorEnd = new Vec2d(endPoint.getX() - centerPoint.getX(), endPoint.getY() - centerPoint.getY()),
                 relPoint = new Vec2d(x - centerPoint.getX(), y - centerPoint.getY());
-//        curPointGlobal = point;
-//        isInCircleGlobal = isInCircle;
-//        areClockWiseGlobal1 = !areClockwise(sectorStart, relPoint);
-//        areClockWiseGlobal2 = areClockwise(sectorEnd, relPoint);
-//        curPointGlobalList.add(point);
-//        isInCircleGlobalList.add(isInCircle);
-//        areClockWiseGlobal1List.add(!areClockwise(sectorStart, relPoint));
-//        areClockWiseGlobal2List.add(areClockwise(sectorEnd, relPoint));
-//        timesGlobalList.add(System.currentTimeMillis());
-//        while(curPointGlobalList.size() >= 50){
-//            curPointGlobalList.remove(0);
-//            isInCircleGlobalList.remove(0);
-//            areClockWiseGlobal1List.remove(0);
-//            areClockWiseGlobal2List.remove(0);
-//            timesGlobalList.remove(0);
-//        }
         return  isInCircle && !areClockwise(sectorStart, relPoint) && areClockwise(sectorEnd, relPoint);
-//        return isInCircle && !areClockwise(sectorStart, relPoint) && areClockwise(sectorEnd, relPoint);
     }
 
     private boolean areClockwise(Vec2d v1, Vec2d v2){

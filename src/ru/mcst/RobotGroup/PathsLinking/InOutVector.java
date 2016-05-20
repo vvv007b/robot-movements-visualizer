@@ -100,10 +100,10 @@ class InOutVector {
     }
 
     public boolean isPotentialFollowerTo(InOutVector vector){
+//        long startTime = System.currentTimeMillis();
         double POSSIBLE_ANGLE = 90;
 
         double n = 15;          //rotation degrees
-//        Vec2d vector = new Vec2d(endPoint.getX() - startPoint.getX(), endPoint.getY() - startPoint.getY());
         double x = endPoint.getX() - startPoint.getX(), y = endPoint.getY() - startPoint.getY();
         
         Vec2d wayVector = new Vec2d(vector.getStartPoint().getX() - endPoint.getX(), vector.getStartPoint().getY() - endPoint.getY());
@@ -126,7 +126,7 @@ class InOutVector {
 //        System.out.println(isAzimuthCorrect);
 //        System.out.println(isInSector);
 //        System.out.println(distance + " " + possibleDistance);
-
+//        System.out.println("isPotentialFollower time(ms): " + (System.currentTimeMillis() - startTime));
         return isInSector && isInReachableDistance && isAzimuthCorrect;
     }
 

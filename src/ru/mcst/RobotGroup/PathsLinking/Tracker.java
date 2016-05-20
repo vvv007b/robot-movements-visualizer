@@ -44,7 +44,6 @@ class Tracker extends Thread{
             ArrayList<double[]> allCoordinates = Hypervisor.getAllCoordinates();
             ArrayList<Double> speeds = Hypervisor.getSpeeds();
             ArrayList<Long> times = Hypervisor.getUpdateTimes();
-//            long time = System.currentTimeMillis();
             if(colors.size() < allCoordinates.size()){
                 for(int i = 0; i < allCoordinates.size(); i++){
                     Random rand = new Random();
@@ -112,9 +111,6 @@ class Tracker extends Thread{
                 for(int i:visibleRobots){
                     if (currentVisibleRobots.indexOf(i) == -1){
                         RobotTrajectory trajectory = robotsTrajectories.get(i);
-//                        for(Point2D point2D:robotsTrajectories.get(i).getPoints()){
-//                            trajectory.getPoints().add(point2D);
-//                        }
                         System.out.println("Robot " + i + " exited scope");
                         if(robotsTrajectories.get(i).getDirection() == 2)
                             trajectory.setDirection(1);
@@ -156,12 +152,6 @@ class Tracker extends Thread{
         }
     }
 
-    public void clear(){
-        trajectories.clear();
-        robotsTrajectories.clear();
-        visibleRobots.clear();
-    }
-
     public int getVisibleRobotsCount() {
         return visibleRobots.size();
     }
@@ -176,10 +166,6 @@ class Tracker extends Thread{
 
     public ArrayList<RobotTrajectory> getRobotsTrajectories() {
         return robotsTrajectories;
-    }
-
-    public Camera getCamera() {
-        return camera;
     }
 
     public ArrayList<RobotTrajectory> getTrajectories() {
