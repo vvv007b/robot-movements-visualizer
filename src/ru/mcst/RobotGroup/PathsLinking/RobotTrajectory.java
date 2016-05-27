@@ -3,6 +3,7 @@ package ru.mcst.RobotGroup.PathsLinking;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.stream.Collectors;
 
 
 class RobotTrajectory {
@@ -15,30 +16,28 @@ class RobotTrajectory {
     private InOutVector inVector, outVector;
 
     public RobotTrajectory(){
-        points = new ArrayList<Point2D>();
+        points = new ArrayList<>();
         direction = 0;
         inVector = null;
         outVector = null;
-        connectedTrajectories = new ArrayList<RobotTrajectory>();
-        speeds = new ArrayList<Double>();
-        times = new ArrayList<Long>();
-        prev = new HashSet<RobotTrajectory>();
-        next = new HashSet<RobotTrajectory>();
+        connectedTrajectories = new ArrayList<>();
+        speeds = new ArrayList<>();
+        times = new ArrayList<>();
+        prev = new HashSet<>();
+        next = new HashSet<>();
     }
 
     public RobotTrajectory(RobotTrajectory robotTrajectory){
-        points = new ArrayList<Point2D>();
-        for(Point2D point2D:robotTrajectory.getPoints()){
-             this.points.add(point2D);
-        }
+        points = new ArrayList<>();
+        this.points.addAll(robotTrajectory.getPoints().stream().collect(Collectors.toList()));
         this.direction = robotTrajectory.getDirection();
         inVector = null;
         outVector = null;
-        connectedTrajectories = new ArrayList<RobotTrajectory>(robotTrajectory.getConnectedTrajectories());
-        speeds = new ArrayList<Double>(robotTrajectory.getSpeeds());
-        times = new ArrayList<Long>(robotTrajectory.getTimes());
-        next = new HashSet<RobotTrajectory>(robotTrajectory.getNext());
-        prev = new HashSet<RobotTrajectory>(robotTrajectory.getPrev());
+        connectedTrajectories = new ArrayList<>(robotTrajectory.getConnectedTrajectories());
+        speeds = new ArrayList<>(robotTrajectory.getSpeeds());
+        times = new ArrayList<>(robotTrajectory.getTimes());
+        next = new HashSet<>(robotTrajectory.getNext());
+        prev = new HashSet<>(robotTrajectory.getPrev());
     }
 
 

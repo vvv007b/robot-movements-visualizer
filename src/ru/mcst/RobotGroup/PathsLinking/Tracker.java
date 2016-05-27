@@ -7,6 +7,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * Created by bocharov_n on 02.03.16.
@@ -18,16 +19,14 @@ class Tracker extends Thread{
     private ArrayList<Color> colors;
     private ArrayList<RobotTrajectory> robotsTrajectories;
     private boolean markForClear;
-//    private int iterationsCounter;
-    //private ArrayList<Integer> robotsTrajectoriesDirections;
 
     public Tracker(Camera camera){
         super();
         this.camera = camera;
-        trajectories = new ArrayList<RobotTrajectory>();
-        visibleRobots = new ArrayList<Integer>();
-        colors = new ArrayList<Color>();
-        robotsTrajectories = new ArrayList<RobotTrajectory>();
+        trajectories = new ArrayList<>();
+        visibleRobots = new ArrayList<>();
+        colors = new ArrayList<>();
+        robotsTrajectories = new ArrayList<>();
         this.setName("Camera " + camera.getIndex());
         markForClear = false;
     }
@@ -56,7 +55,6 @@ class Tracker extends Thread{
             if(robotsTrajectories.size() < allCoordinates.size()){
                 for(int i = 0; i < allCoordinates.size(); i++){
                     robotsTrajectories.add(new RobotTrajectory());
-                    //robotsTrajectoriesDirections.add(0);
                 }
             }
 
@@ -69,7 +67,7 @@ class Tracker extends Thread{
                 g2d.setComposite(AlphaComposite.Src);
                 g2d.setColor(Color.RED);
 
-                ArrayList<Integer> currentVisibleRobots = new ArrayList<Integer>();
+                ArrayList<Integer> currentVisibleRobots = new ArrayList<>();
 
                 for (int i = 0; i < allCoordinates.size(); i++){
                     double[] coord = allCoordinates.get(i);
@@ -88,9 +86,9 @@ class Tracker extends Thread{
                             prevPoint = robotsTrajectories.get(i).getPoints().get(robotsTrajectories.get(i).getPoints().size() - 1);
                         else prevPoint = new Point2D.Double(-1, -1);            //impossible point
                         if(!currentPoint.equals(prevPoint)) {
-                            robotsTrajectories.get(i).getPoints().add(currentPoint);  //Добавляем его координату
-                            robotsTrajectories.get(i).getSpeeds().add(speeds.get(i));           //И скорость
-                            robotsTrajectories.get(i).getTimes().add(times.get(i));                                     //И текущее время
+                            robotsTrajectories.get(i).getPoints().add(currentPoint);
+                            robotsTrajectories.get(i).getSpeeds().add(speeds.get(i));
+                            robotsTrajectories.get(i).getTimes().add(times.get(i));
                             //Проверяем одновременную видимость с нескольких камер
                             for (Camera curCamera : TrackingSystem.getCameraList()) {
                                 if (curCamera.getTracker().isRobotVisibleNow(i) &&
@@ -108,25 +106,23 @@ class Tracker extends Thread{
                         }
                     }
                 }
-                for(int i:visibleRobots){
-                    if (currentVisibleRobots.indexOf(i) == -1){
-                        RobotTrajectory trajectory = robotsTrajectories.get(i);
-                        System.out.println("Robot " + i + " exited scope");
-                        if(robotsTrajectories.get(i).getDirection() == 2)
-                            trajectory.setDirection(1);
-                        if(robotsTrajectories.get(i).getDirection() == 0)
-                            trajectory.setDirection(3);
-                        this.trajectories.add(trajectory);
-                        robotsTrajectories.set(i, new RobotTrajectory());
-                        robotsTrajectories.get(i).getPoints().clear();
-                        robotsTrajectories.get(i).setDirection(0);
-                        Random rand = new Random();
-                        float r = rand.nextFloat();
-                        float g = rand.nextFloat();
-                        float b = rand.nextFloat();
-                        colors.set(i, new Color(r, g, b));
-                    }
-                }
+                visibleRobots.stream().filter(i -> currentVisibleRobots.indexOf(i) == -1).forEach(i -> {
+                    RobotTrajectory trajectory = robotsTrajectories.get(i);
+                    System.out.println("Robot " + i + " exited scope");
+                    if (robotsTrajectories.get(i).getDirection() == 2)
+                        trajectory.setDirection(1);
+                    if (robotsTrajectories.get(i).getDirection() == 0)
+                        trajectory.setDirection(3);
+                    this.trajectories.add(trajectory);
+                    robotsTrajectories.set(i, new RobotTrajectory());
+                    robotsTrajectories.get(i).getPoints().clear();
+                    robotsTrajectories.get(i).setDirection(0);
+                    Random rand = new Random();
+                    float r = rand.nextFloat();
+                    float g = rand.nextFloat();
+                    float b = rand.nextFloat();
+                    colors.set(i, new Color(r, g, b));
+                });
                 visibleRobots = currentVisibleRobots;
                 g2d.dispose();
                 MapUnderlay.changeTrajectoriesLayer(trajectories);
@@ -145,11 +141,7 @@ class Tracker extends Thread{
     }
 
     public void finishAllTrajectories(){
-        for(RobotTrajectory robotTrajectory:robotsTrajectories){
-            if(!robotTrajectory.getPoints().isEmpty()){
-                trajectories.add(new RobotTrajectory(robotTrajectory));
-            }
-        }
+        trajectories.addAll(robotsTrajectories.stream().filter(robotTrajectory -> !robotTrajectory.getPoints().isEmpty()).map(RobotTrajectory::new).collect(Collectors.toList()));
     }
 
     public int getVisibleRobotsCount() {

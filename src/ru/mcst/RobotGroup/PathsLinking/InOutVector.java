@@ -22,17 +22,10 @@ class InOutVector {
     private HashSet<InOutVector> prev, next;
     long  startTime, endTime;
 
-    public InOutVector(){
-        robotTrajectory = null;
-        startPoint = null;
-        endPoint = null;
-        prev = new HashSet<InOutVector>();
-        next = new HashSet<InOutVector>();
-    }
 
     public InOutVector(RobotTrajectory robotTrajectory, int orientation){
         int startIndex = 0, endIndex = 1;
-        double speed = 0;
+        double speed;
         switch (orientation){
             case IN:
                 startIndex = 0;
@@ -67,14 +60,13 @@ class InOutVector {
         this.endTime = robotTrajectory.getTimes().get(endIndex);
         this.robotTrajectory = robotTrajectory;
         this.orientation = orientation;
-        prev = new HashSet<InOutVector>();
-        next = new HashSet<InOutVector>();
+        prev = new HashSet<>();
+        next = new HashSet<>();
     }
 
     public void drawVector(Graphics2D g2d, boolean isFilled, boolean isBorder){
         g2d.setComposite(AlphaComposite.Src);
         g2d.setColor(Color.GRAY);
-        //TODO:make here a triangle
         if (isFilled) g2d.fillRoundRect((int)(orientation == 0 ? startPoint.getX() : endPoint.getX()) - 5,
                 (int)(orientation == 0 ?  startPoint.getY() : endPoint.getY()) - 5, 10, 10, 2, 2);
         else g2d.drawRoundRect((int)(orientation == 0 ? startPoint.getX() : endPoint.getX()) - 5,
@@ -100,7 +92,6 @@ class InOutVector {
     }
 
     public boolean isPotentialFollowerTo(InOutVector vector){
-//        long startTime = System.currentTimeMillis();
         double POSSIBLE_ANGLE = 90;
 
         double n = 15;          //rotation degrees
@@ -117,16 +108,10 @@ class InOutVector {
         double distance = Math.sqrt(Math.pow(endPoint.getX() - vector.getStartPoint().getX(), 2) +
                 Math.pow(endPoint.getY() - vector.getStartPoint().getY(), 2)),
                possibleDistance = (this.speed + vector.speed) / 2 * ((double)(vector.time - this.time) / 1000);
-//        System.out.println(distance + " " + possibleDistance);
         boolean isInReachableDistance = (distance < possibleDistance * 1.2 && distance > possibleDistance * 0.7) || (
                 distance < possibleDistance + 5 && distance > possibleDistance - 5);
         boolean isAzimuthCorrect = Math.abs(this.getAzimuth() - vector.getAzimuth()) < POSSIBLE_ANGLE;
         boolean isInSector = !areClockwise(sectorStart, wayVector) && areClockwise(sectorEnd, wayVector);
-//        System.out.println(isInReachableDistance);
-//        System.out.println(isAzimuthCorrect);
-//        System.out.println(isInSector);
-//        System.out.println(distance + " " + possibleDistance);
-//        System.out.println("isPotentialFollower time(ms): " + (System.currentTimeMillis() - startTime));
         return isInSector && isInReachableDistance && isAzimuthCorrect;
     }
 
@@ -150,20 +135,12 @@ class InOutVector {
         return startPoint;
     }
 
-    public Point2D getEndPoint() {
-        return endPoint;
-    }
-
     public double getSpeed() {
         return speed;
     }
 
     public double getAcceleration() {
         return acceleration;
-    }
-
-    public long getTime() {
-        return time;
     }
 
     public int getOrientation() {

@@ -3,11 +3,7 @@ package ru.mcst.RobotGroup.PathsLinking;
 import ru.mcst.RobotGroup.PathsFinding.Hypervisor;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * Created by bocharov_n on 22.10.15.
@@ -36,7 +32,6 @@ public class GUI extends JFrame{
     private static MapUnderlay mapPanel;
 
     private static Camera currentCamera;
-    private static InOutVector currentVector;
 
     public GUI(){
         super();
@@ -99,108 +94,65 @@ public class GUI extends JFrame{
 
         removeCameraButton.setEnabled(false);
 
-        selectCameraRadioButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                mapPanel.setSelectedTool(MapUnderlay.SELECT_CAMERA_TOOL);
-            }
+        selectCameraRadioButton.addActionListener(e -> mapPanel.setSelectedTool(MapUnderlay.SELECT_CAMERA_TOOL));
+        addCameraRadioButton.addActionListener(e -> mapPanel.setSelectedTool(MapUnderlay.ADD_CAMERA_TOOL));
+        selectInOutVectorRadioButton.addActionListener(e -> mapPanel.setSelectedTool(MapUnderlay.SELECT_INOUT_VECTOR));
+        moveCameraRadioButton.addActionListener(e -> mapPanel.setSelectedTool(MapUnderlay.MOVE_CAMERA));
+
+        cameraAzimuthSlider.addChangeListener(e -> {
+            currentCamera.setAzimuth(cameraAzimuthSlider.getValue());
+            currentCamera.redrawFOV();
+            mapPanel.repaint();
+            cameraAzimuthTextField.setText("Camera azimuth:" + cameraAzimuthSlider.getValue());
         });
-        addCameraRadioButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                mapPanel.setSelectedTool(MapUnderlay.ADD_CAMERA_TOOL);
-            }
+        cameraAngleSlider.addChangeListener(e -> {
+            currentCamera.setAngle(cameraAngleSlider.getValue());
+            currentCamera.redrawFOV();
+            mapPanel.repaint();
+            cameraAngleTextField.setText("Camera angle of view: " + cameraAngleSlider.getValue());
         });
-        selectInOutVectorRadioButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                mapPanel.setSelectedTool(MapUnderlay.SELECT_INOUT_VECTOR);
-            }
+        cameraRSlider.addChangeListener(e -> {
+            currentCamera.setR(cameraRSlider.getValue());
+            currentCamera.redrawFOV();
+            mapPanel.repaint();
+            cameraRTextField.setText("Camera radius: " + cameraRSlider.getValue());
         });
-        moveCameraRadioButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                mapPanel.setSelectedTool(MapUnderlay.MOVE_CAMERA);
+        removeCameraButton.addActionListener(e -> {
+            TrackingSystem.removeCamera(currentCamera);
+            for(int i = 0; i < TrackingSystem.getCameraList().size(); i++){
+                TrackingSystem.getCameraList().get(i).setIndex(i);
             }
+            currentCamera.setExist(false);
+
+            currentCamera = null;
+            cameraXLabel.setText("X: ");
+            cameraYLabel.setText("Y: ");
+            cameraAzimuthSlider.setEnabled(false);
+            cameraAzimuthTextField.setText("Camera azimuth:");
+            cameraAngleSlider.setEnabled(false);
+            cameraAngleTextField.setText("Camera angle of view:");
+            cameraRSlider.setEnabled(false);
+            cameraRTextField.setText("Camera radius:");
+            mapPanel.repaint();
+
+            removeCameraButton.setEnabled(false);
         });
 
-        cameraAzimuthSlider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                currentCamera.setAzimuth(cameraAzimuthSlider.getValue());
-                currentCamera.redrawFOV();
-                mapPanel.repaint();
-                cameraAzimuthTextField.setText("Camera azimuth:" + cameraAzimuthSlider.getValue());
+        clearTrajectoriesButton.addActionListener(e -> {
+            for(Camera camera:TrackingSystem.getCameraList()){
+                camera.getTracker().setMarkForClear(true);
             }
-        });
-        cameraAngleSlider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                currentCamera.setAngle(cameraAngleSlider.getValue());
-                currentCamera.redrawFOV();
-                mapPanel.repaint();
-                cameraAngleTextField.setText("Camera angle of view: " + cameraAngleSlider.getValue());
-            }
-        });
-        cameraRSlider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                currentCamera.setR(cameraRSlider.getValue());
-                currentCamera.redrawFOV();
-                mapPanel.repaint();
-                cameraRTextField.setText("Camera radius: " + cameraRSlider.getValue());
-            }
-        });
-        removeCameraButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                TrackingSystem.removeCamera(currentCamera);
-                for(int i = 0; i < TrackingSystem.getCameraList().size(); i++){
-                    TrackingSystem.getCameraList().get(i).setIndex(i);
-                }
-                currentCamera.setExist(false);
-
-                currentCamera = null;
-                cameraXLabel.setText("X: ");
-                cameraYLabel.setText("Y: ");
-                cameraAzimuthSlider.setEnabled(false);
-//                cameraAzimuthSlider.setValue(0);
-                cameraAzimuthTextField.setText("Camera azimuth:");
-                cameraAngleSlider.setEnabled(false);
-//                cameraAngleSlider.setValue(0);
-                cameraAngleTextField.setText("Camera angle of view:");
-                cameraRSlider.setEnabled(false);
-//                cameraRSlider.setValue(20);
-                cameraRTextField.setText("Camera radius:");
-                mapPanel.repaint();
-
-                removeCameraButton.setEnabled(false);
-            }
+            mapPanel.setCurrentVector(null);
+            TrackingSystem.getTrajectoriesList().clear();
+            TrackingSystem.getInOutVectorsList().clear();
+            mapPanel.clearTrajectoriesLayer();
+            mapPanel.clearLinksLayer();
         });
 
-        clearTrajectoriesButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                for(Camera camera:TrackingSystem.getCameraList()){
-//                    camera.getTracker().clear();
-                    camera.getTracker().setMarkForClear(true);
-                }
-                setCurrentVector(null);
-                mapPanel.setCurrentVector(null);
-                TrackingSystem.getTrajectoriesList().clear();
-                TrackingSystem.getInOutVectorsList().clear();
-                mapPanel.clearTrajectoriesLayer();
-                mapPanel.clearLinksLayer();
-            }
-        });
-
-        linkTrajectoriesButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                long startTime = System.currentTimeMillis();
-                TrackingSystem.linkTrajectories();
-                System.out.println("Trajectories link time(ms): " + (System.currentTimeMillis() - startTime));
-            }
+        linkTrajectoriesButton.addActionListener(e -> {
+            long startTime = System.currentTimeMillis();
+            TrackingSystem.linkTrajectories();
+            System.out.println("Trajectories link time(ms): " + (System.currentTimeMillis() - startTime));
         });
     }
 
@@ -310,8 +262,5 @@ public class GUI extends JFrame{
         return mapPanel;
     }
 
-    public void setCurrentVector(InOutVector currentVector) {
-        GUI.currentVector = currentVector;
-    }
 
 }

@@ -222,7 +222,6 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
                     this.currentVector = currentVector;
                     //set curVector and update fields
                     parentGUI.inOutVectorNotification(currentVector);
-                    parentGUI.setCurrentVector(currentVector);
                 }
                 break;
             case MOVE_CAMERA:

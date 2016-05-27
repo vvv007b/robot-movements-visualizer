@@ -8,38 +8,36 @@ import java.util.List;
  * Created by bocharov_n on 27.11.15.
  */
 class TrackingSystem {
-    private static List<Camera> cameraList = new ArrayList<Camera>();
+    private static List<Camera> cameraList = new ArrayList<>();
 
-    private static ArrayList<RobotTrajectory> trajectoriesList = new ArrayList<RobotTrajectory>();
-    private static ArrayList<InOutVector> inOutVectorsList = new ArrayList<InOutVector>();
+    private static ArrayList<RobotTrajectory> trajectoriesList = new ArrayList<>();
+    private static ArrayList<InOutVector> inOutVectorsList = new ArrayList<>();
 
 
     public static void linkTrajectories(){
-        ArrayList<InOutVector> inVectors = new ArrayList<InOutVector>(),
-                outVectors = new ArrayList<InOutVector>();
+        ArrayList<InOutVector> inVectors = new ArrayList<>(),
+                outVectors = new ArrayList<>();
         for(Camera camera:TrackingSystem.getCameraList()){
             camera.getTracker().finishAllTrajectories();
-            for(RobotTrajectory robotTrajectory:camera.getTracker().getTrajectories()){
-                if(robotTrajectory.getPoints().size() >= 2) {
-                    int direction = robotTrajectory.getDirection();
-                    if (robotTrajectory.getPoints().size() >= 3) {
-                        InOutVector inVector = new InOutVector(robotTrajectory, InOutVector.IN),
-                                outVector = new InOutVector(robotTrajectory, InOutVector.OUT);
-                        if (direction == 2 || direction == 1) {
-                            inVectors.add(inVector);
-                            inOutVectorsList.add(inVector);
-                            robotTrajectory.setInVector(inVector);
-                        }
-                        if (direction == 3 || direction == 1) {
-                            outVectors.add(outVector);
-                            inOutVectorsList.add(outVector);
-                            robotTrajectory.setOutVector(outVector);
-                        }
-                        System.out.println(robotTrajectory.getDirection());
-                        trajectoriesList.add(robotTrajectory);                  //create trajectories list
+            camera.getTracker().getTrajectories().stream().filter(robotTrajectory -> robotTrajectory.getPoints().size() >= 2).forEach(robotTrajectory -> {
+                int direction = robotTrajectory.getDirection();
+                if (robotTrajectory.getPoints().size() >= 3) {
+                    InOutVector inVector = new InOutVector(robotTrajectory, InOutVector.IN),
+                            outVector = new InOutVector(robotTrajectory, InOutVector.OUT);
+                    if (direction == 2 || direction == 1) {
+                        inVectors.add(inVector);
+                        inOutVectorsList.add(inVector);
+                        robotTrajectory.setInVector(inVector);
                     }
+                    if (direction == 3 || direction == 1) {
+                        outVectors.add(outVector);
+                        inOutVectorsList.add(outVector);
+                        robotTrajectory.setOutVector(outVector);
+                    }
+                    System.out.println(robotTrajectory.getDirection());
+                    trajectoriesList.add(robotTrajectory);
                 }
-            }
+            });
         }
         System.out.println("Detected " + inVectors.size() + " inVectors and " + outVectors.size() + " outVectors");
 
@@ -54,18 +52,15 @@ class TrackingSystem {
 
 
         for(InOutVector outVector:outVectors){
-            for(InOutVector inVector:inVectors){
-//                System.out.println(outVector.isPotentialFollowerTo(inVector));
-                if(outVector.isPotentialFollowerTo(inVector) & !inVector.getRobotTrajectory().equals(outVector.getRobotTrajectory())){
-                    if (inVector.getRobotTrajectory().getConnectedTrajectories().indexOf(outVector.getRobotTrajectory()) == - 1)            //TODO: REMOVE IT
-                        inVector.getRobotTrajectory().getConnectedTrajectories().add(outVector.getRobotTrajectory());
-                    if (outVector.getRobotTrajectory().getConnectedTrajectories().indexOf(inVector.getRobotTrajectory()) == - 1)
-                        outVector.getRobotTrajectory().getConnectedTrajectories().add(inVector.getRobotTrajectory());
-
-                    inVector.getPrev().add(outVector);
-                    outVector.getNext().add(inVector);
-                }
-            }
+            inVectors.stream().filter(inVector -> outVector.isPotentialFollowerTo(inVector) &
+                    !inVector.getRobotTrajectory().equals(outVector.getRobotTrajectory())).forEach(inVector -> {
+                if (inVector.getRobotTrajectory().getConnectedTrajectories().indexOf(outVector.getRobotTrajectory()) == -1)
+                    inVector.getRobotTrajectory().getConnectedTrajectories().add(outVector.getRobotTrajectory());
+                if (outVector.getRobotTrajectory().getConnectedTrajectories().indexOf(inVector.getRobotTrajectory()) == -1)
+                    outVector.getRobotTrajectory().getConnectedTrajectories().add(inVector.getRobotTrajectory());
+                inVector.getPrev().add(outVector);
+                outVector.getNext().add(inVector);
+            });
         }
         int i = 0;
         System.out.println(getTrajectoriesList().size() + " trajectories founded");
@@ -82,9 +77,9 @@ class TrackingSystem {
     }
 
     public static void findConnections(RobotTrajectory robotTrajectory){
-        HashMap<RobotTrajectory,Integer> d = new HashMap<RobotTrajectory, Integer>();
+        HashMap<RobotTrajectory,Integer> d = new HashMap<>();
 //        HashMap<RobotTrajectory,RobotTrajectory> p = new HashMap<RobotTrajectory, RobotTrajectory>();
-        ArrayList<RobotTrajectory> U = new ArrayList<RobotTrajectory>();
+        ArrayList<RobotTrajectory> U = new ArrayList<>();
         for(RobotTrajectory rt:trajectoriesList){
             d.put(rt, Integer.MAX_VALUE);
 //            p.put(rt, null);
@@ -110,11 +105,8 @@ class TrackingSystem {
                 }
             }
         }
-        for(RobotTrajectory rt: trajectoriesList){
-            if (d.get(rt) < Integer.MAX_VALUE && robotTrajectory.getConnectedTrajectories().indexOf(rt) == -1 &&
-                    !rt.equals(robotTrajectory))
-                robotTrajectory.getConnectedTrajectories().add(rt);
-        }
+        trajectoriesList.stream().filter(rt -> d.get(rt) < Integer.MAX_VALUE && robotTrajectory.getConnectedTrajectories().indexOf(rt) == -1 &&
+                !rt.equals(robotTrajectory)).forEach(rt -> robotTrajectory.getConnectedTrajectories().add(rt));
 
     }
 
