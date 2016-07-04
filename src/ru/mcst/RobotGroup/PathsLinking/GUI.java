@@ -62,8 +62,6 @@ public class GUI extends JFrame{
                         }
                         mapPanel.setSize(mapPanel.getPreferredSize());
                         mapPanel.repaint();
-
-
                     }
                     try {
                         sleep(1000);
@@ -83,7 +81,6 @@ public class GUI extends JFrame{
     }
 
     private void createMyComponents(){
-
         mapPanel.setLayout(new BorderLayout());
 
         ButtonGroup mapUnderlayToolsGroup = new ButtonGroup();
@@ -98,7 +95,6 @@ public class GUI extends JFrame{
         addCameraRadioButton.addActionListener(e -> mapPanel.setSelectedTool(MapUnderlay.ADD_CAMERA_TOOL));
         selectInOutVectorRadioButton.addActionListener(e -> mapPanel.setSelectedTool(MapUnderlay.SELECT_INOUT_VECTOR));
         moveCameraRadioButton.addActionListener(e -> mapPanel.setSelectedTool(MapUnderlay.MOVE_CAMERA));
-
         cameraAzimuthSlider.addChangeListener(e -> {
             currentCamera.setAzimuth(cameraAzimuthSlider.getValue());
             currentCamera.redrawFOV();
@@ -123,7 +119,6 @@ public class GUI extends JFrame{
                 TrackingSystem.getCameraList().get(i).setIndex(i);
             }
             currentCamera.setExist(false);
-
             currentCamera = null;
             cameraXLabel.setText("X: ");
             cameraYLabel.setText("Y: ");
@@ -134,10 +129,8 @@ public class GUI extends JFrame{
             cameraRSlider.setEnabled(false);
             cameraRTextField.setText("Camera radius:");
             mapPanel.repaint();
-
             removeCameraButton.setEnabled(false);
         });
-
         clearTrajectoriesButton.addActionListener(e -> {
             for(Camera camera:TrackingSystem.getCameraList()){
                 camera.getTracker().setMarkForClear(true);
@@ -148,15 +141,12 @@ public class GUI extends JFrame{
             mapPanel.clearTrajectoriesLayer();
             mapPanel.clearLinksLayer();
         });
-
         linkTrajectoriesButton.addActionListener(e -> {
             long startTime = System.currentTimeMillis();
             TrackingSystem.linkTrajectories();
             System.out.println("Trajectories link time(ms): " + (System.currentTimeMillis() - startTime));
         });
     }
-
-
 
     public void updateStatus(){
         String status = "<html>";
@@ -170,7 +160,6 @@ public class GUI extends JFrame{
 
     public void inOutVectorNotification(InOutVector vector){
         String message = (vector.getOrientation() == InOutVector.IN ? "In " : "Out ") +
-
                 "vector: " + TrackingSystem.getInOutVectorsList().indexOf(vector) + System.lineSeparator() +
                 "x: " + vector.getX() + System.lineSeparator() +
                 "y: " + vector.getY() + System.lineSeparator() +
@@ -181,24 +170,14 @@ public class GUI extends JFrame{
                 "end time: " + vector.endTime + System.lineSeparator() +
                 "delta time: " + (vector.endTime - vector.startTime) + System.lineSeparator() +
                 "connections: " + (vector.getOrientation() == InOutVector.IN ? vector.getPrev().size() : vector.getNext().size());
-//        if(vector.getOrientation() == InOutVector.OUT)
-//            for(InOutVector inOutVector:TrackingSystem.getInOutVectorsList()){
-//                if (inOutVector.getOrientation() == InOutVector.IN){
-//                    System.out.println("vector " + TrackingSystem.getInOutVectorsList().indexOf(inOutVector));
-//                    vector.isPotentialFollowerTo(inOutVector);
-//                }
-//            }
-//        JOptionPane.showMessageDialog(mapPanel, message);
         System.out.println(message);
     }
 
     public void setCurrentCamera(Camera camera) {
         GUI.currentCamera = camera;
-
         cameraXLabel.setText("X: " + camera.getX());
         cameraYLabel.setText("Y: " + camera.getY());
         removeCameraButton.setEnabled(true);
-
         cameraAzimuthSlider.setEnabled(true);
         cameraAngleSlider.setEnabled(true);
         cameraRSlider.setEnabled(true);
@@ -208,7 +187,6 @@ public class GUI extends JFrame{
         cameraAzimuthTextField.setText("Camera azimuth: " + cameraAzimuthSlider.getValue());
         cameraAngleTextField.setText("Camera angle of view: " + cameraAngleSlider.getValue());
         cameraRTextField.setText("Camera radius: " + cameraRSlider.getValue());
-
     }
 
     /*public void drawLine(StraightLine line){
@@ -261,6 +239,4 @@ public class GUI extends JFrame{
     public static MapUnderlay getMapPanel() {
         return mapPanel;
     }
-
-
 }

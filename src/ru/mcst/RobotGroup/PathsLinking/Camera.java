@@ -1,6 +1,5 @@
 package ru.mcst.RobotGroup.PathsLinking;
 
-import com.sun.javafx.geom.Vec2d;
 
 import java.awt.geom.Arc2D;
 import java.awt.geom.Point2D;
@@ -43,14 +42,13 @@ class Camera {
         Point2D startPoint = new Point2D.Double(startX, startY),
                 endPoint = new Point2D.Double(endX, endY),
                 centerPoint = new Point2D.Double(this.getX(), this.getY());
-
-        Vec2d sectorStart = new Vec2d(startPoint.getX() - centerPoint.getX(), startPoint.getY() - centerPoint.getY()),
-                sectorEnd = new Vec2d(endPoint.getX() - centerPoint.getX(), endPoint.getY() - centerPoint.getY()),
-                relPoint = new Vec2d(x - centerPoint.getX(), y - centerPoint.getY());
+        Vector2D sectorStart = new Vector2D(startPoint.getX() - centerPoint.getX(), startPoint.getY() - centerPoint.getY()),
+                sectorEnd = new Vector2D(endPoint.getX() - centerPoint.getX(), endPoint.getY() - centerPoint.getY()),
+                relPoint = new Vector2D(x - centerPoint.getX(), y - centerPoint.getY());
         return  isInCircle && !areClockwise(sectorStart, relPoint) && areClockwise(sectorEnd, relPoint);
     }
 
-    private boolean areClockwise(Vec2d v1, Vec2d v2){
+    private boolean areClockwise(Vector2D v1, Vector2D v2){
         return -v1.x * v2.y + v1.y * v2.x <= 0;
     }
 

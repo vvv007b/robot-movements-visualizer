@@ -1,7 +1,5 @@
 package ru.mcst.RobotGroup.PathsLinking;
 
-import com.sun.javafx.geom.Vec2d;
-
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.HashSet;
@@ -54,7 +52,6 @@ class InOutVector {
                 this.acceleration = 1000 * (this.speed - speed) / (robotTrajectory.getTimes().get(startIndex) - robotTrajectory.getTimes().get(startIndex - 1));
                 break;
         }
-//        this.speed = robotTrajectory.getSpeeds().get(startIndex);
         this.time = robotTrajectory.getTimes().get(startIndex);
         this.startTime = robotTrajectory.getTimes().get(startIndex);
         this.endTime = robotTrajectory.getTimes().get(endIndex);
@@ -96,15 +93,14 @@ class InOutVector {
 
         double n = 15;          //rotation degrees
         double x = endPoint.getX() - startPoint.getX(), y = endPoint.getY() - startPoint.getY();
-        
-        Vec2d wayVector = new Vec2d(vector.getStartPoint().getX() - endPoint.getX(), vector.getStartPoint().getY() - endPoint.getY());
-        Vec2d sectorStart = new Vec2d(x * Math.cos(n) - y * Math.sin(n), x * Math.sin(n) + y * Math.cos(n)),
-                sectorEnd = new Vec2d(x * Math.cos(-n) - y * Math.sin(-n), x * Math.sin(-n) + y * Math.cos(-n));
+        Vector2D wayVector = new Vector2D(vector.getStartPoint().getX() - endPoint.getX(), vector.getStartPoint().getY() - endPoint.getY());
+        Vector2D sectorStart = new Vector2D(x * Math.cos(n) - y * Math.sin(n), x * Math.sin(n) + y * Math.cos(n)),
+                sectorEnd = new Vector2D(x * Math.cos(-n) - y * Math.sin(-n), x * Math.sin(-n) + y * Math.cos(-n));
         double wayVectorLength = Math.sqrt(Math.pow(wayVector.x, 2) + Math.pow(wayVector.y, 2)),
                 sectorStartLength = Math.sqrt(Math.pow(sectorStart.x, 2) + Math.pow(sectorStart.y, 2)),
                 sectorEndLength = Math.sqrt(Math.pow(sectorEnd.x, 2) + Math.pow(sectorEnd.y, 2));
-        sectorStart = new Vec2d(sectorStart.x * wayVectorLength / sectorStartLength, sectorStart.y * wayVectorLength / sectorStartLength);
-        sectorEnd = new Vec2d(sectorEnd.x * wayVectorLength / sectorEndLength, sectorEnd.y * wayVectorLength / sectorEndLength);
+        sectorStart = new Vector2D(sectorStart.x * wayVectorLength / sectorStartLength, sectorStart.y * wayVectorLength / sectorStartLength);
+        sectorEnd = new Vector2D(sectorEnd.x * wayVectorLength / sectorEndLength, sectorEnd.y * wayVectorLength / sectorEndLength);
         double distance = Math.sqrt(Math.pow(endPoint.getX() - vector.getStartPoint().getX(), 2) +
                 Math.pow(endPoint.getY() - vector.getStartPoint().getY(), 2)),
                possibleDistance = (this.speed + vector.speed) / 2 * ((double)(vector.time - this.time) / 1000);
@@ -115,7 +111,7 @@ class InOutVector {
         return isInSector && isInReachableDistance && isAzimuthCorrect;
     }
 
-    private boolean areClockwise(Vec2d v1, Vec2d v2){
+    private boolean areClockwise(Vector2D v1, Vector2D v2){
         return -v1.x * v2.y + v1.y * v2.x <= 0;
     }
 

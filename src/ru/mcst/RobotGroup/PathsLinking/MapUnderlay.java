@@ -190,7 +190,6 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
                         currentCamera = camera;
                     }
                 }
-
                 if (currentCamera != null) {
                     System.out.println("Camera " + currentCamera.getIndex() + " at " + currentCamera.getX() + " " + currentCamera.getY() + " selected");
                     this.currentCamera = currentCamera;
@@ -220,7 +219,6 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener{
                 if(currentVector != null){
                     System.out.println("Vector " + (int)currentVector.getX() + " " + (int)currentVector.getY() + " selected");
                     this.currentVector = currentVector;
-                    //set curVector and update fields
                     parentGUI.inOutVectorNotification(currentVector);
                 }
                 break;

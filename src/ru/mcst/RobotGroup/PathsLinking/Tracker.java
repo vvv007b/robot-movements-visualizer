@@ -57,7 +57,6 @@ class Tracker extends Thread{
                     robotsTrajectories.add(new RobotTrajectory());
                 }
             }
-
             int[] mapSize = Hypervisor.getMapSize();
             if(mapSize != null && MapUnderlay.getMapLayer() != null && MapUnderlay.getTrajectoriesLayer() != null) {
                 BufferedImage trajectories = new BufferedImage(mapSize[0],mapSize[1], BufferedImage.TYPE_INT_ARGB);
@@ -66,9 +65,7 @@ class Tracker extends Thread{
                 g2d.fillRect(0, 0, trajectories.getWidth(), trajectories.getHeight());
                 g2d.setComposite(AlphaComposite.Src);
                 g2d.setColor(Color.RED);
-
                 ArrayList<Integer> currentVisibleRobots = new ArrayList<>();
-
                 for (int i = 0; i < allCoordinates.size(); i++){
                     double[] coord = allCoordinates.get(i);
                     Point2D currentPoint = new Point2D.Double(coord[0], coord[1]);
@@ -135,7 +132,6 @@ class Tracker extends Thread{
                 System.out.println("Some error in thread sleep");
                 ex.printStackTrace();
             }
-
         }
         System.out.println("Tracker end");
     }
