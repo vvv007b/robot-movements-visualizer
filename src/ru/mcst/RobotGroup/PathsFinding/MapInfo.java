@@ -1,5 +1,6 @@
 package ru.mcst.RobotGroup.PathsFinding;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
@@ -8,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
-import javax.imageio.ImageIO;
 
 class MapInfo implements Cloneable {
 	// ����� ���������

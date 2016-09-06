@@ -72,7 +72,7 @@ public class MainWindow extends JFrame implements ChangeListener {
     JFileChooser fileChooser;
 
     public MainWindow(final Surface surface1) {
-        this.surface =surface1;
+        this.surface = surface1;
         //scrollForSurface.add(surface);
 
         surface.setPreferredSize(new Dimension(0, 0));
@@ -85,7 +85,7 @@ public class MainWindow extends JFrame implements ChangeListener {
         g.add(r_finishAll);
         r_robot.setSelected(true);
 
-        fileChooser=new JFileChooser();
+        fileChooser = new JFileChooser();
         fileChooser.setAcceptAllFileFilterUsed(false);
         fileChooser.setFileFilter(new FileNameExtensionFilter("Image file (bmp, png, gif)", "bmp", "png", "gif"));
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
@@ -93,8 +93,8 @@ public class MainWindow extends JFrame implements ChangeListener {
         setEnabledOther(false);
         setEnabledOperations(false);
 
-        String[] keystrokeNames = {"UP","DOWN","LEFT","RIGHT"};
-        for(int i=0; i<keystrokeNames.length; ++i)
+        String[] keystrokeNames = {"UP", "DOWN", "LEFT", "RIGHT"};
+        for (int i = 0; i < keystrokeNames.length; ++i)
             scrollForSurface.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(keystrokeNames[i]), "none");
         scrollForSurface.getVerticalScrollBar().setUnitIncrement(10);
         scrollForSurface.getHorizontalScrollBar().setUnitIncrement(10);
@@ -341,7 +341,7 @@ public class MainWindow extends JFrame implements ChangeListener {
         removeRobotButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                sp_robot.setValue(surface.removeRobot()+1);
+                sp_robot.setValue(surface.removeRobot() + 1);
             }
         });
 
@@ -373,6 +373,7 @@ public class MainWindow extends JFrame implements ChangeListener {
         l_robotDeceleration.setEnabled(enabled);
         sl_robotDeceleration.setEnabled(enabled);
     }
+
     private void setEnabledOperations(boolean enabled) {
         addRobotButton.setEnabled(enabled);
         removeRobotButton.setEnabled(enabled);
@@ -392,19 +393,19 @@ public class MainWindow extends JFrame implements ChangeListener {
     }
 
     public void stateChanged(ChangeEvent e) {
-        Object source=e.getSource();
-        if(source==sl_robotAzimuth) {
-            if(sl_robotAzimuth.isEnabled()) { // if we manually set this slider and not programmatically
+        Object source = e.getSource();
+        if (source == sl_robotAzimuth) {
+            if (sl_robotAzimuth.isEnabled()) { // if we manually set this slider and not programmatically
                 surface.setRobotAzimuth(Math.toRadians(sl_robotAzimuth.getValue()));
                 l_robotAzimuth.setText("Азимут робота: " + Integer.toString((int) Math.toDegrees(surface.getRobot().getAzimuth())));
             }
-        } else if(source==sl_finishDirection) {
+        } else if (source == sl_finishDirection) {
             surface.setFinishDirection(Math.toRadians(sl_finishDirection.getValue()));
-            l_finishDirection.setText("Направление финиша: " + Integer.toString((int)Math.toDegrees(surface.getFinishDirection())));
-        } else if(source==sl_rectWeight) {
+            l_finishDirection.setText("Направление финиша: " + Integer.toString((int) Math.toDegrees(surface.getFinishDirection())));
+        } else if (source == sl_rectWeight) {
             surface.setRectWeight(sl_rectWeight.getValue());
-            l_rectWeight.setText("Коэффициент проходимости: "+Integer.toString(sl_rectWeight.getValue()));
-        } else if(source==sl_mapDelta) {
+            l_rectWeight.setText("Коэффициент проходимости: " + Integer.toString(sl_rectWeight.getValue()));
+        } else if (source == sl_mapDelta) {
             surface.setScale(sl_mapDelta.getValue());
             l_robotSize.setText("Размер робота (масштаб): " + Integer.toString(sl_mapDelta.getValue()));
 
@@ -414,7 +415,7 @@ public class MainWindow extends JFrame implements ChangeListener {
             b_go.setEnabled(false);
             goAllButton.setEnabled(false);
 
-        } else if(source==sl_robotRadius) {
+        } else if (source == sl_robotRadius) {
             surface.setRobotsRadius(sl_robotRadius.getValue());
             l_robotRadius.setText("Радиус поворота: " + Integer.toString(sl_robotRadius.getValue()));
 
@@ -423,53 +424,51 @@ public class MainWindow extends JFrame implements ChangeListener {
             setEnabledOperations(false);
             b_go.setEnabled(false);
             goAllButton.setEnabled(false);
-        } else if(source==sl_robotSensorsRange) {
+        } else if (source == sl_robotSensorsRange) {
             surface.setRobotsSensorsRange(sl_robotSensorsRange.getValue());
             l_robotSensorsRange.setText("Дальность видимости робота: " + Integer.toString(sl_robotSensorsRange.getValue()));
-        } else if(source==sl_robotMinSpeed) {
-            if(sl_robotMinSpeed.getValue()>=sl_robotMaxSpeed.getValue())
-                sl_robotMinSpeed.setValue(sl_robotMaxSpeed.getValue()-1);
+        } else if (source == sl_robotMinSpeed) {
+            if (sl_robotMinSpeed.getValue() >= sl_robotMaxSpeed.getValue())
+                sl_robotMinSpeed.setValue(sl_robotMaxSpeed.getValue() - 1);
             surface.setRobotsMinSpeed(sl_robotMinSpeed.getValue());
             l_robotMinSpeed.setText("Минимальная скорость: " + Integer.toString(sl_robotMinSpeed.getValue()));
-        } else if(source==sl_robotMaxSpeed) {
-            if(sl_robotMinSpeed.getValue()>=sl_robotMaxSpeed.getValue())
-                sl_robotMaxSpeed.setValue(sl_robotMinSpeed.getValue()+1);
+        } else if (source == sl_robotMaxSpeed) {
+            if (sl_robotMinSpeed.getValue() >= sl_robotMaxSpeed.getValue())
+                sl_robotMaxSpeed.setValue(sl_robotMinSpeed.getValue() + 1);
             surface.setRobotsMaxSpeed(sl_robotMaxSpeed.getValue());
             l_robotMaxSpeed.setText("Максимальная скорость: " + Integer.toString(sl_robotMaxSpeed.getValue()));
-        } else if(source==sl_robotAcceleration) {
+        } else if (source == sl_robotAcceleration) {
             surface.setRobotsAcceleration(sl_robotAcceleration.getValue());
             l_robotAcceleration.setText("Ускорение: " + Integer.toString(sl_robotAcceleration.getValue()));
-        } else if(source==sl_robotDeceleration) {
+        } else if (source == sl_robotDeceleration) {
             surface.setRobotsDeceleration(sl_robotDeceleration.getValue());
             l_robotDeceleration.setText("Торможение: " + Integer.toString(sl_robotDeceleration.getValue()));
         }
     }
+
     public void setRobotCoordinates(int x, int y) {
-        if(x!=-1000 && y!=-1000)
+        if (x != -1000 && y != -1000)
             l_robotCoordinates.setText("Координаты робота: " + x + ", " + y);
         else
             l_robotCoordinates.setText("Координаты робота: ?, ?");
     }
+
     public void setFinishCoordinates(int x, int y) {
-        if(x!=-1000 && y!=-1000)
-            l_finishCoordinates.setText("Координаты финиша: "+x+", "+y);
+        if (x != -1000 && y != -1000)
+            l_finishCoordinates.setText("Координаты финиша: " + x + ", " + y);
         else
             l_finishCoordinates.setText("Координаты финиша: ?, ?");
     }
 
     private void runRobot() {
-        final Thread t=new Thread()
-        {
-            public void run()
-            {
-                long time=System.currentTimeMillis();
+        final Thread t = new Thread() {
+            public void run() {
+                long time = System.currentTimeMillis();
                 surface.runRobot();
             }
         };
-        final Thread t_draw=new Thread()
-        {
-            public void run()
-            {
+        final Thread t_draw = new Thread() {
+            public void run() {
                 sl_robotAzimuth.setEnabled(false);
                 b_go.setText("Стоп");
                 b_loadMap.setEnabled(false);
@@ -484,18 +483,17 @@ public class MainWindow extends JFrame implements ChangeListener {
                 b_removeReality.setEnabled(false);
                 cb_logging.setEnabled(false);
 
-                while (t.isAlive())
-                {
-                    if(!cb_disableDrawing.isSelected()) {
+                while (t.isAlive()) {
+                    if (!cb_disableDrawing.isSelected()) {
                         try {
-                            Thread.sleep(25);		//40 fps
+                            Thread.sleep(25);        //40 fps
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        l_robotCurrentSpeed.setText("Текущая скорость: " + Integer.toString((int)surface.getRobotSpeed()));
-                        l_robotCoordinates.setText("Координаты робота: " + Integer.toString((int)surface.getRobot().getX()) + ", " + Integer.toString((int)surface.getRobot().getY()));
-                        l_robotAzimuth.setText("Азимут робота: " + Integer.toString((int)Math.toDegrees(surface.getRobot().getAzimuth())));
-                        sl_robotAzimuth.setValue((int)Math.toDegrees(surface.getRobot().getAzimuth()));
+                        l_robotCurrentSpeed.setText("Текущая скорость: " + Integer.toString((int) surface.getRobotSpeed()));
+                        l_robotCoordinates.setText("Координаты робота: " + Integer.toString((int) surface.getRobot().getX()) + ", " + Integer.toString((int) surface.getRobot().getY()));
+                        l_robotAzimuth.setText("Азимут робота: " + Integer.toString((int) Math.toDegrees(surface.getRobot().getAzimuth())));
+                        sl_robotAzimuth.setValue((int) Math.toDegrees(surface.getRobot().getAzimuth()));
                         surface.repaint();
                     }
                 }
@@ -522,19 +520,16 @@ public class MainWindow extends JFrame implements ChangeListener {
         t.start();
         t_draw.start();
     }
+
     private void runRobots() {
-        final Thread t=new Thread()
-        {
-            public void run()
-            {
-                long time=System.currentTimeMillis();
+        final Thread t = new Thread() {
+            public void run() {
+                long time = System.currentTimeMillis();
                 surface.runRobots();
             }
         };
-        final Thread t_draw=new Thread()
-        {
-            public void run()
-            {
+        final Thread t_draw = new Thread() {
+            public void run() {
                 sl_robotAzimuth.setEnabled(false);
                 goAllButton.setText("Стоп");
                 b_loadMap.setEnabled(false);
@@ -560,18 +555,17 @@ public class MainWindow extends JFrame implements ChangeListener {
 
                 sl_rectWeight.setEnabled(false);
 
-                while (t.isAlive())
-                {
-                    if(!cb_disableDrawing.isSelected()) {
+                while (t.isAlive()) {
+                    if (!cb_disableDrawing.isSelected()) {
                         try {
-                            Thread.sleep(25);		//40 fps
+                            Thread.sleep(25);        //40 fps
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        l_robotCurrentSpeed.setText("Текущая скорость: " + Integer.toString((int)surface.getRobotSpeed()));
-                        l_robotCoordinates.setText("Координаты робота: " + Integer.toString((int)surface.getRobot().getX()) + ", " + Integer.toString((int)surface.getRobot().getY()));
-                        l_robotAzimuth.setText("Азимут робота: " + Integer.toString((int)Math.toDegrees(surface.getRobot().getAzimuth())));
-                        sl_robotAzimuth.setValue((int)Math.toDegrees(surface.getRobot().getAzimuth()));
+                        l_robotCurrentSpeed.setText("Текущая скорость: " + Integer.toString((int) surface.getRobotSpeed()));
+                        l_robotCoordinates.setText("Координаты робота: " + Integer.toString((int) surface.getRobot().getX()) + ", " + Integer.toString((int) surface.getRobot().getY()));
+                        l_robotAzimuth.setText("Азимут робота: " + Integer.toString((int) Math.toDegrees(surface.getRobot().getAzimuth())));
+                        sl_robotAzimuth.setValue((int) Math.toDegrees(surface.getRobot().getAzimuth()));
                         surface.repaint();
                     }
                 }
@@ -606,17 +600,18 @@ public class MainWindow extends JFrame implements ChangeListener {
         t.start();
         t_draw.start();
     }
+
     public void setStage() {
         if (r_robot.isSelected())
             surface.setStage(6);
         if (r_finish.isSelected())
             surface.setStage(7);
-        if(r_setRect.isSelected())
+        if (r_setRect.isSelected())
             surface.setStage(8);
     }
 
     private void createUIComponents() {
-        scrollForSurface=new JScrollPane(surface);
+        scrollForSurface = new JScrollPane(surface);
     }
 
     void makeExcessUnvisible() {

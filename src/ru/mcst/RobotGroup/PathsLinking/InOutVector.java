@@ -8,8 +8,8 @@ import java.util.HashSet;
  * Created by bocharov_n on 19.02.16.
  */
 class InOutVector {
-    public static final int IN  = 0,
-                            OUT = 1;
+    public static final int IN = 0,
+            OUT = 1;
 
     private RobotTrajectory robotTrajectory;
     private Point2D startPoint, endPoint;
@@ -18,13 +18,13 @@ class InOutVector {
     private long time;
     private int orientation;
     private HashSet<InOutVector> prev, next;
-    long  startTime, endTime;
+    long startTime, endTime;
 
 
-    public InOutVector(RobotTrajectory robotTrajectory, int orientation){
+    public InOutVector(RobotTrajectory robotTrajectory, int orientation) {
         int startIndex = 0, endIndex = 1;
         double speed;
-        switch (orientation){
+        switch (orientation) {
             case IN:
                 startIndex = 0;
                 endIndex = 1;
@@ -61,34 +61,34 @@ class InOutVector {
         next = new HashSet<>();
     }
 
-    public void drawVector(Graphics2D g2d, boolean isFilled, boolean isBorder){
+    public void drawVector(Graphics2D g2d, boolean isFilled, boolean isBorder) {
         g2d.setComposite(AlphaComposite.Src);
         g2d.setColor(Color.GRAY);
-        if (isFilled) g2d.fillRoundRect((int)(orientation == 0 ? startPoint.getX() : endPoint.getX()) - 5,
-                (int)(orientation == 0 ?  startPoint.getY() : endPoint.getY()) - 5, 10, 10, 2, 2);
-        else g2d.drawRoundRect((int)(orientation == 0 ? startPoint.getX() : endPoint.getX()) - 5,
-                (int)(orientation == 0 ?  startPoint.getY() : endPoint.getY()) - 5, 10, 10, 2, 2);
-        if (isBorder){
+        if (isFilled) g2d.fillRoundRect((int) (orientation == 0 ? startPoint.getX() : endPoint.getX()) - 5,
+                (int) (orientation == 0 ? startPoint.getY() : endPoint.getY()) - 5, 10, 10, 2, 2);
+        else g2d.drawRoundRect((int) (orientation == 0 ? startPoint.getX() : endPoint.getX()) - 5,
+                (int) (orientation == 0 ? startPoint.getY() : endPoint.getY()) - 5, 10, 10, 2, 2);
+        if (isBorder) {
             g2d.setColor(Color.BLACK);
-            g2d.drawRoundRect((int)(orientation == 0 ? startPoint.getX() : endPoint.getX()) - 5,
-                    (int)(orientation == 0 ?  startPoint.getY() : endPoint.getY()) - 5, 10, 10, 2, 2);
+            g2d.drawRoundRect((int) (orientation == 0 ? startPoint.getX() : endPoint.getX()) - 5,
+                    (int) (orientation == 0 ? startPoint.getY() : endPoint.getY()) - 5, 10, 10, 2, 2);
         }
     }
 
-    public double getAzimuth(){
+    public double getAzimuth() {
         double x = endPoint.getX() - startPoint.getX(),
                 y = endPoint.getY() - startPoint.getY();
-        return ( x == 0 ) ? 90 : (x < 0 && y > 0) ? (180 + Math.toDegrees(Math.atan(y / x))) : Math.toDegrees(Math.atan(y / x));
+        return (x == 0) ? 90 : (x < 0 && y > 0) ? (180 + Math.toDegrees(Math.atan(y / x))) : Math.toDegrees(Math.atan(y / x));
     }
 
-    public double getNormal(){
+    public double getNormal() {
         double c = startPoint.getX() * endPoint.getY() - endPoint.getX() * startPoint.getY(),
                 a = endPoint.getX() - startPoint.getX(),
                 b = startPoint.getY() - endPoint.getY();
         return Math.abs(c / Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2)));
     }
 
-    public boolean isPotentialFollowerTo(InOutVector vector){
+    public boolean isPotentialFollowerTo(InOutVector vector) {
         double POSSIBLE_ANGLE = 90;
 
         double n = 15;          //rotation degrees
@@ -103,7 +103,7 @@ class InOutVector {
         sectorEnd = new Vector2D(sectorEnd.x * wayVectorLength / sectorEndLength, sectorEnd.y * wayVectorLength / sectorEndLength);
         double distance = Math.sqrt(Math.pow(endPoint.getX() - vector.getStartPoint().getX(), 2) +
                 Math.pow(endPoint.getY() - vector.getStartPoint().getY(), 2)),
-               possibleDistance = (this.speed + vector.speed) / 2 * ((double)(vector.time - this.time) / 1000);
+                possibleDistance = (this.speed + vector.speed) / 2 * ((double) (vector.time - this.time) / 1000);
         boolean isInReachableDistance = (distance < possibleDistance * 1.2 && distance > possibleDistance * 0.7) || (
                 distance < possibleDistance + 5 && distance > possibleDistance - 5);
         boolean isAzimuthCorrect = Math.abs(this.getAzimuth() - vector.getAzimuth()) < POSSIBLE_ANGLE;
@@ -111,15 +111,15 @@ class InOutVector {
         return isInSector && isInReachableDistance && isAzimuthCorrect;
     }
 
-    private boolean areClockwise(Vector2D v1, Vector2D v2){
+    private boolean areClockwise(Vector2D v1, Vector2D v2) {
         return -v1.x * v2.y + v1.y * v2.x <= 0;
     }
 
-    public double getX(){
+    public double getX() {
         return orientation == IN ? startPoint.getX() : endPoint.getX();
     }
 
-    public double getY(){
+    public double getY() {
         return orientation == IN ? startPoint.getY() : endPoint.getY();
     }
 

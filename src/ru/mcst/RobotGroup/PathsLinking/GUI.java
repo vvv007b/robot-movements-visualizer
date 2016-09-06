@@ -114,9 +114,9 @@ public class GUI extends JFrame{
             cameraRTextField.setText("Camera radius: " + cameraRSlider.getValue());
         });
         removeCameraButton.addActionListener(e -> {
-            TrackingSystem.removeCamera(currentCamera);
-            for(int i = 0; i < TrackingSystem.getCameraList().size(); i++){
-                TrackingSystem.getCameraList().get(i).setIndex(i);
+            TrackingSystem.getInstance().removeCamera(currentCamera);
+            for(int i = 0; i < TrackingSystem.getInstance().getCameraList().size(); i++){
+                TrackingSystem.getInstance().getCameraList().get(i).setIndex(i);
             }
             currentCamera.setExist(false);
             currentCamera = null;
@@ -132,26 +132,26 @@ public class GUI extends JFrame{
             removeCameraButton.setEnabled(false);
         });
         clearTrajectoriesButton.addActionListener(e -> {
-            for(Camera camera:TrackingSystem.getCameraList()){
+            for(Camera camera:TrackingSystem.getInstance().getCameraList()){
                 camera.getTracker().setMarkForClear(true);
             }
             mapPanel.setCurrentVector(null);
-            TrackingSystem.getTrajectoriesList().clear();
-            TrackingSystem.getInOutVectorsList().clear();
+            TrackingSystem.getInstance().getTrajectoriesList().clear();
+            TrackingSystem.getInstance().getInOutVectorsList().clear();
             mapPanel.clearTrajectoriesLayer();
             mapPanel.clearLinksLayer();
         });
         linkTrajectoriesButton.addActionListener(e -> {
             long startTime = System.currentTimeMillis();
-            TrackingSystem.linkTrajectories();
+            TrackingSystem.getInstance().linkTrajectories();
             System.out.println("Trajectories link time(ms): " + (System.currentTimeMillis() - startTime));
         });
     }
 
     public void updateStatus(){
         String status = "<html>";
-        for(Camera curCamera:TrackingSystem.getCameraList()){
-            status += "Camera " + TrackingSystem.getCameraList().indexOf(curCamera) + " see " + curCamera.getTracker().getVisibleRobotsCount() +
+        for(Camera curCamera:TrackingSystem.getInstance().getCameraList()){
+            status += "Camera " + TrackingSystem.getInstance().getCameraList().indexOf(curCamera) + " see " + curCamera.getTracker().getVisibleRobotsCount() +
                     " robots<br>";
         }
         status += "</html>";
@@ -160,7 +160,7 @@ public class GUI extends JFrame{
 
     public void inOutVectorNotification(InOutVector vector){
         String message = (vector.getOrientation() == InOutVector.IN ? "In " : "Out ") +
-                "vector: " + TrackingSystem.getInOutVectorsList().indexOf(vector) + System.lineSeparator() +
+                "vector: " + TrackingSystem.getInstance().getInOutVectorsList().indexOf(vector) + System.lineSeparator() +
                 "x: " + vector.getX() + System.lineSeparator() +
                 "y: " + vector.getY() + System.lineSeparator() +
                 "azimuth: " + vector.getAzimuth() + System.lineSeparator() +

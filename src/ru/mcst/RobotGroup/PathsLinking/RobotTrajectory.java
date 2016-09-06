@@ -15,7 +15,7 @@ class RobotTrajectory {
     private HashSet<RobotTrajectory> prev, next;
     private InOutVector inVector, outVector;
 
-    public RobotTrajectory(){
+    public RobotTrajectory() {
         points = new ArrayList<>();
         direction = 0;
         inVector = null;
@@ -27,7 +27,7 @@ class RobotTrajectory {
         next = new HashSet<>();
     }
 
-    public RobotTrajectory(RobotTrajectory robotTrajectory){
+    public RobotTrajectory(RobotTrajectory robotTrajectory) {
         points = new ArrayList<>();
         this.points.addAll(robotTrajectory.getPoints().stream().collect(Collectors.toList()));
         this.direction = robotTrajectory.getDirection();

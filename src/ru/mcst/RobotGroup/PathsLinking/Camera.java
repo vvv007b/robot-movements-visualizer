@@ -15,7 +15,7 @@ class Camera {
     private Tracker tracker;
     private int index;
 
-    public Camera(int x, int y, int azimuth, int r, int angle){
+    public Camera(int x, int y, int azimuth, int r, int angle) {
         this.x = x;
         this.y = y;
         this.azimuth = azimuth;
@@ -25,14 +25,14 @@ class Camera {
         redrawFOV();
         this.isExist = true;
         this.tracker = null;
-        this.index = TrackingSystem.getCameraList().size();
+        this.index = TrackingSystem.getInstance().getCameraList().size();
     }
 
-    public void redrawFOV(){
+    public void redrawFOV() {
         arc.setArcByCenter(r, r, r, azimuth - angle / 2, angle, Arc2D.OPEN);
     }
 
-    public boolean isVisible(Point2D point){
+    public boolean isVisible(Point2D point) {
         double x = point.getX(), y = point.getY();
         boolean isInCircle = Math.pow(this.getX() - x, 2) + Math.pow(this.getY() - y, 2) <= Math.pow(this.getR(), 2);
         double startX = this.getX() - this.getR() + this.getArc().getStartPoint().getX(),
@@ -45,10 +45,10 @@ class Camera {
         Vector2D sectorStart = new Vector2D(startPoint.getX() - centerPoint.getX(), startPoint.getY() - centerPoint.getY()),
                 sectorEnd = new Vector2D(endPoint.getX() - centerPoint.getX(), endPoint.getY() - centerPoint.getY()),
                 relPoint = new Vector2D(x - centerPoint.getX(), y - centerPoint.getY());
-        return  isInCircle && !areClockwise(sectorStart, relPoint) && areClockwise(sectorEnd, relPoint);
+        return isInCircle && !areClockwise(sectorStart, relPoint) && areClockwise(sectorEnd, relPoint);
     }
 
-    private boolean areClockwise(Vector2D v1, Vector2D v2){
+    private boolean areClockwise(Vector2D v1, Vector2D v2) {
         return -v1.x * v2.y + v1.y * v2.x <= 0;
     }
 
@@ -60,7 +60,9 @@ class Camera {
         isExist = exist;
     }
 
-    public Arc2D getArc() {return arc;}
+    public Arc2D getArc() {
+        return arc;
+    }
 
     public int getX() {
         return x;

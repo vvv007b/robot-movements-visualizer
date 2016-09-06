@@ -3,7 +3,7 @@ package ru.mcst.RobotGroup.PathsFinding;
 import java.awt.*;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,10 +23,10 @@ public class Hypervisor {
 //    }
 
 
-    private static List<Robot> robots=new ArrayList<Robot>();
+    private static List<Robot> robots = new ArrayList<Robot>();
     //private static Map<Robot, RobotParameters> robots=new LinkedHashMap<Robot, RobotParameters>();
 
-    private static boolean logging=false;
+    private static boolean logging = false;
 
     public Hypervisor() {
     }
@@ -35,13 +35,13 @@ public class Hypervisor {
 //        for(Robot robot:robots) {
 //            this.robots.put(robot, new RobotParameters(robot.getX(), robot.getY(), robot.getSpeed()));
 //        }
-        this.robots=robots;
+        this.robots = robots;
     }
 
     public static void sendMapChangedSignal(boolean value) {
-        for(Robot r:robots) {
-        //for(Map.Entry<Robot, RobotParameters> entry:robots.entrySet()) {
-        //    entry.getKey().setMapChangedSignal(value);
+        for (Robot r : robots) {
+            //for(Map.Entry<Robot, RobotParameters> entry:robots.entrySet()) {
+            //    entry.getKey().setMapChangedSignal(value);
             r.setMapChangedSignal(value);
         }
     }
@@ -53,10 +53,10 @@ public class Hypervisor {
 //            Robot r=entry.getKey();
 //            if (entry.getKey() != robot) {
             if (r != robot) {
-                    if (Link.isSegmentsBlockedByRobot(link.getSegments(),
-                            (int) r.getX(), (int) r.getY(), r.getAzimuth(), robot.getMap().getScale(), 0, passed)) {
-                        return r;
-                    }
+                if (Link.isSegmentsBlockedByRobot(link.getSegments(),
+                        (int) r.getX(), (int) r.getY(), r.getAzimuth(), robot.getMap().getScale(), 0, passed)) {
+                    return r;
+                }
 
             }
         }
@@ -64,16 +64,16 @@ public class Hypervisor {
     }
 
     public static Robot checkRobotsOnWay(Robot robot, List<Link> links, double passed) {
-        if(links.isEmpty())
+        if (links.isEmpty())
             return null;
-        Link currentLink=links.get(0);
+        Link currentLink = links.get(0);
 
 //        for(Map.Entry<Robot, RobotParameters> entry:robots.entrySet()) {
 //            Robot r=entry.getKey();
-        for(Robot r:robots){
+        for (Robot r : robots) {
             if (r != robot) {
-                for(Link link: links) {
-                    if(link==currentLink) {
+                for (Link link : links) {
+                    if (link == currentLink) {
                         if (Link.isSegmentsBlockedByRobot(link.getSegments(),
                                 (int) r.getX(), (int) r.getY(), r.getAzimuth(), robot.getMap().getScale(), 0, passed)) {
                             return r;
@@ -91,10 +91,10 @@ public class Hypervisor {
     }
 
     public static Robot checkRobotInCoordinates(int x, int y, int robotSize, Robot robot) {
-        for(Robot r: robots) {
-        //for(Map.Entry<Robot, RobotParameters> entry:robots.entrySet()) {
-        //    Robot r=entry.getKey();
-            if(r!=robot) {
+        for (Robot r : robots) {
+            //for(Map.Entry<Robot, RobotParameters> entry:robots.entrySet()) {
+            //    Robot r=entry.getKey();
+            if (r != robot) {
                 if (Math.abs(r.getX() - x) <= robotSize && Math.abs(r.getY() - y) <= robotSize) {
                     return r;
                 }
@@ -104,12 +104,12 @@ public class Hypervisor {
     }
 
     public synchronized static boolean isPointOccupiedAsFinish(double x, double y, Robot exeption) {
-        for(Robot robot: robots) {
+        for (Robot robot : robots) {
 //        for(Map.Entry<Robot, RobotParameters> entry:robots.entrySet()) {
 //            Robot robot=entry.getKey();
-            if(robot!=exeption) {
-                Node destination=robot.getRealDestination();
-                if(destination!=null) {
+            if (robot != exeption) {
+                Node destination = robot.getRealDestination();
+                if (destination != null) {
                     if (destination.getX() == x && destination.getY() == y) {
                         return true;
                     }
@@ -120,21 +120,21 @@ public class Hypervisor {
     }
 
     public static void startLog() {
-        logging=true;
-        Thread thread=new Thread(new Runnable() {
+        logging = true;
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 // create files
-                PrintWriter writers[]=new PrintWriter[robots.size()];
-                for(int i=0; i<robots.size(); ++i) {
+                PrintWriter writers[] = new PrintWriter[robots.size()];
+                for (int i = 0; i < robots.size(); ++i) {
                     try {
-                        writers[i]=new PrintWriter("robot_"+i);
+                        writers[i] = new PrintWriter("robot_" + i);
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
                 }
-                for(int i=0; i<robots.size(); ++i) {
-                    Robot r=robots.get(i);
+                for (int i = 0; i < robots.size(); ++i) {
+                    Robot r = robots.get(i);
 //                int i=0;
 //                for(Map.Entry<Robot, RobotParameters> entry:robots.entrySet()) {
 //                    Robot r=entry.getKey();
@@ -143,13 +143,13 @@ public class Hypervisor {
                 }
                 // while not stopped - log MOVING robots
                 while (logging) {
-                    for(int i=0; i<robots.size(); ++i) {
-                        Robot r=robots.get(i);
+                    for (int i = 0; i < robots.size(); ++i) {
+                        Robot r = robots.get(i);
 //                    i=0;
 //                    for(Map.Entry<Robot, RobotParameters> entry:robots.entrySet()) {
 //                        Robot r=entry.getKey();
-                        if(r.getSpeed()>0) {
-                            writers[i].println((int)r.getX() + " " + (int)r.getY());
+                        if (r.getSpeed() > 0) {
+                            writers[i].println((int) r.getX() + " " + (int) r.getY());
                         }
                         ++i;
                     }
@@ -161,7 +161,7 @@ public class Hypervisor {
                 }
 
                 // close all files
-                for(PrintWriter w:writers)
+                for (PrintWriter w : writers)
                     w.close();
             }
         });
@@ -169,26 +169,26 @@ public class Hypervisor {
     }
 
     public static void stopLog() {
-        logging=false;
+        logging = false;
     }
 
 
     // returns {width, height}
     public static int[] getMapSize() {
-        if(robots.size()==0)
+        if (robots.size() == 0)
             return null;
-        MapInfo map=robots.get(0).getMap();
+        MapInfo map = robots.get(0).getMap();
         //MapInfo map=robots.entrySet().iterator().next().getKey().getMap();
-        if(map.getImage()==null)
+        if (map.getImage() == null)
             return null;
-        int result[]=new int[2];
-        result[0]=map.getWidth();
-        result[1]=map.getHeight();
+        int result[] = new int[2];
+        result[0] = map.getWidth();
+        result[1] = map.getHeight();
         return result;
     }
 
     public static Image getMapImage() {
-        if(robots.size()==0)
+        if (robots.size() == 0)
             return null;
         //return robots.entrySet().iterator().next().getKey().getMap().getImage();
         return robots.get(0).getMap().getImage();
@@ -199,7 +199,7 @@ public class Hypervisor {
 
 //        for(Map.Entry<Robot, RobotParameters> entry:robots.entrySet()) {
 //            Robot r=entry.getKey();
-        for(Robot r:robots) {
+        for (Robot r : robots) {
 //            if(r.isConsistentSpeedCoordinates()) {
 //                entry.setValue(new RobotParameters(r.getX(), r.getY(), r.getSpeed()));
 //            }
@@ -224,8 +224,8 @@ public class Hypervisor {
     }
 
     public static ArrayList<Long> getUpdateTimes() {
-        ArrayList<Long> result=new ArrayList<Long>();
-        for(Robot r:robots)
+        ArrayList<Long> result = new ArrayList<Long>();
+        for (Robot r : robots)
             result.add(r.getUpdateTime());
         return result;
     }
