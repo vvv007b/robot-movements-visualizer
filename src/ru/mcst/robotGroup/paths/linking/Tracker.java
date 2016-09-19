@@ -1,6 +1,7 @@
-package ru.mcst.RobotGroup.PathsLinking;
+package ru.mcst.robotGroup.paths.linking;
 
-import ru.mcst.RobotGroup.PathsFinding.Hypervisor;
+import ru.mcst.robotGroup.paths.RobotsState;
+import ru.mcst.robotGroup.paths.finding.Hypervisor;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -9,15 +10,12 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-/**
- * Created by bocharov_n on 02.03.16.
- */
 class Tracker extends Thread {
-    private Camera camera;
-    private ArrayList<RobotTrajectory> trajectories;
+    private final Camera camera;
+    private final ArrayList<RobotTrajectory> trajectories;
     private ArrayList<Integer> visibleRobots;
-    private ArrayList<Color> colors;
-    private ArrayList<RobotTrajectory> robotsTrajectories;
+    private final ArrayList<Color> colors;
+    private final ArrayList<RobotTrajectory> robotsTrajectories;
     private boolean markForClear;
 
     public Tracker(Camera camera) {
@@ -41,9 +39,9 @@ class Tracker extends Thread {
                 robotsTrajectories.clear();
                 visibleRobots.clear();
             }
-            ArrayList<double[]> allCoordinates = Hypervisor.getAllCoordinates();
-            ArrayList<Double> speeds = Hypervisor.getSpeeds();
-            ArrayList<Long> times = Hypervisor.getUpdateTimes();
+            ArrayList<double[]> allCoordinates = RobotsState.getInstance().getAllCoordinates();
+            ArrayList<Double> speeds = RobotsState.getInstance().getSpeeds();
+            ArrayList<Long> times = RobotsState.getInstance().getUpdateTimes();
             if (colors.size() < allCoordinates.size()) {
                 for (int i = 0; i < allCoordinates.size(); i++) {
                     Random rand = new Random();
@@ -88,8 +86,9 @@ class Tracker extends Thread {
                             robotsTrajectories.get(i).getSpeeds().add(speeds.get(i));
                             robotsTrajectories.get(i).getTimes().add(times.get(i));
                             //Проверяем одновременную видимость с нескольких камер
-                            for (Camera curCamera : TrackingSystem.getInstance().getCameraList()) {
-                                if (curCamera.getTracker().isRobotVisibleNow(i) &&
+//                            for (Camera curCamera : TrackingSystem.getInstance().getCameraList()) {
+                            for (Camera curCamera : TrackingSystem.getCameraList()) {
+                                    if (curCamera.getTracker().isRobotVisibleNow(i) &&
                                         robotsTrajectories.get(i).getConnectedTrajectories().indexOf(curCamera.getTracker().getRobotsTrajectories().get(i)) == -1 &&
                                         curCamera != camera) {
                                     if (robotTrajectoryLength(i) > curCamera.getTracker().robotTrajectoryLength(i)) {
@@ -124,7 +123,7 @@ class Tracker extends Thread {
                 visibleRobots = currentVisibleRobots;
                 g2d.dispose();
                 MapUnderlay.changeTrajectoriesLayer(trajectories);
-                GUI.getMapPanel().repaint();
+                PathsLinkingGUI.getMapPanel().repaint();
             }
             try {
                 sleep(25);
@@ -144,15 +143,15 @@ class Tracker extends Thread {
         return visibleRobots.size();
     }
 
-    public boolean isRobotVisibleNow(int index) {
+    private boolean isRobotVisibleNow(int index) {
         return visibleRobots.indexOf(index) >= 0;
     }
 
-    public int robotTrajectoryLength(int index) {
+    private int robotTrajectoryLength(int index) {
         return isRobotVisibleNow(index) ? robotsTrajectories.get(index).getPoints().size() : -1;
     }
 
-    public ArrayList<RobotTrajectory> getRobotsTrajectories() {
+    private ArrayList<RobotTrajectory> getRobotsTrajectories() {
         return robotsTrajectories;
     }
 
@@ -160,7 +159,7 @@ class Tracker extends Thread {
         return trajectories;
     }
 
-    public void setMarkForClear(boolean markForClear) {
-        this.markForClear = markForClear;
+    public void setMarkForClear() {
+        this.markForClear = true;
     }
 }

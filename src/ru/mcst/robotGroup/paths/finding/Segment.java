@@ -1,4 +1,4 @@
-package ru.mcst.RobotGroup.PathsFinding;
+package ru.mcst.robotGroup.paths.finding;
 
 class Segment {
     private boolean isStraightLine = true;
@@ -17,25 +17,25 @@ class Segment {
     public Segment() {
     }
 
-    public Segment(double originX, double originY, double length, double startAngle, int weight) {
-        this.originX = originX;
-        this.originY = originY;
-        this.length = length;
-        this.startAngle = startAngle;
-        this.weight = weight;
-    }
-
-    public Segment(double originX, double originY, boolean isClockwise, double startAngle, double radiansTotal, double radius, int weight) {
-        this.isStraightLine = false;
-        this.isClockwise = isClockwise;
-        this.originX = originX;
-        this.originY = originY;
-        this.startAngle = startAngle;
-        this.radiansTotal = radiansTotal;
-        this.length = radius * radiansTotal;
-        this.radius = radius;
-        this.weight = weight;
-    }
+//    public Segment(double originX, double originY, double length, double startAngle, int weight) {
+//        this.originX = originX;
+//        this.originY = originY;
+//        this.length = length;
+//        this.startAngle = startAngle;
+//        this.weight = weight;
+//    }
+//
+//    public Segment(double originX, double originY, boolean isClockwise, double startAngle, double radiansTotal, double radius, int weight) {
+//        this.isStraightLine = false;
+//        this.isClockwise = isClockwise;
+//        this.originX = originX;
+//        this.originY = originY;
+//        this.startAngle = startAngle;
+//        this.radiansTotal = radiansTotal;
+//        this.length = radius * radiansTotal;
+//        this.radius = radius;
+//        this.weight = weight;
+//    }
 
     public boolean getIsStraightLine() {
         return isStraightLine;

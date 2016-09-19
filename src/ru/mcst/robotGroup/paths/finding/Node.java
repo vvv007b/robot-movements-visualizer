@@ -1,4 +1,4 @@
-package ru.mcst.RobotGroup.PathsFinding;
+package ru.mcst.robotGroup.paths.finding;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ class Node {
     private double x;
     private double y;
     // список соседей узла
-    private List<Link> links = new ArrayList<Link>();
+    private final List<Link> links = new ArrayList<>();
     // коэффициенты для алгоритма поиска пути
     //private double F, H, G;
     // родитель узла (для построения найденного пути)
@@ -19,16 +19,6 @@ class Node {
     private boolean isRobotMade;
     // RADIANS
     private double direction = 0;
-
-    public Node() {
-        x = -1000;
-        y = -1000;
-//		F=0;
-//        H=0;
-//        G=0;
-//        parent=null;
-        isRobotMade = false;
-    }
 
     public Node(double x, double y, double direction) {
         this.x = x;
@@ -58,8 +48,8 @@ class Node {
         Segment s[][] = new Segment[4][3], s2[], sMin[] = null;
         double minLength = -1, length = -1;
         for (int i = 0; i < 4; ++i) {
-            if ((s2 = computeSegments(s[i], n, (i < 2), (i == 1 || i == 3), radius, robotSize, passabilityArray)) != null) {
-                if (Link.isSegmentsBlocked(s2, robotSize, passabilityArray, null)) {
+            if ((s2 = computeSegments(s[i], n, (i < 2), (i == 1 || i == 3), radius)) != null) {
+                if (Link.isSegmentsBlocked(s2, robotSize, passabilityArray)) {
                     s2 = null;
                 } else {
                     length = s2[0].getLength() + s2[1].getLength() + s2[2].getLength() +
@@ -75,12 +65,12 @@ class Node {
         }
         if (sMin == null) return false;
         synchronized (links) {
-            links.add(new Link(this, n, sMin));
+            links.add(new Link(n, sMin));
         }
         return true;
     }
 
-    private Segment[] computeSegments(Segment[] segments, Node n, boolean isClockwiseA, boolean isClockwiseB, double radius, int robotSize, byte[][] passabilityArray) {
+    private Segment[] computeSegments(Segment[] segments, Node n, boolean isClockwiseA, boolean isClockwiseB, double radius) {
         Segment seg0 = new Segment(), seg1 = new Segment(), seg2 = new Segment();
 
         seg0.setIsStraightLine(false);
@@ -99,10 +89,10 @@ class Node {
 
         double radStopB = (isClockwiseB ? Segment.CapRadian(n.direction + Segment.halfPI) : Segment.CapRadian(n.direction - Segment.halfPI));
 
-        seg2.setOriginX((double) n.getX() - radius * Math.cos(radStopB));
+        seg2.setOriginX(n.getX() - radius * Math.cos(radStopB));
         // changed sign, because of screen coordinates
         // seg2.setOriginY((double)n.getY()-radius*Math.sin(radStopB));
-        seg2.setOriginY((double) n.getY() + radius * Math.sin(radStopB));
+        seg2.setOriginY(n.getY() + radius * Math.sin(radStopB));
 
         // may be for some optimization
         double originX0 = seg0.getOriginX();

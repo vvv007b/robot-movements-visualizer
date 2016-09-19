@@ -1,15 +1,15 @@
-package ru.mcst.RobotGroup.PathsFinding;
+package ru.mcst.robotGroup.paths.finding;
 
 import java.awt.geom.Line2D;
 
 class Link {
-    private Node parent = null;
+//    private Node parent = null;
     private Node child = null;
     private Segment[] segments = null;
     private double length = 0;
 
-    public Link(Node parent, Node child, Segment[] segments) {
-        this.parent = parent;
+    public Link(Node child, Segment[] segments) {
+//        this.parent = parent;
         this.child = child;
         this.segments = segments;
         for (Segment s : segments) {
@@ -21,9 +21,9 @@ class Link {
         return child;
     }
 
-    public Node getParent() {
-        return parent;
-    }
+//    public Node getParent() {
+//        return parent;
+//    }
 
     public Segment[] getSegments() {
         return segments;
@@ -37,7 +37,7 @@ class Link {
         return (segments[0].getWeight() + segments[1].getWeight() + segments[2].getWeight()) / 3;
     }
 
-    public static boolean isSegmentsBlocked(Segment[] segments, int robotSize, byte[][] passabilityArray, Link link) {
+    public static boolean isSegmentsBlocked(Segment[] segments, int robotSize, byte[][] passabilityArray) {
         if (passabilityArray == null)
             return false;
         double distance = 0, globalDistance = 0;
@@ -90,7 +90,7 @@ class Link {
         return false;
     }
 
-    public final static int getPointWeight(int xCenter, int yCenter, double azimuth,
+    public static int getPointWeight(int xCenter, int yCenter, double azimuth,
                                            int robotSize, byte[][] passabilityArray) {
         if (passabilityArray == null) return 255;
         robotSize /= 2;
@@ -206,10 +206,7 @@ class Link {
                 return true;
             }
         }
-        if (Line2D.linesIntersect(x1[3], y1[3], x1[0], y1[0], x2[3], y2[3], x2[0], y2[0])) {
-            return true;
-        }
-        return false;
+        return Line2D.linesIntersect(x1[3], y1[3], x1[0], y1[0], x2[3], y2[3], x2[0], y2[0]);
     }
 
     public double getRadiansTotal() {

@@ -1,24 +1,23 @@
-package ru.mcst.RobotGroup.PathsLinking;
+package ru.mcst.robotGroup.paths.linking;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.HashSet;
 
-/**
- * Created by bocharov_n on 19.02.16.
- */
 class InOutVector {
     public static final int IN = 0,
             OUT = 1;
 
-    private RobotTrajectory robotTrajectory;
+    private final RobotTrajectory robotTrajectory;
     private Point2D startPoint, endPoint;
     private double speed;
     private double acceleration;
-    private long time;
-    private int orientation;
-    private HashSet<InOutVector> prev, next;
-    long startTime, endTime;
+    private final long time;
+    private final int orientation;
+    private final HashSet<InOutVector> prev;
+    private final HashSet<InOutVector> next;
+    final long startTime;
+    final long endTime;
 
 
     public InOutVector(RobotTrajectory robotTrajectory, int orientation) {
@@ -127,7 +126,7 @@ class InOutVector {
         return robotTrajectory;
     }
 
-    public Point2D getStartPoint() {
+    private Point2D getStartPoint() {
         return startPoint;
     }
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="ru.mcst.RobotGroup.PathsLinking.GUI">
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="ru.mcst.robotGroup.paths.linking.PathsLinkingGUI">
   <grid id="27dc6" binding="rootPanel" layout-manager="FormLayout">
     <rowspec value="center:d:grow"/>
     <colspec value="left:d:grow"/>

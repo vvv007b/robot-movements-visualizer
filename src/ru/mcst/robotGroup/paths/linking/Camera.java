@@ -1,31 +1,28 @@
-package ru.mcst.RobotGroup.PathsLinking;
+package ru.mcst.robotGroup.paths.linking;
 
 
 import java.awt.geom.Arc2D;
 import java.awt.geom.Point2D;
 
-/**
- * Created by bocharov_n on 14.10.15.
- */
 class Camera {
 
     private int x, y, azimuth, r, angle;
-    private Arc2D arc;
+    private final Arc2D arc;
     private boolean isExist;
     private Tracker tracker;
     private int index;
 
-    public Camera(int x, int y, int azimuth, int r, int angle) {
+    public Camera(int x, int y) {
         this.x = x;
         this.y = y;
-        this.azimuth = azimuth;
-        this.r = r;
-        this.angle = angle;
-        this.arc = new Arc2D.Double(0.0, 0.5, r, r, 0.0, 60.0, Arc2D.CHORD);             //random parameters for creating new arc
+        this.azimuth = 90;
+        this.r = 120;
+        this.angle = 90;
+        this.arc = new Arc2D.Double(0.0, 0.5, 120, 120, 0.0, 60.0, Arc2D.CHORD);             //random parameters for creating new arc
         redrawFOV();
         this.isExist = true;
         this.tracker = null;
-        this.index = TrackingSystem.getInstance().getCameraList().size();
+        this.index = TrackingSystem.getCameraList().size();
     }
 
     public void redrawFOV() {
@@ -56,11 +53,11 @@ class Camera {
         return isExist;
     }
 
-    public void setExist(boolean exist) {
-        isExist = exist;
+    public void setExist() {
+        isExist = false;
     }
 
-    public Arc2D getArc() {
+    private Arc2D getArc() {
         return arc;
     }
 

@@ -1,4 +1,4 @@
-package ru.mcst.RobotGroup.PathsFinding;
+package ru.mcst.robotGroup.paths.finding;
 
 import javax.swing.*;
 import java.awt.*;
@@ -41,7 +41,7 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
 
     private int rectWeight = 0;
 
-    private List<Robot> robots = new ArrayList<Robot>();
+    private List<Robot> robots = new ArrayList<>();
     private Hypervisor hypervisor = new Hypervisor(robots);
 
     private boolean robotsRunning = false;
@@ -49,13 +49,13 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
 
 
     public Surface() {
+        super();
         addMouseListener(this);
         addMouseMotionListener(this);
         addKeyListener(this);
         stage = 0;
         robot = new Robot();
         robots.add(robot);
-        //robots.add(new Robot());
         robotImage = new ImageIcon(getClass().getResource("/robotR2D2.png")).getImage();
         robotImageOriginal = new ImageIcon(getClass().getResource("/robotR2D2.png")).getImage();
         robotImageSelected = new ImageIcon(getClass().getResource("/robotR2D2Selected.png")).getImage();
@@ -63,6 +63,7 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
         finishDirectionImage = new ImageIcon(getClass().getResource("/arrow.png")).getImage();
 
         screen = null;
+        System.out.println("Surface created");
     }
 
     @Override
@@ -288,6 +289,28 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
         repaint();
     }
 
+    public int placeRobotSilent(int x, int y){
+        int scale = robot.getMap().getScale();
+        if (robot.getMap().getImage() != null) {
+            if (x < scale / 2)
+                x = scale / 2;
+            else if (x > robot.getMap().getWidth() - scale / 2)
+                x = robot.getMap().getWidth() - scale / 2;
+            if (y < scale / 2)
+                y = scale / 2;
+            else if (y > robot.getMap().getHeight() - scale / 2)
+                y = robot.getMap().getHeight() - scale / 2;
+        }
+        // check if robot can stand there
+        if (Link.getPointWeight(x, y, robot.getAzimuth(), scale, robot.getMap().getPassabilityArray()) == 255)
+            return 0;
+        robot.setX(x);
+        robot.setY(y);
+        //Control_Panel.setRobotCoordinates(x, y);
+        robot.setMapChangedSignal(true);
+        return 1;
+    }
+
     private void setFinish(int x, int y) {
         int scale = robot.getMap().getScale();
         if (robot.getMap().getImage() != null) {
@@ -319,18 +342,45 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
                 //robot.getMap().setFinish(n);
                 robot.setFinish(n);
             }
-        } else {
-//			//if some robot is moving, then everybody is moving. so this robot needs to move too
-//			for(Robot r: robots) {
-//				if (r.getSpeed() != 0) {
-//					robot.move(/*new Node(r.getX(), r.getY(), r.getAzimuth()), */new Node(finish.getX(), finish.getY(), finish.getDirection()));
-//				}
-//			}
         }
         robot.setMapChangedSignal(true);
         //Control_Panel.setFinishCoordinates(x, y);
         //robot.setMapChangedSignal(true);
         repaint();
+    }
+
+    public int setFinishSilent(int x, int y){
+        int scale = robot.getMap().getScale();
+        if (robot.getMap().getImage() != null) {
+            if (x < scale / 2)
+                x = scale / 2;
+            else if (x > robot.getMap().getWidth() - scale / 2)
+                x = robot.getMap().getWidth() - scale / 2;
+            if (y < scale / 2)
+                y = scale / 2;
+            else if (y > robot.getMap().getHeight() - scale / 2)
+                y = robot.getMap().getHeight() - scale / 2;
+        }
+        Node finish = robot.getFinish();
+        // check if robot can stand there
+        if (Link.getPointWeight(x, y, finish.getDirection(), scale, robot.getMap().getPassabilityArray()) == 255)
+            return 0;
+        finish.setX(x);
+        finish.setY(y);
+
+        if (robot.getSpeed() != 0) {
+            //synchronized (robot.getMap().getFinish()) {
+            synchronized (robot.getMap().getNodes()) {
+                Node n = new Node(finish.getX(), finish.getY(), finish.getDirection());
+                n.setIsRobotMade(true);
+                robot.getMap().addNode(n);
+                robot.getMap().addLinksAroundCell24(n, robot.getRadius(), true);
+                robot.addNodeToDelete(robot.getFinish());
+                robot.setFinish(n);
+            }
+        }
+        robot.setMapChangedSignal(true);
+        return 1;
     }
 
     private void setFinishAll(int x, int y) {
@@ -363,26 +413,19 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
                     r.addNodeToDelete(r.getFinish());
                     r.setFinish(n);
                 }
-            } else {
-//			//if some robot is moving, then everybody is moving. so this robot needs to move too
-//			for(Robot r: robots) {
-//				if (r.getSpeed() != 0) {
-//					robot.move(/*new Node(r.getX(), r.getY(), r.getAzimuth()), */new Node(finish.getX(), finish.getY(), finish.getDirection()));
-//				}
-//			}
             }
             robot.setMapChangedSignal(true);
         }
         repaint();
     }
 
-    public void render() {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                repaint();  // repaint(), etc. according to changed states
-            }
-        });
-    }
+//    public void render() {
+//        SwingUtilities.invokeLater(new Runnable() {
+//            public void run() {
+//                repaint();  // repaint(), etc. according to changed states
+//            }
+//        });
+//    }
 
     public void resizeRobot(int size) {
         BufferedImage resized = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
@@ -398,13 +441,8 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
     }
 
     public void setScale(int scale) {
-//        BufferedImage resized=new BufferedImage(scale, scale, BufferedImage.TYPE_INT_ARGB);
-//        Graphics2D g2d=resized.createGraphics();
-//        g2d.drawImage(robotImage, 0, 0, scale, scale, null);
-//        robotImage=resized;
         resizeRobot(scale);
         robot.getMap().setScale(scale);
-//        g2d.dispose();
         repaint();
     }
 
@@ -419,9 +457,9 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
         JOptionPane.showMessageDialog(this, "Robot stopped after " + (System.currentTimeMillis() - time) + " ms\nFirst AStar search lasted " + searchTime + " ms");
     }
 
-    public void stopRobot() {
-        robot.setStopSignal(true);
-    }
+//    public void stopRobot() {
+//        robot.setStopSignal(true);
+//    }
 
     public void stopRobots() {
         for (Robot r : robots) {
@@ -433,14 +471,6 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
         return robot;
     }
 
-    //    public void removeRobot() {
-//        //robot.getMap().setStanding(null);
-//		robot.setStanding(null);
-//        robot.setX(Robot.ROBOT_NOWHERE_X);
-//        robot.setY(Robot.ROBOT_NOWHERE_Y);
-//        //Control_Panel.setRobotCoordinates(-1000, -1000);
-//        robot.setMapChangedSignal(true);
-//    }
     public void removeRobots() {
         for (Robot r : robots) {
             r.setStanding(null);
@@ -450,29 +480,22 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
         }
     }
 
-    //    public void removeFinish() {
-//		//robot.getMap().setFinish(null);
-//		robot.setFinish(null);
-//    	finish.setX(-1000);
-//    	finish.setY(-1000);
-//    	//Control_Panel.setFinishCoordinates(-1000, -1000);
-//    	robot.setMapChangedSignal(true);
-//    }
+
     public void removeFinishes() {
         for (Robot r : robots) {
             r.getFinish().setX(Robot.ROBOT_NOWHERE_X);
-            r.getFinish().setY(Robot.ROBOT_NOWHERE_X);
+            r.getFinish().setY(Robot.ROBOT_NOWHERE_Y);
             r.setMapChangedSignal(true);
         }
     }
 
-    public void removeAllNodes() {
-        robot.getMap().getNodes().clear();
-        removeRobots();
-        removeFinishes();
-        refreshScreen();
-        repaint();
-    }
+//    public void removeAllNodes() {
+//        robot.getMap().getNodes().clear();
+//        removeRobots();
+//        removeFinishes();
+//        refreshScreen();
+//        repaint();
+//    }
 
     public void setShowMap(boolean showMap) {
         this.showMap = showMap;
@@ -490,35 +513,24 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
         this.showNodes = showNodes;
     }
 
-    //    public void setRobotSensorsRange(int sensorsRange) {
-//		robot.setSensorsRange(sensorsRange);
-//	}
     public void setRobotsSensorsRange(int sensorsRange) {
         for (Robot r : robots) {
             r.setSensorsRange(sensorsRange);
         }
     }
 
-    //public void setRobotSpeed(int speed) { robot.setSpeed(speed); }
-    public void setRobotsSpeed(int speed) {
-        for (Robot r : robots) {
-            r.setSpeed(speed);
-        }
-    }
+//    public void setRobotsSpeed(int speed) {
+//        for (Robot r : robots) {
+//            r.setSpeed(speed);
+//        }
+//    }
 
-    //    public void setRealityMap(BufferedImage realityMap) {
-//		robot.getMap().setRealityMap(realityMap);
-//	}
     public void setRealityMaps(BufferedImage realityMap) {
         for (Robot r : robots) {
             r.getMap().setRealityMap(realityMap);
         }
     }
 
-    //    public void setMapImages(BufferedImage image) {
-//    	robot.getMap().setImage(image);
-//    	removePassability();
-//    }
     public void setMapImages(BufferedImage image) {
         for (Robot r : robots) {
             r.getMap().setImage(image);
@@ -526,11 +538,6 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
         }
     }
 
-    //    public void removePassability() {
-//    	robot.getMap().removePassability();
-//    	removeRobot();
-//    	removeFinish();
-//    }
     public void removePassabilities() {
         for (Robot r : robots) {
             r.getMap().removePassability();
@@ -539,8 +546,6 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
         removeFinishes();
     }
 
-    //    public void setRobotMinSpeed(int minSpeed) {robot.setMinSpeed(minSpeed);}
-//    public void setRobotMaxSpeed(int maxSpeed) {robot.setMaxSpeed(maxSpeed);}
     public void setRobotsMinSpeed(int minSpeed) {
         for (Robot r : robots) {
             r.setMinSpeed(minSpeed);
@@ -557,8 +562,6 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
         return robot.getSpeed();
     }
 
-    //    public void setRobotAcceleration(int acceleration) {robot.setAcceleration(acceleration);}
-//    public void setRobotDeceleration(int deceleration) {robot.setDeceleration(deceleration);}
     public void setRobotsAcceleration(int acceleration) {
         for (Robot r : robots) {
             r.setAcceleration(acceleration);
@@ -579,30 +582,6 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
         repaint();
     }
 
-    //    public void setFinishDirection(double direction) {
-//    	if(Link.getPointWeight((int)finish.getX(), (int)finish.getY(), direction, robot.getMap().getScale(), robot.getMap().getPassabilityArray())==255)
-//    		return;
-//    	finish.setDirection(direction);
-//    	// synchronized with function cleanup. when addNode called here, node can be removed
-//    	// by robot.cleanup before this node became finish. so robot will stop.
-//    	//if(robot.getMap().getFinish()!=null) {
-//		if(robot.getFinish()!=null) {
-//    		synchronized (robot.getMap().getNodes()) {
-//				if(robot.getSpeed()!=0) {
-//		    		Node n=new Node(finish.getX(), finish.getY(), finish.getDirection());
-//		    		n.setIsRobotMade(true);
-//		    		robot.getMap().addNode(n);
-//		    		robot.getMap().addLinksAroundCell24(n, robot.getRadius(), true);
-////		    		robot.addNodeToDelete(robot.getMap().getFinish());
-////		    		robot.getMap().setFinish(n);
-//					robot.addNodeToDelete(robot.getFinish());
-//					robot.setFinish(n);
-//		    	}
-//	    	}
-//    	}
-//    	robot.setMapChangedSignal(true);
-//    	repaint();
-//    }
     public void setFinishDirection(double direction) {
         if (stage != STAGE_SET_FINISH_ALL) {
             Node finish = robot.getFinish();
@@ -622,12 +601,10 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
         repaint();
     }
 
-    //public double getFinishDirection() {return finish.getDirection();}
     public double getFinishDirection() {
         return robot.getFinish().getDirection();
     }
 
-    //public void setRobotRadius(double radius) {robot.setRadius(radius);}
     public void setRobotsRadius(double radius) {
         for (Robot r : robots) {
             r.setRadius(radius);
@@ -638,10 +615,6 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
         robot.getMap().refreshGraph();
         for (Robot r : robots)
             r.setMapChangedSignal(true);
-    }
-
-    public int getRectWeight() {
-        return rectWeight;
     }
 
     public void setRectWeight(int rectWeight) {
@@ -660,7 +633,7 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
                 robot.getMap().setPassabilityPoint(xi, yi, rectWeight);
             }
         }
-        robot.getMap().calculatePassapilityForCell(point.x, point.y, robot.getRadius());
+        robot.getMap().calculatePassabilityForCell(point.x, point.y, robot.getRadius());
 
         for (Robot r : robots) {
             r.setMapChangedSignal(true);
@@ -680,8 +653,15 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
         JOptionPane.showMessageDialog(this, "Map generation completed in " + (System.currentTimeMillis() - time) + " ms\nThere are " + nodesCount + " nodes");
     }
 
+    public void calculatePassabilitySilent(double robotRadius){
+        long time = System.currentTimeMillis();
+        int nodesCount = robot.getMap().calculatePassability(robotRadius);
+        System.out.println("Map generation completed in " + (System.currentTimeMillis() - time) + " ms\nThere are " + nodesCount + " nodes");
+    }
+
     public void removeMap() {
         setMapImages(null);
+        repaint();
     }
 
     @Override
@@ -738,10 +718,6 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
 
     public void addRobot(Robot r) {
         robots.add(r);
-//		for(Robot r1:robots) {
-//			r.addRobot(r1);
-//			r1.addRobot(r);
-//		}
     }
 
     // returns index of selected robot
@@ -775,9 +751,6 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
             int n = robots.size();
 
             MyThread t[] = new MyThread[n];
-            //long time=System.currentTimeMillis();
-//			t[0]=new MyThread(robot);
-//			t[0].start();
             for (int i = 0; i < n; i++) {
                 t[i] = new MyThread(robots.get(i));
                 t[i].start();
@@ -787,9 +760,10 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
             for (int i = 0; i < n; i++) t[i].join();
             Hypervisor.stopLog();
 
-        } catch (Exception ex) {
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
         }
-        ;
+
 
         robotsRunning = false;
         JOptionPane.showMessageDialog(this, "All robots have stopped");

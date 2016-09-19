@@ -1,4 +1,4 @@
-package ru.mcst.RobotGroup.PathsLinking;
+package ru.mcst.robotGroup.paths.linking;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -7,12 +7,13 @@ import java.util.stream.Collectors;
 
 
 class RobotTrajectory {
-    private ArrayList<Point2D> points;
-    private ArrayList<Double> speeds;
-    private ArrayList<Long> times;
+    private final ArrayList<Point2D> points;
+    private final ArrayList<Double> speeds;
+    private final ArrayList<Long> times;
     private int direction;             //0 - nothing; 1 - in && out; 2 - only in; 3 - only out
-    private ArrayList<RobotTrajectory> connectedTrajectories;
-    private HashSet<RobotTrajectory> prev, next;
+    private final ArrayList<RobotTrajectory> connectedTrajectories;
+    private final HashSet<RobotTrajectory> prev;
+    private final HashSet<RobotTrajectory> next;
     private InOutVector inVector, outVector;
 
     public RobotTrajectory() {

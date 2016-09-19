@@ -1,4 +1,4 @@
-package ru.mcst.RobotGroup.PathsFinding;
+package ru.mcst.robotGroup.paths.finding;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -15,10 +15,10 @@ class MapColors {
     public static final int GRAY_BORDER = 128;
 
     //public static final float compareBorder=0.003f;
-    public static final float compareBorder = 0.01f;
+//    public static final float compareBorder = 0.01f;
 
     public MapColors() {
-        ColorMap = new HashMap<Color, Integer>();
+        ColorMap = new HashMap<>();
 
         ColorMap.put(new Color(130, 156, 193), 250);    // motorway
         ColorMap.put(new Color(113, 178, 113), 250);    // trunk road

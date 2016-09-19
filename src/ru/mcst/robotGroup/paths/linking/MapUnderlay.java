@@ -1,4 +1,4 @@
-package ru.mcst.RobotGroup.PathsLinking;
+package ru.mcst.robotGroup.paths.linking;
 
 import javax.swing.*;
 import java.awt.*;
@@ -8,26 +8,22 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Arc2D;
 import java.awt.image.BufferedImage;
 
-/**
- * Created by bocharov_n on 02.03.16.
- */
 class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener {
     public static final int SELECT_CAMERA_TOOL = 0;
     public static final int ADD_CAMERA_TOOL = 1;
     public static final int SELECT_INOUT_VECTOR = 2;
     public static final int MOVE_CAMERA = 3;
 
-    private GUI parentGUI;
+    private final PathsLinkingGUI parentGUI;
 
     private static BufferedImage mapLayer, trajectoriesLayer, camerasLayer, linksLayer;
     private int selectedTool;
     private Camera currentCamera;
     private InOutVector currentVector;
-    private final int cameraSize = 16,
-            vectorCircleSize = 20;
+    private final int cameraSize, vectorCircleSize;
 
 
-    public MapUnderlay(GUI gui) {
+    public MapUnderlay(PathsLinkingGUI gui) {
         super();
         mapLayer = null;
         trajectoriesLayer = null;
@@ -38,6 +34,8 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener {
         addMouseListener(this);
         addMouseMotionListener(this);
         parentGUI = gui;
+        vectorCircleSize = 20;
+        cameraSize = 16;
     }
 
     @Override
@@ -69,14 +67,14 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener {
         g2d.fillRect(0, 0, linksLayer.getWidth(), linksLayer.getHeight());
         g2d.setComposite(AlphaComposite.Src);
         if (currentVector != null) {
-            for (InOutVector vector : TrackingSystem.getInstance().getInOutVectorsList()) {
+            for (InOutVector vector : TrackingSystem.getInOutVectorsList()) {
                 vector.drawVector(g2d, vector == currentVector, true);
             }
             for (InOutVector vector : currentVector.getOrientation() == 0 ? currentVector.getPrev() : currentVector.getNext()) {
                 vector.drawVector(g2d, true, false);
             }
         } else {
-            for (InOutVector vector : TrackingSystem.getInstance().getInOutVectorsList()) {
+            for (InOutVector vector : TrackingSystem.getInOutVectorsList()) {
                 vector.drawVector(g2d, false, false);
             }
         }
@@ -89,7 +87,7 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener {
         g2d.fillRect(0, 0, camerasLayer.getWidth(), camerasLayer.getHeight());
         g2d.setComposite(AlphaComposite.Src);
         g2d.setColor(Color.WHITE);
-        for (Camera camera : TrackingSystem.getInstance().getCameraList()) {
+        for (Camera camera : TrackingSystem.getCameraList()) {
             if (camera != currentCamera) {
                 g2d.setColor(Color.WHITE);
             } else {
@@ -160,8 +158,8 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener {
         this.selectedTool = selectedTool;
     }
 
-    public void setCurrentVector(InOutVector currentVector) {
-        this.currentVector = currentVector;
+    public void setCurrentVectorNull() {
+        this.currentVector = null;
     }
 
     private void moveCamera(int x, int y) {
@@ -180,7 +178,7 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener {
             case SELECT_CAMERA_TOOL:
                 Camera currentCamera = null;
                 minDistance = cameraSize / 2 + 1;
-                for (Camera camera : TrackingSystem.getInstance().getCameraList()) {
+                for (Camera camera : TrackingSystem.getCameraList()) {
                     double distance = Math.sqrt(Math.pow(camera.getX() - e.getX(), 2) + Math.pow(camera.getY() - e.getY(), 2));
                     if (distance < minDistance) {
                         minDistance = distance;
@@ -196,8 +194,8 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener {
             case ADD_CAMERA_TOOL:
                 System.out.println("Add new camera");
                 System.out.println(e.getX() + " " + e.getY());
-                Camera newCamera = new Camera(e.getX(), e.getY(), 90, 120, 90);
-                TrackingSystem.getInstance().addCamera(newCamera);
+                Camera newCamera = new Camera(e.getX(), e.getY());
+                TrackingSystem.addCamera(newCamera);
                 Tracker tracker = new Tracker(newCamera);
                 newCamera.setTracker(tracker);
                 tracker.setDaemon(true);
@@ -206,7 +204,7 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener {
             case SELECT_INOUT_VECTOR:
                 InOutVector currentVector = null;
                 minDistance = vectorCircleSize / 2 + 1;
-                for (InOutVector inOutVector : TrackingSystem.getInstance().getInOutVectorsList()) {
+                for (InOutVector inOutVector : TrackingSystem.getInOutVectorsList()) {
                     double distance = Math.sqrt(Math.pow(inOutVector.getX() - e.getX(), 2) + Math.pow(inOutVector.getY() - e.getY(), 2));
                     if (distance < minDistance) {
                         minDistance = distance;

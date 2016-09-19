@@ -1,4 +1,4 @@
-package ru.mcst.RobotGroup.PathsFinding;
+package ru.mcst.robotGroup.paths.finding;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -6,16 +6,12 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
-/**
- * Created by sapachev_i on 10/20/15.
- */
-public class MainWindow extends JFrame implements ChangeListener {
+public class PathsFindingGUI extends JFrame implements ChangeListener {
     private JPanel contentPanel;
     //private JPanel surface;
     //private Surface surface;
@@ -71,8 +67,216 @@ public class MainWindow extends JFrame implements ChangeListener {
 
     JFileChooser fileChooser;
 
-    public MainWindow(final Surface surface1) {
-        this.surface = surface1;
+    public PathsFindingGUI() {
+
+        setContentPane(contentPanel);
+
+        ButtonGroup g = new ButtonGroup();
+        g.add(r_robot);
+        g.add(r_finish);
+        g.add(r_setRect);
+        g.add(r_finishAll);
+        r_robot.setSelected(true);
+
+        fileChooser = new JFileChooser();
+        fileChooser.setAcceptAllFileFilterUsed(false);
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Image file (bmp, png, gif)", "bmp", "png", "gif"));
+        fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+
+        setEnabledOther(false);
+        setEnabledOperations(false);
+
+        String[] keystrokeNames = {"UP", "DOWN", "LEFT", "RIGHT"};
+        for (String keystrokeName : keystrokeNames)
+            scrollForSurface.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(keystrokeName), "none");
+        scrollForSurface.getVerticalScrollBar().setUnitIncrement(10);
+        scrollForSurface.getHorizontalScrollBar().setUnitIncrement(10);
+        scrollForControl.getVerticalScrollBar().setUnitIncrement(10);
+        scrollForControl.getHorizontalScrollBar().setUnitIncrement(10);
+
+
+
+        this.surface.setScale(sl_mapDelta.getValue());
+        this.surface.setRobotsRadius(sl_robotRadius.getValue());
+        this.surface.setRobotsSensorsRange(sl_robotSensorsRange.getValue());
+        this.surface.setRobotsMinSpeed(sl_robotMinSpeed.getValue());
+        this.surface.setRobotsMaxSpeed(sl_robotMaxSpeed.getValue());
+        this.surface.setRobotsAcceleration(sl_robotAcceleration.getValue());
+        this.surface.setRobotsDeceleration(sl_robotDeceleration.getValue());
+        this.surface.setStage(6);
+
+        sp_robot.setValue(1);
+
+        pack();
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Robot");
+        setSize(1001, 720);
+//        setVisible(true);
+
+        createMyComponents();
+    }
+
+    private void createUIComponents() {
+        Surface surface = new Surface();
+        this.surface = surface;
+        //scrollForSurface.add(surface);
+
+        surface.setPreferredSize(new Dimension(0, 0));
+        scrollForSurface = new JScrollPane(surface);
+        surface.requestFocusInWindow();
+    }
+
+    private void createMyComponents() {
+        b_go.addActionListener(e -> {
+            if (!Objects.equals(b_go.getText(), "Стоп")) {
+                runRobot();
+            } else {
+                surface.stopRobots();
+            }
+        });
+        b_loadMap.addActionListener(e -> {
+            int returnValue = fileChooser.showOpenDialog(null);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                try {
+                    BufferedImage image = ImageIO.read(fileChooser.getSelectedFile());
+                    surface.setMapImages(image);
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                surface.removeRobots();
+                surface.refreshScreen();
+                MapInfo map = surface.getRobot().getMap();
+                if (map.getImage() != null)
+                    surface.setPreferredSize(new Dimension(map.getImage().getWidth(null), map.getImage().getHeight(null)));
+                else
+                    surface.setPreferredSize(new Dimension(0, 0));
+                surface.revalidate();
+                surface.repaint();
+                l_aboutPassability.setText("Нажмите \"Расчитать проходимость\"");
+                l_aboutPassability.setForeground(Color.RED);
+                setEnabledOther(true);
+                setEnabledOperations(false);
+                b_removeMap.setEnabled(true);
+            }
+        });
+
+        b_loadReality.addActionListener(e -> {
+            int returnValue = fileChooser.showOpenDialog(null);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                try {
+                    BufferedImage realityMap = ImageIO.read(fileChooser.getSelectedFile());
+                    surface.setRealityMaps(realityMap);
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                surface.repaint();
+                b_removeReality.setEnabled(true);
+            }
+        });
+
+        cb_showMap.addActionListener(e -> {
+            surface.setShowMap(cb_showMap.isSelected());
+            surface.repaint();
+        });
+        cb_showPassability.addActionListener(e -> {
+            surface.setShowPassability(cb_showPassability.isSelected());
+            surface.repaint();
+        });
+        cb_showReality.addActionListener(e -> {
+            surface.setShowReality(cb_showReality.isSelected());
+            surface.repaint();
+        });
+        cb_showNodes.addActionListener(e -> {
+            surface.setShowNodes(cb_showNodes.isSelected());
+            surface.repaint();
+        });
+        cb_logging.addActionListener(e -> surface.setLogging(cb_logging.isSelected()));
+        b_removeMap.addActionListener(e -> {
+            surface.removeMap();
+
+            l_aboutPassability.setText("Нажмите \"Загрузить карту\"");
+            l_aboutPassability.setForeground(Color.RED);
+            b_go.setEnabled(false);
+            goAllButton.setEnabled(false);
+            setEnabledOther(false);
+            setEnabledOperations(false);
+            b_removeMap.setEnabled(false);
+        });
+        b_removePassability.addActionListener(e -> {
+            surface.removePassabilities();
+            l_aboutPassability.setText("Нажмите \"Расчитать проходимость\"");
+            l_aboutPassability.setForeground(Color.RED);
+            setEnabledOperations(false);
+            b_go.setEnabled(false);
+            goAllButton.setEnabled(false);
+            b_removePassability.setEnabled(false);
+        });
+        b_removeReality.addActionListener(e -> {
+            surface.setRealityMaps(null);
+            b_removeReality.setEnabled(false);
+        });
+        b_calculatePassability.addActionListener(e -> {
+            surface.calculatePassability(surface.getRobot().getRadius());
+            l_aboutPassability.setText("Проходимость расчитана");
+            l_aboutPassability.setForeground(Color.GREEN);
+            setEnabledOperations(true);
+            b_go.setEnabled(true);
+            goAllButton.setEnabled(true);
+            b_removePassability.setEnabled(true);
+        });
+        b_refreshGraph.addActionListener(e -> surface.refreshGraph());
+        r_robot.addActionListener(e -> surface.setStage(Surface.STAGE_PLACE_ROBOT));
+        r_finish.addActionListener(e -> surface.setStage(Surface.STAGE_SET_FINISH));
+        r_setRect.addActionListener(e -> surface.setStage(Surface.STAGE_SET_RECT_WEIGHT));
+        r_finishAll.addActionListener(e -> surface.setStage(Surface.STAGE_SET_FINISH_ALL));
+        sl_mapDelta.addChangeListener(this);
+        sl_finishDirection.addChangeListener(this);
+        sl_robotAzimuth.addChangeListener(this);
+        sl_rectWeight.addChangeListener(this);
+        sl_robotAcceleration.addChangeListener(this);
+        sl_robotDeceleration.addChangeListener(this);
+        sl_robotMaxSpeed.addChangeListener(this);
+        sl_robotMinSpeed.addChangeListener(this);
+        sl_robotRadius.addChangeListener(this);
+        sl_robotSensorsRange.addChangeListener(this);
+        addRobotButton.addActionListener(e -> {
+            try {
+                Robot robot = surface.getRobot().clone();
+                robot.setX(Robot.ROBOT_NOWHERE_X);
+                robot.setY(Robot.ROBOT_NOWHERE_Y);
+                surface.addRobot(robot);
+            } catch (CloneNotSupportedException e1) {
+                e1.printStackTrace();
+            }
+        });
+        sp_robot.addChangeListener(e -> {
+            int value = (Integer) sp_robot.getValue();
+            if (surface.getRobotCount() < value) {
+                value = surface.getRobotCount();
+                sp_robot.setValue(value);
+            }
+            if (value < 1) {
+                value = 1;
+                sp_robot.setValue(value);
+            }
+            surface.selectRobot(value - 1);
+            refreshRobotParameters();
+        });
+        goAllButton.addActionListener(e -> {
+            if (!Objects.equals(goAllButton.getText(), "Стоп"))
+                runRobots();
+            else
+                surface.stopRobots();
+        });
+
+        makeExcessInvisible();
+
+        removeRobotButton.addActionListener(e -> sp_robot.setValue(surface.removeRobot() + 1));
+    }
+
+    public PathsFindingGUI(Surface surface) {
+        this.surface = surface;
         //scrollForSurface.add(surface);
 
         surface.setPreferredSize(new Dimension(0, 0));
@@ -94,8 +298,8 @@ public class MainWindow extends JFrame implements ChangeListener {
         setEnabledOperations(false);
 
         String[] keystrokeNames = {"UP", "DOWN", "LEFT", "RIGHT"};
-        for (int i = 0; i < keystrokeNames.length; ++i)
-            scrollForSurface.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(keystrokeNames[i]), "none");
+        for (String keystrokeName : keystrokeNames)
+            scrollForSurface.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(keystrokeName), "none");
         scrollForSurface.getVerticalScrollBar().setUnitIncrement(10);
         scrollForSurface.getHorizontalScrollBar().setUnitIncrement(10);
         scrollForControl.getVerticalScrollBar().setUnitIncrement(10);
@@ -117,176 +321,113 @@ public class MainWindow extends JFrame implements ChangeListener {
 
         pack();
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setTitle("Robot");
         setSize(1001, 720);
         setVisible(true);
 
-        b_go.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (b_go.getText() != "Стоп") {
-                    runRobot();
-                } else {
-                    surface.stopRobots();
+        b_go.addActionListener(e -> {
+            if (!Objects.equals(b_go.getText(), "Стоп")) {
+                runRobot();
+            } else {
+                surface.stopRobots();
+            }
+        });
+        b_loadMap.addActionListener(e -> {
+            int returnValue = fileChooser.showOpenDialog(null);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                try {
+                    BufferedImage image = ImageIO.read(fileChooser.getSelectedFile());
+                    surface.setMapImages(image);
+                } catch (IOException e1) {
+                    e1.printStackTrace();
                 }
-            }
-        });
-        b_loadMap.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int returnValue = fileChooser.showOpenDialog(null);
-                if (returnValue == JFileChooser.APPROVE_OPTION) {
-                    try {
-                        BufferedImage image = ImageIO.read(fileChooser.getSelectedFile());
-                        surface.setMapImages(image);
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
-                    surface.removeRobots();
-                    surface.refreshScreen();
-                    MapInfo map = surface.getRobot().getMap();
-                    if (map.getImage() != null)
-                        surface.setPreferredSize(new Dimension(map.getImage().getWidth(null), map.getImage().getHeight(null)));
-                    else
-                        surface.setPreferredSize(new Dimension(0, 0));
-                    surface.revalidate();
-                    surface.repaint();
-                    l_aboutPassability.setText("Нажмите \"Расчитать проходимость\"");
-                    l_aboutPassability.setForeground(Color.RED);
-                    setEnabledOther(true);
-                    setEnabledOperations(false);
-                    b_removeMap.setEnabled(true);
-                }
-            }
-        });
-
-        b_loadReality.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int returnValue = fileChooser.showOpenDialog(null);
-                if (returnValue == JFileChooser.APPROVE_OPTION) {
-                    try {
-                        BufferedImage realityMap = ImageIO.read(fileChooser.getSelectedFile());
-                        surface.setRealityMaps(realityMap);
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
-                    surface.repaint();
-                    b_removeReality.setEnabled(true);
-                }
-            }
-        });
-
-        cb_showMap.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                surface.setShowMap(cb_showMap.isSelected());
+                surface.removeRobots();
+                surface.refreshScreen();
+                MapInfo map = surface.getRobot().getMap();
+                if (map.getImage() != null)
+                    surface.setPreferredSize(new Dimension(map.getImage().getWidth(null), map.getImage().getHeight(null)));
+                else
+                    surface.setPreferredSize(new Dimension(0, 0));
+                surface.revalidate();
                 surface.repaint();
-            }
-        });
-        cb_showPassability.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                surface.setShowPassability(cb_showPassability.isSelected());
-                surface.repaint();
-            }
-        });
-        cb_showReality.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                surface.setShowReality(cb_showReality.isSelected());
-                surface.repaint();
-            }
-        });
-        cb_showNodes.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                surface.setShowNodes(cb_showNodes.isSelected());
-                surface.repaint();
-            }
-        });
-        cb_logging.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                surface.setLogging(cb_logging.isSelected());
-            }
-        });
-        b_removeMap.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                surface.removeMap();
-
-                l_aboutPassability.setText("Нажмите \"Загрузить карту\"");
-                l_aboutPassability.setForeground(Color.RED);
-                b_go.setEnabled(false);
-                goAllButton.setEnabled(false);
-                setEnabledOther(false);
-                setEnabledOperations(false);
-                b_removeMap.setEnabled(false);
-            }
-        });
-        b_removePassability.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                surface.removePassabilities();
                 l_aboutPassability.setText("Нажмите \"Расчитать проходимость\"");
                 l_aboutPassability.setForeground(Color.RED);
+                setEnabledOther(true);
                 setEnabledOperations(false);
-                b_go.setEnabled(false);
-                goAllButton.setEnabled(false);
-                b_removePassability.setEnabled(false);
+                b_removeMap.setEnabled(true);
             }
         });
-        b_removeReality.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                surface.setRealityMaps(null);
-                b_removeReality.setEnabled(false);
+
+        b_loadReality.addActionListener(e -> {
+            int returnValue = fileChooser.showOpenDialog(null);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                try {
+                    BufferedImage realityMap = ImageIO.read(fileChooser.getSelectedFile());
+                    surface.setRealityMaps(realityMap);
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                surface.repaint();
+                b_removeReality.setEnabled(true);
             }
         });
-        b_calculatePassability.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                surface.calculatePassability(surface.getRobot().getRadius());
-                l_aboutPassability.setText("Проходимость расчитана");
-                l_aboutPassability.setForeground(Color.GREEN);
-                setEnabledOperations(true);
-                b_go.setEnabled(true);
-                goAllButton.setEnabled(true);
-                b_removePassability.setEnabled(true);
-            }
+
+        cb_showMap.addActionListener(e -> {
+            surface.setShowMap(cb_showMap.isSelected());
+            surface.repaint();
         });
-        b_refreshGraph.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                surface.refreshGraph();
-            }
+        cb_showPassability.addActionListener(e -> {
+            surface.setShowPassability(cb_showPassability.isSelected());
+            surface.repaint();
         });
-        r_robot.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                surface.setStage(Surface.STAGE_PLACE_ROBOT);
-            }
+        cb_showReality.addActionListener(e -> {
+            surface.setShowReality(cb_showReality.isSelected());
+            surface.repaint();
         });
-        r_finish.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                surface.setStage(Surface.STAGE_SET_FINISH);
-            }
+        cb_showNodes.addActionListener(e -> {
+            surface.setShowNodes(cb_showNodes.isSelected());
+            surface.repaint();
         });
-        r_setRect.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                surface.setStage(Surface.STAGE_SET_RECT_WEIGHT);
-            }
+        cb_logging.addActionListener(e -> surface.setLogging(cb_logging.isSelected()));
+        b_removeMap.addActionListener(e -> {
+            surface.removeMap();
+
+            l_aboutPassability.setText("Нажмите \"Загрузить карту\"");
+            l_aboutPassability.setForeground(Color.RED);
+            b_go.setEnabled(false);
+            goAllButton.setEnabled(false);
+            setEnabledOther(false);
+            setEnabledOperations(false);
+            b_removeMap.setEnabled(false);
         });
-        r_finishAll.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                surface.setStage(Surface.STAGE_SET_FINISH_ALL);
-            }
+        b_removePassability.addActionListener(e -> {
+            surface.removePassabilities();
+            l_aboutPassability.setText("Нажмите \"Расчитать проходимость\"");
+            l_aboutPassability.setForeground(Color.RED);
+            setEnabledOperations(false);
+            b_go.setEnabled(false);
+            goAllButton.setEnabled(false);
+            b_removePassability.setEnabled(false);
         });
+        b_removeReality.addActionListener(e -> {
+            surface.setRealityMaps(null);
+            b_removeReality.setEnabled(false);
+        });
+        b_calculatePassability.addActionListener(e -> {
+            surface.calculatePassability(surface.getRobot().getRadius());
+            l_aboutPassability.setText("Проходимость расчитана");
+            l_aboutPassability.setForeground(Color.GREEN);
+            setEnabledOperations(true);
+            b_go.setEnabled(true);
+            goAllButton.setEnabled(true);
+            b_removePassability.setEnabled(true);
+        });
+        b_refreshGraph.addActionListener(e -> surface.refreshGraph());
+        r_robot.addActionListener(e -> surface.setStage(Surface.STAGE_PLACE_ROBOT));
+        r_finish.addActionListener(e -> surface.setStage(Surface.STAGE_SET_FINISH));
+        r_setRect.addActionListener(e -> surface.setStage(Surface.STAGE_SET_RECT_WEIGHT));
+        r_finishAll.addActionListener(e -> surface.setStage(Surface.STAGE_SET_FINISH_ALL));
         sl_mapDelta.addChangeListener(this);
         sl_finishDirection.addChangeListener(this);
         sl_robotAzimuth.addChangeListener(this);
@@ -297,53 +438,39 @@ public class MainWindow extends JFrame implements ChangeListener {
         sl_robotMinSpeed.addChangeListener(this);
         sl_robotRadius.addChangeListener(this);
         sl_robotSensorsRange.addChangeListener(this);
-        addRobotButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    Robot robot = surface.getRobot().clone();
-                    robot.setX(Robot.ROBOT_NOWHERE_X);
-                    robot.setY(Robot.ROBOT_NOWHERE_Y);
-                    surface.addRobot(robot);
-                } catch (CloneNotSupportedException e1) {
-                    e1.printStackTrace();
-                }
+        addRobotButton.addActionListener(e -> {
+            try {
+                Robot robot = surface.getRobot().clone();
+                robot.setX(Robot.ROBOT_NOWHERE_X);
+                robot.setY(Robot.ROBOT_NOWHERE_Y);
+                surface.addRobot(robot);
+            } catch (CloneNotSupportedException e1) {
+                e1.printStackTrace();
             }
         });
-        sp_robot.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                int value = (Integer) sp_robot.getValue();
-                if (surface.getRobotCount() < value) {
-                    value = surface.getRobotCount();
-                    sp_robot.setValue(value);
-                }
-                if (value < 1) {
-                    value = 1;
-                    sp_robot.setValue(value);
-                }
-                surface.selectRobot(value - 1);
-                refreshRobotParameters();
+        sp_robot.addChangeListener(e -> {
+            int value = (Integer) sp_robot.getValue();
+            if (surface.getRobotCount() < value) {
+                value = surface.getRobotCount();
+                sp_robot.setValue(value);
             }
+            if (value < 1) {
+                value = 1;
+                sp_robot.setValue(value);
+            }
+            surface.selectRobot(value - 1);
+            refreshRobotParameters();
         });
-        goAllButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (goAllButton.getText() != "Стоп")
-                    runRobots();
-                else
-                    surface.stopRobots();
-            }
+        goAllButton.addActionListener(e -> {
+            if (!Objects.equals(goAllButton.getText(), "Стоп"))
+                runRobots();
+            else
+                surface.stopRobots();
         });
 
-        makeExcessUnvisible();
+        makeExcessInvisible();
 
-        removeRobotButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                sp_robot.setValue(surface.removeRobot() + 1);
-            }
-        });
+        removeRobotButton.addActionListener(e -> sp_robot.setValue(surface.removeRobot() + 1));
 
     }
 
@@ -446,24 +573,23 @@ public class MainWindow extends JFrame implements ChangeListener {
         }
     }
 
-    public void setRobotCoordinates(int x, int y) {
-        if (x != -1000 && y != -1000)
-            l_robotCoordinates.setText("Координаты робота: " + x + ", " + y);
-        else
-            l_robotCoordinates.setText("Координаты робота: ?, ?");
-    }
+//    public void setRobotCoordinates(int x, int y) {
+//        if (x != -1000 && y != -1000)
+//            l_robotCoordinates.setText("Координаты робота: " + x + ", " + y);
+//        else
+//            l_robotCoordinates.setText("Координаты робота: ?, ?");
+//    }
 
-    public void setFinishCoordinates(int x, int y) {
-        if (x != -1000 && y != -1000)
-            l_finishCoordinates.setText("Координаты финиша: " + x + ", " + y);
-        else
-            l_finishCoordinates.setText("Координаты финиша: ?, ?");
-    }
+//    public void setFinishCoordinates(int x, int y) {
+//        if (x != -1000 && y != -1000)
+//            l_finishCoordinates.setText("Координаты финиша: " + x + ", " + y);
+//        else
+//            l_finishCoordinates.setText("Координаты финиша: ?, ?");
+//    }
 
     private void runRobot() {
         final Thread t = new Thread() {
             public void run() {
-                long time = System.currentTimeMillis();
                 surface.runRobot();
             }
         };
@@ -524,7 +650,6 @@ public class MainWindow extends JFrame implements ChangeListener {
     private void runRobots() {
         final Thread t = new Thread() {
             public void run() {
-                long time = System.currentTimeMillis();
                 surface.runRobots();
             }
         };
@@ -601,20 +726,18 @@ public class MainWindow extends JFrame implements ChangeListener {
         t_draw.start();
     }
 
-    public void setStage() {
-        if (r_robot.isSelected())
-            surface.setStage(6);
-        if (r_finish.isSelected())
-            surface.setStage(7);
-        if (r_setRect.isSelected())
-            surface.setStage(8);
-    }
+//    public void setStage() {
+//        if (r_robot.isSelected())
+//            surface.setStage(6);
+//        if (r_finish.isSelected())
+//            surface.setStage(7);
+//        if (r_setRect.isSelected())
+//            surface.setStage(8);
+//    }
 
-    private void createUIComponents() {
-        scrollForSurface = new JScrollPane(surface);
-    }
 
-    void makeExcessUnvisible() {
+
+    void makeExcessInvisible() {
         b_go.setVisible(false);
         l_robotCoordinates.setVisible(false);
         l_finishCoordinates.setVisible(false);

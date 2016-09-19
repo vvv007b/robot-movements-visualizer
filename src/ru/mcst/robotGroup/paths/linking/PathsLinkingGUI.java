@@ -1,14 +1,11 @@
-package ru.mcst.RobotGroup.PathsLinking;
+package ru.mcst.robotGroup.paths.linking;
 
-import ru.mcst.RobotGroup.PathsFinding.Hypervisor;
+import ru.mcst.robotGroup.paths.finding.Hypervisor;
 
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * Created by bocharov_n on 22.10.15.
- */
-public class GUI extends JFrame{
+public class PathsLinkingGUI extends JFrame{
     private JPanel rootPanel;
     private JButton removeCameraButton;
     private JLabel mouseXLabel;
@@ -33,7 +30,7 @@ public class GUI extends JFrame{
 
     private static Camera currentCamera;
 
-    public GUI(){
+    public PathsLinkingGUI(){
         super();
         long startUITime = System.currentTimeMillis();
         currentCamera   = null;
@@ -43,6 +40,7 @@ public class GUI extends JFrame{
         setTitle("Paths linking");
         pack();
         setSize(1001, 720);
+//        setVisible(true);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         System.out.println("UI load time: " + (System.currentTimeMillis() - startUITime));
     }
@@ -69,6 +67,12 @@ public class GUI extends JFrame{
                         e.printStackTrace();
                     }
                 }
+//                while(this.isAlive()){
+//                    Image mapImage;
+//                    if ((mapImage = Hypervisor.getMapImage()) != null && ){
+//
+//                    }
+//                }
             }
         };
         mapSizeListener.setDaemon(true);
@@ -90,6 +94,9 @@ public class GUI extends JFrame{
         mapUnderlayToolsGroup.add(moveCameraRadioButton);
 
         removeCameraButton.setEnabled(false);
+
+        mapScrollPane.getHorizontalScrollBar().setUnitIncrement(10);
+        mapScrollPane.getVerticalScrollBar().setUnitIncrement(10);
 
         selectCameraRadioButton.addActionListener(e -> mapPanel.setSelectedTool(MapUnderlay.SELECT_CAMERA_TOOL));
         addCameraRadioButton.addActionListener(e -> mapPanel.setSelectedTool(MapUnderlay.ADD_CAMERA_TOOL));
@@ -114,11 +121,11 @@ public class GUI extends JFrame{
             cameraRTextField.setText("Camera radius: " + cameraRSlider.getValue());
         });
         removeCameraButton.addActionListener(e -> {
-            TrackingSystem.getInstance().removeCamera(currentCamera);
-            for(int i = 0; i < TrackingSystem.getInstance().getCameraList().size(); i++){
-                TrackingSystem.getInstance().getCameraList().get(i).setIndex(i);
+            TrackingSystem.removeCamera(currentCamera);
+            for(int i = 0; i < TrackingSystem.getCameraList().size(); i++){
+                TrackingSystem.getCameraList().get(i).setIndex(i);
             }
-            currentCamera.setExist(false);
+            currentCamera.setExist();
             currentCamera = null;
             cameraXLabel.setText("X: ");
             cameraYLabel.setText("Y: ");
@@ -132,26 +139,26 @@ public class GUI extends JFrame{
             removeCameraButton.setEnabled(false);
         });
         clearTrajectoriesButton.addActionListener(e -> {
-            for(Camera camera:TrackingSystem.getInstance().getCameraList()){
-                camera.getTracker().setMarkForClear(true);
+            for(Camera camera:TrackingSystem.getCameraList()){
+                camera.getTracker().setMarkForClear();
             }
-            mapPanel.setCurrentVector(null);
-            TrackingSystem.getInstance().getTrajectoriesList().clear();
-            TrackingSystem.getInstance().getInOutVectorsList().clear();
+            mapPanel.setCurrentVectorNull();
+            TrackingSystem.getTrajectoriesList().clear();
+            TrackingSystem.getInOutVectorsList().clear();
             mapPanel.clearTrajectoriesLayer();
             mapPanel.clearLinksLayer();
         });
         linkTrajectoriesButton.addActionListener(e -> {
             long startTime = System.currentTimeMillis();
-            TrackingSystem.getInstance().linkTrajectories();
+            TrackingSystem.linkTrajectories();
             System.out.println("Trajectories link time(ms): " + (System.currentTimeMillis() - startTime));
         });
     }
 
     public void updateStatus(){
         String status = "<html>";
-        for(Camera curCamera:TrackingSystem.getInstance().getCameraList()){
-            status += "Camera " + TrackingSystem.getInstance().getCameraList().indexOf(curCamera) + " see " + curCamera.getTracker().getVisibleRobotsCount() +
+        for(Camera curCamera:TrackingSystem.getCameraList()){
+            status += "Camera " + TrackingSystem.getCameraList().indexOf(curCamera) + " see " + curCamera.getTracker().getVisibleRobotsCount() +
                     " robots<br>";
         }
         status += "</html>";
@@ -160,7 +167,7 @@ public class GUI extends JFrame{
 
     public void inOutVectorNotification(InOutVector vector){
         String message = (vector.getOrientation() == InOutVector.IN ? "In " : "Out ") +
-                "vector: " + TrackingSystem.getInstance().getInOutVectorsList().indexOf(vector) + System.lineSeparator() +
+                "vector: " + TrackingSystem.getInOutVectorsList().indexOf(vector) + System.lineSeparator() +
                 "x: " + vector.getX() + System.lineSeparator() +
                 "y: " + vector.getY() + System.lineSeparator() +
                 "azimuth: " + vector.getAzimuth() + System.lineSeparator() +
@@ -174,7 +181,7 @@ public class GUI extends JFrame{
     }
 
     public void setCurrentCamera(Camera camera) {
-        GUI.currentCamera = camera;
+        PathsLinkingGUI.currentCamera = camera;
         cameraXLabel.setText("X: " + camera.getX());
         cameraYLabel.setText("Y: " + camera.getY());
         removeCameraButton.setEnabled(true);
