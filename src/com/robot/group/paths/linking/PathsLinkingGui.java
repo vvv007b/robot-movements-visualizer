@@ -35,7 +35,7 @@ public class PathsLinkingGui extends JFrame{
     private JLabel cameraXLabel;
     private JLabel cameraYLabel;
     private JLabel statusLabel;
-    private static MapUnderlay mapPanel;
+    private static Surface mapPanel;
 
     private static Camera currentCamera;
 
@@ -65,7 +65,7 @@ public class PathsLinkingGui extends JFrame{
                             mapSize[1] != mapPanel.getPreferredSize().height) {
                         mapPanel.setPreferredSize(new Dimension(mapSize[0], mapSize[1]));
                         if (mapImage != null) {
-                            MapUnderlay.changeMapLayer(mapImage);
+                            Surface.changeMapLayer(mapImage);
                         }
                         mapPanel.setSize(mapPanel.getPreferredSize());
                         mapPanel.repaint();
@@ -89,7 +89,7 @@ public class PathsLinkingGui extends JFrame{
     }
 
     private void createUIComponents() {
-        mapPanel = new MapUnderlay(this);
+        mapPanel = new Surface(this);
         mapScrollPane = new JScrollPane(mapPanel);
     }
 
@@ -107,10 +107,10 @@ public class PathsLinkingGui extends JFrame{
         mapScrollPane.getHorizontalScrollBar().setUnitIncrement(10);
         mapScrollPane.getVerticalScrollBar().setUnitIncrement(10);
 
-        selectCameraRadioButton.addActionListener(e -> mapPanel.setSelectedTool(MapUnderlay.SELECT_CAMERA_TOOL));
-        addCameraRadioButton.addActionListener(e -> mapPanel.setSelectedTool(MapUnderlay.ADD_CAMERA_TOOL));
-        selectInOutVectorRadioButton.addActionListener(e -> mapPanel.setSelectedTool(MapUnderlay.SELECT_INOUT_VECTOR));
-        moveCameraRadioButton.addActionListener(e -> mapPanel.setSelectedTool(MapUnderlay.MOVE_CAMERA));
+        selectCameraRadioButton.addActionListener(e -> mapPanel.setSelectedTool(Surface.SELECT_CAMERA_TOOL));
+        addCameraRadioButton.addActionListener(e -> mapPanel.setSelectedTool(Surface.ADD_CAMERA_TOOL));
+        selectInOutVectorRadioButton.addActionListener(e -> mapPanel.setSelectedTool(Surface.SELECT_INOUT_VECTOR));
+        moveCameraRadioButton.addActionListener(e -> mapPanel.setSelectedTool(Surface.MOVE_CAMERA));
         cameraAzimuthSlider.addChangeListener(e -> {
             currentCamera.setAzimuth(cameraAzimuthSlider.getValue());
             currentCamera.redrawFov();
@@ -253,7 +253,7 @@ public class PathsLinkingGui extends JFrame{
         return cameraYLabel;
     }
 
-    public static MapUnderlay getMapPanel() {
+    public static Surface getMapPanel() {
         return mapPanel;
     }
 }

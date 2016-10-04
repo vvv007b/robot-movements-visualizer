@@ -59,7 +59,7 @@ class Tracker extends Thread {
                 }
             }
             int[] mapSize = Hypervisor.getMapSize();
-            if (mapSize != null && MapUnderlay.getMapLayer() != null && MapUnderlay.getTrajectoriesLayer() != null) {
+            if (mapSize != null && Surface.getMapLayer() != null && Surface.getTrajectoriesLayer() != null) {
                 BufferedImage trajectories = new BufferedImage(mapSize[0], mapSize[1], BufferedImage.TYPE_INT_ARGB);
                 Graphics2D g2d = trajectories.createGraphics();
                 g2d.setComposite(AlphaComposite.Clear);
@@ -132,7 +132,7 @@ class Tracker extends Thread {
                 });
                 visibleRobots = currentVisibleRobots;
                 g2d.dispose();
-                MapUnderlay.changeTrajectoriesLayer(trajectories);
+                Surface.changeTrajectoriesLayer(trajectories);
                 PathsLinkingGui.getMapPanel().repaint();
             }
             try {

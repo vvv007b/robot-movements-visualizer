@@ -2,6 +2,7 @@ package com.robot.group.launch;
 
 import com.robot.group.paths.finding.PathsFindingGui;
 import com.robot.group.paths.RobotsState;
+import com.robot.group.paths.finding2.PathFinding2Gui;
 import com.robot.group.paths.linking.PathsLinkingGui;
 
 import javax.swing.JButton;
@@ -19,6 +20,7 @@ public class LauncherGui extends JFrame {
     private JButton pathsLinkingButton;
     private JButton pathFindingLinkingButton;
     private JLabel ipLabel;
+    private JButton testButton;
 
     public LauncherGui() {
         super();
@@ -50,6 +52,12 @@ public class LauncherGui extends JFrame {
             PathsLinkingGui pathsLinkingGui = new PathsLinkingGui();
             pathsFindingGui.setVisible(true);
             pathsLinkingGui.setVisible(true);
+            this.dispose();
+        }));
+        testButton.addActionListener(e -> SwingUtilities.invokeLater(() -> {
+            RobotsState.getInstance().setMode(RobotsState.LOCAL_MODE);
+            PathFinding2Gui pathFinding2Gui = new PathFinding2Gui();
+            pathFinding2Gui.setVisible(true);
             this.dispose();
         }));
         System.out.println("UI load time: " + (System.currentTimeMillis() - startTime));

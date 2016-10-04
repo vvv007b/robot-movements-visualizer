@@ -14,7 +14,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Arc2D;
 import java.awt.image.BufferedImage;
 
-class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener {
+class Surface extends JPanel implements MouseListener, MouseMotionListener {
     public static final int SELECT_CAMERA_TOOL = 0;
     public static final int ADD_CAMERA_TOOL = 1;
     public static final int SELECT_INOUT_VECTOR = 2;
@@ -33,7 +33,7 @@ class MapUnderlay extends JPanel implements MouseListener, MouseMotionListener {
     private final int vectorCircleSize;
 
 
-    public MapUnderlay(PathsLinkingGui gui) {
+    public Surface(PathsLinkingGui gui) {
         super();
         mapLayer = null;
         trajectoriesLayer = null;

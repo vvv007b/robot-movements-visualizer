@@ -449,7 +449,7 @@
                   <minorTickSpacing value="20"/>
                   <paintLabels value="true"/>
                   <paintTicks value="true"/>
-                  <value value="180"/>
+                  <value value="100"/>
                 </properties>
               </component>
               <component id="b6435" class="javax.swing.JLabel" binding="l_robotMinSpeed">
