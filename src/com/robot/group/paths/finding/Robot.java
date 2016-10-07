@@ -487,7 +487,6 @@ class Robot implements Cloneable {
         for (int distance = 0; distance < sensorsRange; ++distance) {
             xi += cosAzimuth;
             yi -= sinAzimuth;
-
             if (map.getPassabilityWeight((int) xi, (int) yi) >= MapColors.GRAY_BORDER) {
                 maxSpeedSignal = false;
                 return;
