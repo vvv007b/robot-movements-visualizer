@@ -440,7 +440,8 @@ class Robot implements Cloneable {
         double cosShift = Math.cos(azimuth + Segment.halfPI);
         double sinAzimuth = Math.sin(azimuth);
         double cosAzimuth = Math.cos(azimuth);
-        double xi, yi;
+        double xi;
+        double yi;
         List<Point> cells = new ArrayList<>();
         for (int i = (-1) * map.getScale() / 2; i <= map.getScale() / 2; ++i) {
             xi = x + i * cosShift - map.getScale() / 2 * cosAzimuth;

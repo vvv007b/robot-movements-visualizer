@@ -5,6 +5,8 @@
     <colspec value="fill:d:grow"/>
     <colspec value="left:4dlu:noGrow"/>
     <colspec value="center:max(d;280px):noGrow"/>
+    <colspec value="left:4dlu:noGrow"/>
+    <colspec value="fill:d:noGrow"/>
     <constraints>
       <xy x="20" y="20" width="500" height="1725"/>
     </constraints>
@@ -13,7 +15,7 @@
     </properties>
     <border type="none"/>
     <children>
-      <scrollpane id="90983" binding="scrollForControl">
+      <scrollpane id="90983" binding="controlScrollPane">
         <constraints>
           <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
           <forms defaultalign-horz="false" defaultalign-vert="false"/>
@@ -161,7 +163,7 @@
                   <text value="Выбор операции:"/>
                 </properties>
               </component>
-              <component id="d2187" class="javax.swing.JRadioButton" binding="r_robot">
+              <component id="d2187" class="javax.swing.JRadioButton" binding="placeRobotRadioButton">
                 <constraints>
                   <grid row="12" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -171,7 +173,7 @@
                   <text value="Поставить робота"/>
                 </properties>
               </component>
-              <component id="75e71" class="javax.swing.JLabel" binding="l_robotCoordinates">
+              <component id="75e71" class="javax.swing.JLabel" binding="robotCoordsLabel">
                 <constraints>
                   <grid row="14" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -181,7 +183,7 @@
                   <text value="Координаты робота: ?, ?"/>
                 </properties>
               </component>
-              <component id="6037" class="javax.swing.JLabel" binding="l_robotAzimuth">
+              <component id="6037" class="javax.swing.JLabel" binding="robotAzimuthLabel">
                 <constraints>
                   <grid row="16" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -191,7 +193,7 @@
                   <text value="Азимут робота: 0"/>
                 </properties>
               </component>
-              <component id="7764d" class="javax.swing.JSlider" binding="sl_robotAzimuth">
+              <component id="7764d" class="javax.swing.JSlider" binding="robotAzimuthSlider">
                 <constraints>
                   <grid row="18" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                   <forms defaultalign-horz="false"/>
@@ -207,7 +209,7 @@
                   <valueIsAdjusting value="false"/>
                 </properties>
               </component>
-              <component id="c3813" class="javax.swing.JRadioButton" binding="r_finish">
+              <component id="c3813" class="javax.swing.JRadioButton" binding="placeFinishRadioButton">
                 <constraints>
                   <grid row="20" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -217,7 +219,7 @@
                   <text value="Установить финиш"/>
                 </properties>
               </component>
-              <component id="9666d" class="javax.swing.JLabel" binding="l_finishCoordinates">
+              <component id="9666d" class="javax.swing.JLabel" binding="finishCoordsLabel">
                 <constraints>
                   <grid row="24" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -227,7 +229,7 @@
                   <text value="Координаты финиша: ?, ?"/>
                 </properties>
               </component>
-              <component id="85f32" class="javax.swing.JLabel" binding="l_finishDirection">
+              <component id="85f32" class="javax.swing.JLabel" binding="finishDirectionLabel">
                 <constraints>
                   <grid row="26" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -237,7 +239,7 @@
                   <text value="Направление финиша: 0"/>
                 </properties>
               </component>
-              <component id="5e4cf" class="javax.swing.JSlider" binding="sl_finishDirection">
+              <component id="5e4cf" class="javax.swing.JSlider" binding="finishDirectionSlider">
                 <constraints>
                   <grid row="28" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                   <forms defaultalign-horz="false"/>
@@ -252,7 +254,7 @@
                   <value value="0"/>
                 </properties>
               </component>
-              <component id="1f00d" class="javax.swing.JRadioButton" binding="r_setRect">
+              <component id="1f00d" class="javax.swing.JRadioButton" binding="setRectRadioButton">
                 <constraints>
                   <grid row="30" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -262,7 +264,7 @@
                   <text value="Изменить область"/>
                 </properties>
               </component>
-              <component id="def8a" class="javax.swing.JLabel" binding="l_rectWeight">
+              <component id="def8a" class="javax.swing.JLabel" binding="rectWeightLabel">
                 <constraints>
                   <grid row="32" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -272,7 +274,7 @@
                   <text value="Коэффициент проходимости: 0"/>
                 </properties>
               </component>
-              <component id="cecd7" class="javax.swing.JSlider" binding="sl_rectWeight">
+              <component id="cecd7" class="javax.swing.JSlider" binding="rectWeightSlider">
                 <constraints>
                   <grid row="34" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                   <forms defaultalign-horz="false"/>
@@ -294,7 +296,7 @@
                 </constraints>
                 <properties/>
               </component>
-              <component id="bc82b" class="javax.swing.JLabel" binding="l_aboutPassability">
+              <component id="bc82b" class="javax.swing.JLabel" binding="aboutPassabilityLabel">
                 <constraints>
                   <grid row="38" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -304,7 +306,7 @@
                   <text value="Нажмите &quot;Загрузить карту&quot;"/>
                 </properties>
               </component>
-              <component id="a73c3" class="javax.swing.JButton" binding="b_go">
+              <component id="a73c3" class="javax.swing.JButton" binding="goButton">
                 <constraints>
                   <grid row="40" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -330,7 +332,7 @@
                   <text value="Загрузка карт"/>
                 </properties>
               </component>
-              <component id="32a91" class="javax.swing.JButton" binding="b_loadReality">
+              <component id="32a91" class="javax.swing.JButton" binding="loadRealityButton">
                 <constraints>
                   <grid row="50" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -355,7 +357,7 @@
                   <text value="Параметры робота:"/>
                 </properties>
               </component>
-              <component id="d8fd5" class="javax.swing.JLabel" binding="l_robotSize">
+              <component id="d8fd5" class="javax.swing.JLabel" binding="robotSizeLabel">
                 <constraints>
                   <grid row="56" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -365,7 +367,7 @@
                   <text value="Размер робота (масштаб): 60"/>
                 </properties>
               </component>
-              <component id="4acf" class="javax.swing.JSlider" binding="sl_mapDelta">
+              <component id="4acf" class="javax.swing.JSlider" binding="robotSizeSlider">
                 <constraints>
                   <grid row="58" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                   <forms defaultalign-horz="false"/>
@@ -381,7 +383,7 @@
                   <value value="60"/>
                 </properties>
               </component>
-              <component id="80792" class="javax.swing.JLabel" binding="l_robotRadius">
+              <component id="80792" class="javax.swing.JLabel" binding="robotRadiusLabel">
                 <constraints>
                   <grid row="60" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -391,7 +393,7 @@
                   <text value="Радиус поворота: 30"/>
                 </properties>
               </component>
-              <component id="12995" class="javax.swing.JSlider" binding="sl_robotRadius">
+              <component id="12995" class="javax.swing.JSlider" binding="robotRadiusSlider">
                 <constraints>
                   <grid row="62" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                   <forms defaultalign-horz="false"/>
@@ -407,7 +409,7 @@
                   <value value="30"/>
                 </properties>
               </component>
-              <component id="56891" class="javax.swing.JButton" binding="b_calculatePassability">
+              <component id="56891" class="javax.swing.JButton" binding="calculatePassabilityButton">
                 <constraints>
                   <grid row="64" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -417,7 +419,7 @@
                   <text value="Рассчитать проходимость"/>
                 </properties>
               </component>
-              <component id="5f198" class="javax.swing.JButton" binding="b_refreshGraph">
+              <component id="5f198" class="javax.swing.JButton" binding="refreshGraphButton">
                 <constraints>
                   <grid row="66" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -427,7 +429,7 @@
                   <text value="Пересчитать граф"/>
                 </properties>
               </component>
-              <component id="56a95" class="javax.swing.JLabel" binding="l_robotSensorsRange">
+              <component id="56a95" class="javax.swing.JLabel" binding="robotSensorsRangeLabel">
                 <constraints>
                   <grid row="68" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -437,7 +439,7 @@
                   <text value="Дальность видимости робота: 180"/>
                 </properties>
               </component>
-              <component id="21514" class="javax.swing.JSlider" binding="sl_robotSensorsRange">
+              <component id="21514" class="javax.swing.JSlider" binding="robotSensorsRangeSlider">
                 <constraints>
                   <grid row="70" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                   <forms defaultalign-horz="false"/>
@@ -452,7 +454,7 @@
                   <value value="100"/>
                 </properties>
               </component>
-              <component id="b6435" class="javax.swing.JLabel" binding="l_robotMinSpeed">
+              <component id="b6435" class="javax.swing.JLabel" binding="robotMinSpeedLabel">
                 <constraints>
                   <grid row="72" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -462,7 +464,7 @@
                   <text value="Минимальная скорость: 80"/>
                 </properties>
               </component>
-              <component id="8033" class="javax.swing.JSlider" binding="sl_robotMinSpeed">
+              <component id="8033" class="javax.swing.JSlider" binding="robotMinSpeedSlider">
                 <constraints>
                   <grid row="74" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                   <forms defaultalign-horz="false"/>
@@ -477,7 +479,7 @@
                   <value value="80"/>
                 </properties>
               </component>
-              <component id="90dbd" class="javax.swing.JLabel" binding="l_robotMaxSpeed">
+              <component id="90dbd" class="javax.swing.JLabel" binding="robotMaxSpeedLabel">
                 <constraints>
                   <grid row="76" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -487,7 +489,7 @@
                   <text value="Максимальная скорость: 100"/>
                 </properties>
               </component>
-              <component id="ec8eb" class="javax.swing.JSlider" binding="sl_robotMaxSpeed">
+              <component id="ec8eb" class="javax.swing.JSlider" binding="robotMaxSpeedSlider">
                 <constraints>
                   <grid row="78" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                   <forms defaultalign-horz="false"/>
@@ -502,7 +504,7 @@
                   <value value="100"/>
                 </properties>
               </component>
-              <component id="bc5d2" class="javax.swing.JLabel" binding="l_robotAcceleration">
+              <component id="bc5d2" class="javax.swing.JLabel" binding="robotAccelerationLabel">
                 <constraints>
                   <grid row="80" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -512,7 +514,7 @@
                   <text value="Ускорение: 20"/>
                 </properties>
               </component>
-              <component id="dce08" class="javax.swing.JSlider" binding="sl_robotAcceleration">
+              <component id="dce08" class="javax.swing.JSlider" binding="robotAccelerationSlider">
                 <constraints>
                   <grid row="82" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                   <forms defaultalign-horz="false"/>
@@ -528,7 +530,7 @@
                   <value value="20"/>
                 </properties>
               </component>
-              <component id="5a8cd" class="javax.swing.JLabel" binding="l_robotDeceleration">
+              <component id="5a8cd" class="javax.swing.JLabel" binding="robotDecelerationLabel">
                 <constraints>
                   <grid row="84" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -538,7 +540,7 @@
                   <text value="Торможение: 20"/>
                 </properties>
               </component>
-              <component id="af86f" class="javax.swing.JSlider" binding="sl_robotDeceleration">
+              <component id="af86f" class="javax.swing.JSlider" binding="robotDecelerationSlider">
                 <constraints>
                   <grid row="86" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                   <forms defaultalign-horz="false"/>
@@ -554,7 +556,7 @@
                   <value value="20"/>
                 </properties>
               </component>
-              <component id="5432b" class="javax.swing.JLabel" binding="l_robotCurrentSpeed">
+              <component id="5432b" class="javax.swing.JLabel" binding="robotCurrentSpeedLabel">
                 <constraints>
                   <grid row="88" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -580,7 +582,7 @@
                   <text value="Параметры отображения:"/>
                 </properties>
               </component>
-              <component id="bb4e0" class="javax.swing.JCheckBox" binding="cb_showMap">
+              <component id="bb4e0" class="javax.swing.JCheckBox" binding="showMapCheckBox">
                 <constraints>
                   <grid row="94" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -590,7 +592,7 @@
                   <text value="Карта местности"/>
                 </properties>
               </component>
-              <component id="c7cb4" class="javax.swing.JCheckBox" binding="cb_showPassability">
+              <component id="c7cb4" class="javax.swing.JCheckBox" binding="showPassabilityCheckBox">
                 <constraints>
                   <grid row="96" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -600,7 +602,7 @@
                   <text value="Карта проходимости"/>
                 </properties>
               </component>
-              <component id="71c90" class="javax.swing.JCheckBox" binding="cb_showReality">
+              <component id="71c90" class="javax.swing.JCheckBox" binding="showRealityCheckBox">
                 <constraints>
                   <grid row="98" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -609,7 +611,7 @@
                   <text value="Карта реальности"/>
                 </properties>
               </component>
-              <component id="63e77" class="javax.swing.JCheckBox" binding="cb_showNodes">
+              <component id="63e77" class="javax.swing.JCheckBox" binding="showNodesCheckBox">
                 <constraints>
                   <grid row="100" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -618,7 +620,7 @@
                   <text value="Показывать узлы"/>
                 </properties>
               </component>
-              <component id="a2530" class="javax.swing.JCheckBox" binding="cb_disableDrawing">
+              <component id="a2530" class="javax.swing.JCheckBox" binding="disableDrawingCheckBox">
                 <constraints>
                   <grid row="102" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -643,7 +645,7 @@
                   <text value="Удаление:"/>
                 </properties>
               </component>
-              <component id="8440b" class="javax.swing.JButton" binding="b_removeMap">
+              <component id="8440b" class="javax.swing.JButton" binding="removeMapButton">
                 <constraints>
                   <grid row="112" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -653,7 +655,7 @@
                   <text value="Удалить карту местности"/>
                 </properties>
               </component>
-              <component id="2d517" class="javax.swing.JButton" binding="b_removePassability">
+              <component id="2d517" class="javax.swing.JButton" binding="removePassabilityButton">
                 <constraints>
                   <grid row="114" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -663,7 +665,7 @@
                   <text value="Удалить карту проходимости"/>
                 </properties>
               </component>
-              <component id="8aaf5" class="javax.swing.JButton" binding="b_removeReality">
+              <component id="8aaf5" class="javax.swing.JButton" binding="removeRealityButton">
                 <constraints>
                   <grid row="116" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -673,7 +675,7 @@
                   <text value="Удалить карту реальности"/>
                 </properties>
               </component>
-              <component id="cec0" class="javax.swing.JButton" binding="b_loadMap">
+              <component id="cec0" class="javax.swing.JButton" binding="loadMapButton">
                 <constraints>
                   <grid row="48" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -712,7 +714,7 @@
                   <text value="Выбранный робот:"/>
                 </properties>
               </component>
-              <component id="1d3b7" class="javax.swing.JSpinner" binding="sp_robot">
+              <component id="1d3b7" class="javax.swing.JSpinner" binding="selectRobotSpinner">
                 <constraints>
                   <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                   <forms defaultalign-horz="false"/>
@@ -731,7 +733,7 @@
                   <text value="Поехали все"/>
                 </properties>
               </component>
-              <component id="9da87" class="javax.swing.JRadioButton" binding="r_finishAll">
+              <component id="9da87" class="javax.swing.JRadioButton" binding="placeFinishAll">
                 <constraints>
                   <grid row="22" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -759,7 +761,7 @@
                   <text value="Запись координат в файл:"/>
                 </properties>
               </component>
-              <component id="84dd1" class="javax.swing.JCheckBox" binding="cb_logging">
+              <component id="84dd1" class="javax.swing.JCheckBox" binding="loggingCheckBox">
                 <constraints>
                   <grid row="108" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                   <forms/>
@@ -773,7 +775,7 @@
           </grid>
         </children>
       </scrollpane>
-      <scrollpane id="e496c" binding="scrollForSurface" custom-create="true">
+      <scrollpane id="e496c" binding="surfaceScrollPane" custom-create="true">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
           <forms defaultalign-horz="false" defaultalign-vert="false"/>
@@ -783,6 +785,87 @@
         </properties>
         <border type="none"/>
         <children/>
+      </scrollpane>
+      <scrollpane id="f7f77" binding="timeScrollPane">
+        <constraints>
+          <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <forms defaultalign-horz="false" defaultalign-vert="false"/>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <grid id="edbf7" layout-manager="FormLayout">
+            <rowspec value="center:d:noGrow"/>
+            <rowspec value="top:4dlu:noGrow"/>
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="top:4dlu:noGrow"/>
+            <rowspec value="center:d:noGrow"/>
+            <rowspec value="top:4dlu:noGrow"/>
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="top:4dlu:noGrow"/>
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="top:4dlu:noGrow"/>
+            <rowspec value="center:max(d;4px):noGrow"/>
+            <colspec value="fill:d:noGrow"/>
+            <constraints/>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="6721e" class="javax.swing.JButton" binding="startTimeButton">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Включить время"/>
+                </properties>
+              </component>
+              <component id="b3acf" class="javax.swing.JSeparator">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <forms defaultalign-horz="false" defaultalign-vert="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="82b54" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms defaultalign-horz="false"/>
+                </constraints>
+                <properties>
+                  <text value="Погода:"/>
+                </properties>
+              </component>
+              <component id="17095" class="javax.swing.JRadioButton" binding="rainRadioButton">
+                <constraints>
+                  <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Дождь"/>
+                </properties>
+              </component>
+              <component id="d512" class="javax.swing.JRadioButton" binding="dryRadioButton">
+                <constraints>
+                  <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Засуха"/>
+                </properties>
+              </component>
+              <component id="35188" class="javax.swing.JButton" binding="stopTimeButton">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <forms/>
+                </constraints>
+                <properties>
+                  <text value="Остановить время"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+        </children>
       </scrollpane>
     </children>
   </grid>

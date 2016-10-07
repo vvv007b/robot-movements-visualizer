@@ -15,9 +15,19 @@ public class Hypervisor {
 
     private static boolean logging = false;
 
+    private GlobalTime globalTime;
 
     public Hypervisor(List<Robot> robots) {
         Hypervisor.robots = robots;
+        GlobalTime globalTime = new GlobalTime(this);
+    }
+
+    public void startGlobalTime(){
+        globalTime.start();
+    }
+
+    public GlobalTime getGlobalTime() {
+        return globalTime;
     }
 
     public static void sendMapChangedSignal(boolean value) {

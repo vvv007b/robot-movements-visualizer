@@ -100,6 +100,7 @@ class MapInfo implements Cloneable {
 
     // ������� ������������
     // ���������� ���������� ��������� �����
+
     public int calculatePassability(double radius) {
         if (image == null) {
             return 0;
@@ -164,7 +165,7 @@ class MapInfo implements Cloneable {
     }
 
     // �������� �������� 8 �������� �� ������������
-    // ���������� ������� ����������� ������������ 8 �������� ��� 0, ���� ������� ���� �� 
+    // ���������� ������� ����������� ������������ 8 �������� ��� 0, ���� ������� ���� ��
     // ���� ������������ �������
     private int checkAround(int x, int y) {
         int average = 0;
@@ -224,7 +225,8 @@ class MapInfo implements Cloneable {
             private int first;
             private int last;
 
-            public MyThread(double radius, int first, int last) {
+            public MyThread(double radius, int first, int last)
+            {
                 this.radius = radius;
                 this.first = first;
                 this.last = last;
@@ -625,6 +627,8 @@ class MapInfo implements Cloneable {
     public int getHeight() {
         return image.getHeight();
     }
+
+
 
 //  public void setPassabilityChanged(boolean passabilityChanged) {this.passabilityChanged=passabilityChanged;}
 //  public boolean isPassabilityChanged() {return passabilityChanged;}
