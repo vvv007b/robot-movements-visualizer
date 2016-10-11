@@ -628,8 +628,10 @@ class MapInfo implements Cloneable {
         return image.getHeight();
     }
 
+    public byte[][] getRealityArray() {
+        return realityArray;
+    }
 
-
-//  public void setPassabilityChanged(boolean passabilityChanged) {this.passabilityChanged=passabilityChanged;}
+    //  public void setPassabilityChanged(boolean passabilityChanged) {this.passabilityChanged=passabilityChanged;}
 //  public boolean isPassabilityChanged() {return passabilityChanged;}
 }

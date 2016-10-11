@@ -6,19 +6,22 @@ package com.robot.group.paths.finding;
 class GlobalTime extends Thread {
 
 //    private static double RAIN_CHANCE = 0.001;
+    private static final int WEATHER_SLEEPTIME = 1000;
+    private static final int NORMAL_SLEEPTIME = 20;
+
 
     private boolean isTimeRuns;
     private boolean isAlive;
 
-    private boolean isRain;
-    private boolean isDry;
+    public static final int NORMAL_WEATHER = 0;
+    public static final int RAIN_WEATHER = 1;
+    public static final int DRY_WEATHER = 2;
 
-    private Hypervisor hypervisor;
+    private int weather;
 
-    public GlobalTime(Hypervisor hypervisor) {
+    public GlobalTime() {
         this.isTimeRuns = false;
         this.isAlive = true;
-        this.hypervisor = hypervisor;
     }
 
     @Override
@@ -26,13 +29,50 @@ class GlobalTime extends Thread {
         while (isAlive) {
             if (isTimeRuns) {
                 //some changes with reality map
+                switch (this.weather){
+                    case RAIN_WEATHER:
+                        //reality update
+                        for (Robot curRobot:Hypervisor.getRobots()) {
+                            synchronized (curRobot.getMap().getRealityArray()){
+                                byte[][] realityArray = curRobot.getMap().getRealityArray();
+                                for (int i = 0; i < realityArray.length; i++) {
+                                    for (int j = 0; j < realityArray[0].length; j++) {
 
+                                    }
+                                }
+                            }
+                        }
+                        try {
+                            sleep(WEATHER_SLEEPTIME);
+                        } catch (InterruptedException ex) {
+                            ex.printStackTrace();
+                        }
+                        break;
+                    case DRY_WEATHER:
+                        //reality update
+                        try {
+                            sleep(WEATHER_SLEEPTIME);
+                        } catch (InterruptedException ex) {
+                            ex.printStackTrace();
+                        }
+                        break;
+                    case NORMAL_WEATHER:
+                        try {
+                            sleep(NORMAL_SLEEPTIME);
+                        } catch (InterruptedException ex) {
+                            ex.printStackTrace();
+                        }
+                        break;
+                    default:
+                        try {
+                            sleep(NORMAL_SLEEPTIME);
+                        } catch (InterruptedException ex) {
+                            ex.printStackTrace();
+                        }
+                        break;
+                }
             }
-            try {
-                sleep(20);
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
-            }
+
         }
     }
 
@@ -48,12 +88,8 @@ class GlobalTime extends Thread {
         isAlive = false;
     }
 
-    public void setRain(boolean rain) {
-        isRain = rain;
-    }
-
-    public void setDry(boolean dry) {
-        isDry = dry;
+    public void setWeather(int weather){
+        this.weather = weather;
     }
 
     public void setAlive(boolean alive) {

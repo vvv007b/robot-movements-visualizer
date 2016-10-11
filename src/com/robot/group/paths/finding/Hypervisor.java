@@ -15,18 +15,18 @@ public class Hypervisor {
 
     private static boolean logging = false;
 
-    private GlobalTime globalTime;
+    private static GlobalTime globalTime;
 
     public Hypervisor(List<Robot> robots) {
         Hypervisor.robots = robots;
-        GlobalTime globalTime = new GlobalTime(this);
+        GlobalTime globalTime = new GlobalTime();
     }
 
-    public void startGlobalTime(){
+    public static void startGlobalTime(){
         globalTime.start();
     }
 
-    public GlobalTime getGlobalTime() {
+    public static GlobalTime getGlobalTime() {
         return globalTime;
     }
 
@@ -184,5 +184,9 @@ public class Hypervisor {
 
     public static ArrayList<Long> getUpdateTimes() {
         return (ArrayList<Long>) robots.stream().map(Robot::getUpdateTime).collect(Collectors.toList());
+    }
+
+    public static List<Robot> getRobots() {
+        return robots;
     }
 }
