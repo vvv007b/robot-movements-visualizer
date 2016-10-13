@@ -11,7 +11,7 @@ class Segment {
     private double radius = 0;
     private int weight = -1;
     // for some optimization
-    public static final double twoPI = 2.0 * Math.PI;
+    private static final double twoPI = 2.0 * Math.PI;
     public static final double halfPI = Math.PI / 2;
 
     public Segment() {
@@ -25,7 +25,8 @@ class Segment {
 //        this.weight = weight;
 //    }
 //
-//    public Segment(double originX, double originY, boolean isClockwise, double startAngle, double radiansTotal, double radius, int weight) {
+//    public Segment(double originX, double originY, boolean isClockwise,
+// double startAngle, double radiansTotal, double radius, int weight) {
 //        this.isStraightLine = false;
 //        this.isClockwise = isClockwise;
 //        this.originX = originX;
@@ -115,12 +116,12 @@ class Segment {
             double theta;
             if (!isClockwise) {
                 // поворачиваем налево
-                theta = Segment.CapRadian(startAngle + distance / radius);
-                result[2] = Segment.CapRadian(theta + Segment.halfPI);
+                theta = Segment.capRadian(startAngle + distance / radius);
+                result[2] = Segment.capRadian(theta + Segment.halfPI);
             } else {
                 // поворачиваем направо
-                theta = Segment.CapRadian(startAngle - distance / radius);
-                result[2] = Segment.CapRadian(theta - Segment.halfPI);
+                theta = Segment.capRadian(startAngle - distance / radius);
+                result[2] = Segment.capRadian(theta - Segment.halfPI);
             }
             result[0] = originX + radius * Math.cos(theta);
             // changed sign because of screen coordinates
@@ -134,11 +135,14 @@ class Segment {
     }
 
     // Constrain a radian value to 0<=value<=2*PI
-    public static double CapRadian(double r) {
-        r %= twoPI;
-        if (r < 0) r += twoPI;
-        if (r < 0.00000001 || r > twoPI - 0.00000001)
+    public static double capRadian(double angle) {
+        angle %= twoPI;
+        if (angle < 0) {
+            angle += twoPI;
+        }
+        if (angle < 0.00000001 || angle > twoPI - 0.00000001) {
             return 0.0;
-        return r;
+        }
+        return angle;
     }
 }

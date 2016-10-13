@@ -17,6 +17,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,13 +33,13 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
     private Robot robot;
     private boolean showMap = true;
     private boolean showPassability = true;
-    private boolean showReality = false;
+    private boolean showReality = true;
     private Image robotImage;
     private Image robotImageOriginal;
     private Image robotImageSelected;
     private Image robotImageSelectedOriginal;
 
-    private int nodeDiameter = 10;
+    private final int nodeDiameter;
 
     private boolean showNodes = false;
 
@@ -49,7 +50,6 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
     private int rectWeight = 0;
 
     private List<Robot> robots = new ArrayList<>();
-    private Hypervisor hypervisor;
 
     private boolean robotsRunning = false;
     private boolean logging = false;
@@ -71,8 +71,12 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
 
         screen = null;
         System.out.println("Surface created");
-        hypervisor = new Hypervisor(robots);
+        Hypervisor hypervisor = new Hypervisor(robots);
+        System.out.println(hypervisor.toString()); //i hate warnings
 
+        GlobalTime globalTime = new GlobalTime(this);
+        globalTime.start();
+        nodeDiameter = 10;
     }
 
     @Override
@@ -81,7 +85,6 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
         doDrawing(graphics);
     }
 
-    // ������� ���������
     private void doDrawing(Graphics graphics) {
         Graphics2D g2d = (Graphics2D) graphics;
         if (showMap) {
@@ -206,7 +209,6 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
         }
     }
 
-    // ������� ���������� ��������� �����
     public void refreshScreen() {
         if (robot.getMap().getImage() != null) {
             screen = new BufferedImage(robot.getMap().getImage().getWidth(null),
@@ -231,28 +233,32 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
 
     }
 
-    public void mouseClicked(MouseEvent arg0) {
+    private void clickEvent(MouseEvent event) {
         if (robotsRunning) {
             return;
         }
-        if (arg0.getButton() == MouseEvent.BUTTON1) {
+        if (SwingUtilities.isLeftMouseButton(event)) {
             switch (stage) {
                 case STAGE_PLACE_ROBOT:
-                    placeRobot(new Point(arg0.getX(), arg0.getY()));
+                    placeRobot(new Point(event.getX(), event.getY()));
                     break;
                 case STAGE_SET_FINISH:
-                    setFinish(arg0.getX(), arg0.getY());
+                    setFinish(new Point(event.getX(), event.getY()));
                     break;
                 case STAGE_SET_RECT_WEIGHT:
-                    changeRectangle(arg0.getX(), arg0.getY());
+                    changeRectangle(new Point(event.getX(), event.getY()));
                     break;
                 case STAGE_SET_FINISH_ALL:
-                    setFinishAll(arg0.getX(), arg0.getY());
+                    setFinishAll(new Point(event.getX(), event.getY()));
                     break;
                 default:
                     break;
             }
         }
+    }
+
+    public void mouseClicked(MouseEvent event) {
+        clickEvent(event);
     }
 
     public void mouseEntered(MouseEvent arg0) {
@@ -269,54 +275,22 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
     }
 
     @Override
-    public void mouseDragged(MouseEvent arg0) {
-        if (robotsRunning) {
-            return;
-        }
-        if (SwingUtilities.isLeftMouseButton(arg0)) {
-            switch (stage) {
-                case STAGE_PLACE_ROBOT:
-                    placeRobot(new Point(arg0.getX(), arg0.getY()));
-                    break;
-                case STAGE_SET_FINISH:
-                    setFinish(arg0.getX(), arg0.getY());
-                    break;
-                case STAGE_SET_RECT_WEIGHT:
-                    changeRectangle(arg0.getX(), arg0.getY());
-                    break;
-                case STAGE_SET_FINISH_ALL:
-                    setFinishAll(arg0.getX(), arg0.getY());
-                    break;
-                default:
-                    break;
-            }
-        }
+    public void mouseDragged(MouseEvent event) {
+        clickEvent(event);
     }
 
     @Override
     public void mouseMoved(MouseEvent arg0) {
     }
 
-    private void placeRobot(Point point) {
+    private void placeRobot(Point position) {
         int scale = robot.getMap().getScale();
-        if (robot.getMap().getImage() != null) {
-            if (point.x < scale / 2) {
-                point.x = scale / 2;
-            } else if (point.x > robot.getMap().getWidth() - scale / 2) {
-                point.x = robot.getMap().getWidth() - scale / 2;
-            }
-            if (point.y < scale / 2) {
-                point.y = scale / 2;
-            } else if (point.y > robot.getMap().getHeight() - scale / 2) {
-                point.y = robot.getMap().getHeight() - scale / 2;
-            }
-        }
+        fixPosition(position);
         // check if robot can stand there
-        if (Link.getPointWeight(point, robot.getAzimuth(), scale, robot.getMap().getPassabilityArray()) == 255) {
+        if (Link.getPointWeight(position, robot.getAzimuth(), scale, robot.getMap().getPassabilityArray()) == 255) {
             return;
         }
-        robot.setX(point.x);
-        robot.setY(point.y);
+        robot.setPosition(position);
         //Control_Panel.setRobotCoordinates(x, y);
         robot.setMapChangedSignal(true);
         repaint();
@@ -335,7 +309,8 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
 //                y = robot.getMap().getHeight() - scale / 2;
 //        }
 //        // check if robot can stand there
-//        if (Link.getPointWeight(new Point(x, y), robot.getAzimuth(), scale, robot.getMap().getPassabilityArray()) == 255)
+//        if (Link.getPointWeight(new Point(x, y), robot.getAzimuth(), scale, robot.getMap().getPassabilityArray())
+// == 255)
 //            return 0;
 //        robot.setX(x);
 //        robot.setY(y);
@@ -344,43 +319,92 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
 //        return 1;
 //    }
 
-    private void setFinish(int x, int y) {
+//    private void setFinish(Point position) {
+//        int scale = robot.getMap().getScale();
+//        fixPosition(position);
+//        for (Robot r : robots) {
+//            Node finish = r.getFinish();
+//            // check if robot can stand there
+//            if (Link.getPointWeight(position, finish.getDirection(), scale, r.getMap().getPassabilityArray()) == 255)
+//                return;
+//            finish.setX(position.x);
+//            finish.setY(position.y);
+//
+//            if (r.getSpeed() != 0) {
+//                //synchronized (robot.getMap().getFinish()) {
+//                synchronized (r.getMap().getNodes()) {
+//                    Node n = new Node(finish.getX(), finish.getY(), finish.getDirection());
+//                    n.setIsRobotMade(true);
+//                    r.getMap().addNode(n);
+//                    r.getMap().addLinksAroundCell24(n, r.getRadius(), true);
+//                    r.addNodeToDelete(r.getFinish());
+//                    r.setFinish(n);
+//                }
+//            }
+//            robot.setMapChangedSignal(true);
+//        }
+//        repaint();
+//    }
+
+    private void fixPosition(Point position) {
         int scale = robot.getMap().getScale();
         if (robot.getMap().getImage() != null) {
-            if (x < scale / 2)
-                x = scale / 2;
-            else if (x > robot.getMap().getWidth() - scale / 2)
-                x = robot.getMap().getWidth() - scale / 2;
-            if (y < scale / 2)
-                y = scale / 2;
-            else if (y > robot.getMap().getHeight() - scale / 2)
-                y = robot.getMap().getHeight() - scale / 2;
-        }
-        Node finish = robot.getFinish();
-        // check if robot can stand there
-        if (Link.getPointWeight(new Point(x, y), finish.getDirection(), scale, robot.getMap().getPassabilityArray()) == 255)
-            return;
-        finish.setX(x);
-        finish.setY(y);
-
-        if (robot.getSpeed() != 0) {
-            //synchronized (robot.getMap().getFinish()) {
-            synchronized (robot.getMap().getNodes()) {
-                Node n = new Node(finish.getX(), finish.getY(), finish.getDirection());
-                n.setIsRobotMade(true);
-                robot.getMap().addNode(n);
-                robot.getMap().addLinksAroundCell24(n, robot.getRadius(), true);
-                //robot.addNodeToDelete(robot.getMap().getFinish());
-                robot.addNodeToDelete(robot.getFinish());
-                //robot.getMap().setFinish(n);
-                robot.setFinish(n);
+            if (position.x < scale / 2) {
+                position.x = scale / 2;
+            } else if (position.x > robot.getMap().getWidth() - scale / 2) {
+                position.x = robot.getMap().getWidth() - scale / 2;
+            }
+            if (position.y < scale / 2) {
+                position.y = scale / 2;
+            } else if (position.y > robot.getMap().getHeight() - scale / 2) {
+                position.y = robot.getMap().getHeight() - scale / 2;
             }
         }
+    }
+
+    private void setFinish(Point position) {
+        fixPosition(position);
+        setFinishToRobot(this.robot, position);
         robot.setMapChangedSignal(true);
         //Control_Panel.setFinishCoordinates(x, y);
         //robot.setMapChangedSignal(true);
         repaint();
     }
+
+
+    private void setFinishAll(Point position) {
+        fixPosition(position);
+        for (Robot r : robots) {
+            setFinishToRobot(r, position);
+            robot.setMapChangedSignal(true);
+        }
+        repaint();
+    }
+
+    private void setFinishToRobot(Robot robot, Point position) {
+        int scale = robot.getMap().getScale();
+        Node finish = robot.getFinish();
+        // check if robot can stand there
+        if (Link.getPointWeight(position, finish.getDirection(), scale, robot.getMap().getPassabilityArray()) == 255) {
+            return;
+        }
+//        finish.setX(position.x);
+//        finish.setY(position.y);
+        finish.setPosition(new Point2D.Double(position.x, position.y));
+
+        if (robot.getSpeed() != 0) {
+            //synchronized (robot.getMap().getFinish()) {
+            synchronized (robot.getMap().getNodes()) {
+                Node node = new Node(new Point2D.Double(finish.getX(), finish.getY()), finish.getDirection());
+                node.setIsRobotMade(true);
+                robot.getMap().addNode(node);
+                robot.getMap().addLinksAroundCell24(node, robot.getRadius(), true);
+                robot.addNodeToDelete(robot.getFinish());
+                robot.setFinish(node);
+            }
+        }
+    }
+
 
 //    public int setFinishSilent(int x, int y){
 //        int scale = robot.getMap().getScale();
@@ -396,7 +420,8 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
 //        }
 //        Node finish = robot.getFinish();
 //        // check if robot can stand there
-//        if (Link.getPointWeight(new Point(x, y), finish.getDirection(), scale, robot.getMap().getPassabilityArray()) == 255)
+//        if (Link.getPointWeight(new Point(x, y), finish.getDirection(),
+// scale, robot.getMap().getPassabilityArray()) == 255)
 //            return 0;
 //        finish.setX(x);
 //        finish.setY(y);
@@ -416,42 +441,6 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
 //        return 1;
 //    }
 
-    private void setFinishAll(int x, int y) {
-        int scale = robot.getMap().getScale();
-        if (robot.getMap().getImage() != null) {
-            if (x < scale / 2)
-                x = scale / 2;
-            else if (x > robot.getMap().getWidth() - scale / 2)
-                x = robot.getMap().getWidth() - scale / 2;
-            if (y < scale / 2)
-                y = scale / 2;
-            else if (y > robot.getMap().getHeight() - scale / 2)
-                y = robot.getMap().getHeight() - scale / 2;
-        }
-        for (Robot r : robots) {
-            Node finish = r.getFinish();
-            // check if robot can stand there
-            if (Link.getPointWeight(new Point(x, y), finish.getDirection(), scale, r.getMap().getPassabilityArray()) == 255)
-                return;
-            finish.setX(x);
-            finish.setY(y);
-
-            if (r.getSpeed() != 0) {
-                //synchronized (robot.getMap().getFinish()) {
-                synchronized (r.getMap().getNodes()) {
-                    Node n = new Node(finish.getX(), finish.getY(), finish.getDirection());
-                    n.setIsRobotMade(true);
-                    r.getMap().addNode(n);
-                    r.getMap().addLinksAroundCell24(n, r.getRadius(), true);
-                    r.addNodeToDelete(r.getFinish());
-                    r.setFinish(n);
-                }
-            }
-            robot.setMapChangedSignal(true);
-        }
-        repaint();
-    }
-
 //    public void render() {
 //        SwingUtilities.invokeLater(new Runnable() {
 //            public void run() {
@@ -460,7 +449,7 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
 //        });
 //    }
 
-    public void resizeRobot(int size) {
+    private void resizeRobot(int size) {
         BufferedImage resized = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = resized.createGraphics();
         g2d.drawImage(robotImageOriginal, 0, 0, size, size, null);
@@ -486,8 +475,9 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
 
     public void runRobot() {
         long time = System.currentTimeMillis();
-        long searchTime = robot.move(/*new Node(robot.getX(), robot.getY(), robot.getAzimuth()),*/ /*new Node(finish.getX(), finish.getY(), finish.getDirection())*/);
-        JOptionPane.showMessageDialog(this, "Robot stopped after " + (System.currentTimeMillis() - time) + " ms\nFirst AStar search lasted " + searchTime + " ms");
+        long searchTime = robot.move();
+        JOptionPane.showMessageDialog(this, "Robot stopped after " + (System.currentTimeMillis() - time) +
+                " ms\nFirst AStar search lasted " + searchTime + " ms");
     }
 
 //    public void stopRobot() {
@@ -507,17 +497,15 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
     public void removeRobots() {
         for (Robot r : robots) {
             r.setStanding(null);
-            r.setX(Robot.ROBOT_NOWHERE_X);
-            r.setY(Robot.ROBOT_NOWHERE_Y);
+            robot.setPosition(new Point(Robot.ROBOT_NOWHERE_X, Robot.ROBOT_NOWHERE_Y));
             r.setMapChangedSignal(true);
         }
     }
 
 
-    public void removeFinishes() {
+    private void removeFinishes() {
         for (Robot r : robots) {
-            r.getFinish().setX(Robot.ROBOT_NOWHERE_X);
-            r.getFinish().setY(Robot.ROBOT_NOWHERE_Y);
+            r.getFinish().setPosition(new Point2D.Double(Robot.ROBOT_NOWHERE_X, Robot.ROBOT_NOWHERE_Y));
             r.setMapChangedSignal(true);
         }
     }
@@ -608,8 +596,10 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
     }
 
     public void setRobotAzimuth(double azimuth) {
-        if (Link.getPointWeight(new Point((int) robot.getX(), (int) robot.getY()), azimuth, robot.getMap().getScale(), robot.getMap().getPassabilityArray()) == 255)
+        if (Link.getPointWeight(new Point((int) robot.getX(), (int) robot.getY()),
+                azimuth, robot.getMap().getScale(), robot.getMap().getPassabilityArray()) == 255) {
             return;
+        }
         robot.setAzimuth(azimuth);
         robot.setMapChangedSignal(true);
         repaint();
@@ -618,15 +608,19 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
     public void setFinishDirection(double direction) {
         if (stage != STAGE_SET_FINISH_ALL) {
             Node finish = robot.getFinish();
-            if (Link.getPointWeight(new Point((int) finish.getX(), (int) finish.getY()), direction, robot.getMap().getScale(), robot.getMap().getPassabilityArray()) == 255)
+            if (Link.getPointWeight(new Point((int) finish.getX(), (int) finish.getY()), direction,
+                    robot.getMap().getScale(), robot.getMap().getPassabilityArray()) == 255) {
                 return;
+            }
             finish.setDirection(direction);
             robot.setMapChangedSignal(true);
         } else {
             for (Robot r : robots) {
                 Node finish = r.getFinish();
-                if (Link.getPointWeight(new Point((int) finish.getX(), (int) finish.getY()), direction, r.getMap().getScale(), r.getMap().getPassabilityArray()) == 255)
+                if (Link.getPointWeight(new Point((int) finish.getX(), (int) finish.getY()),
+                        direction, r.getMap().getScale(), r.getMap().getPassabilityArray()) == 255) {
                     return;
+                }
                 finish.setDirection(direction);
                 r.setMapChangedSignal(true);
             }
@@ -646,29 +640,30 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
 
     public void refreshGraph() {
         robot.getMap().refreshGraph();
-        for (Robot r : robots)
+        for (Robot r : robots) {
             r.setMapChangedSignal(true);
+        }
     }
 
     public void setRectWeight(int rectWeight) {
         this.rectWeight = rectWeight;
     }
 
-    public void changeRectangle(int x, int y) {
+    private void changeRectangle(Point position) {
         if (robot.getMap().getPassabilityMap() == null) {
             return;
         }
-        Point centerPoint = robot.getMap().getCellCenterPoint(x, y);
+        Point centerPoint = robot.getMap().getCellCenterPoint(position);
         if (centerPoint == null) {
             return;
         }
         int scale = robot.getMap().getScale();
         for (int yi = centerPoint.y - scale / 2, borderY = centerPoint.y + scale / 2; yi < borderY; ++yi) {
             for (int xi = centerPoint.x - scale / 2, borderX = centerPoint.x + scale / 2; xi < borderX; ++xi) {
-                robot.getMap().setPassabilityPoint(xi, yi, rectWeight);
+                robot.getMap().setPassabilityPoint(new Point(xi, yi), rectWeight);
             }
         }
-        robot.getMap().calculatePassabilityForCell(centerPoint.x, centerPoint.y, robot.getRadius());
+        robot.getMap().calculatePassabilityForCell(centerPoint, robot.getRadius());
 
         for (Robot r : robots) {
             r.setMapChangedSignal(true);
@@ -689,12 +684,12 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
                 (System.currentTimeMillis() - time) + " ms\nThere are " + nodesCount + " nodes");
     }
 
-    public void calculatePassabilitySilent(double robotRadius) {
-        long time = System.currentTimeMillis();
-        int nodesCount = robot.getMap().calculatePassability(robotRadius);
-        System.out.println("Map generation completed in " + (System.currentTimeMillis() - time) +
-                " ms\nThere are " + nodesCount + " nodes");
-    }
+//    public void calculatePassabilitySilent(double robotRadius) {
+//        long time = System.currentTimeMillis();
+//        int nodesCount = robot.getMap().calculatePassability(robotRadius);
+//        System.out.println("Map generation completed in " + (System.currentTimeMillis() - time) +
+//                " ms\nThere are " + nodesCount + " nodes");
+//    }
 
     public void removeMap() {
         setMapImages(null);
@@ -714,7 +709,7 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
                         placeRobot(new Point((int) robot.getX(), (int) robot.getY() - 1));
                     }
                 } else if (stage == 7 && finish.getX() != -1000 && finish.getY() != -1000) {
-                    setFinish((int) finish.getX(), (int) finish.getY() - 1);
+                    setFinish(new Point((int) finish.getX(), (int) finish.getY() - 1));
                 }
                 break;
             case KeyEvent.VK_DOWN:
@@ -723,7 +718,7 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
                         placeRobot(new Point((int) robot.getX(), (int) robot.getY() + 1));
                     }
                 } else if (stage == 7 && finish.getX() != -1000 && finish.getY() != -1000) {
-                    setFinish((int) finish.getX(), (int) finish.getY() + 1);
+                    setFinish(new Point((int) finish.getX(), (int) finish.getY() + 1));
                 }
                 break;
             case KeyEvent.VK_LEFT:
@@ -732,7 +727,7 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
                         placeRobot(new Point((int) robot.getX() - 1, (int) robot.getY()));
                     }
                 } else if (stage == 7 && finish.getX() != -1000 && finish.getY() != -1000) {
-                    setFinish((int) finish.getX() - 1, (int) finish.getY());
+                    setFinish(new Point((int) finish.getX() - 1, (int) finish.getY()));
                 }
                 break;
             case KeyEvent.VK_RIGHT:
@@ -741,7 +736,7 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
                         placeRobot(new Point((int) robot.getX() + 1, (int) robot.getY()));
                     }
                 } else if (stage == 7 && finish.getX() != -1000 && finish.getY() != -1000) {
-                    setFinish((int) finish.getX() + 1, (int) finish.getY());
+                    setFinish(new Point((int) finish.getX() + 1, (int) finish.getY()));
                 }
                 break;
             default:
@@ -784,7 +779,7 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
         class MyThread extends Thread {
             private Robot robot;
 
-            public MyThread(Robot robot) {
+            private MyThread(Robot robot) {
                 this.robot = robot;
             }
 

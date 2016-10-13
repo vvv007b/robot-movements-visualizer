@@ -1,13 +1,6 @@
 package com.robot.group.paths.finding;
 
-import com.robot.group.paths.linking.PathsLinkingGui;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 
 @Deprecated
 class main_class  {

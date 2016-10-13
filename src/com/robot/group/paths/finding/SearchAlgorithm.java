@@ -8,11 +8,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 class SearchAlgorithm {
-    // �������� ������
     private List<NodeForSearch> openList;
-    // �������� ������
     private List<NodeForSearch> closeList;
-    // ��������� ����
     private List<Node> pathInNodes;
     private List<Link> pathInLinks;
 
@@ -25,8 +22,7 @@ class SearchAlgorithm {
 
 //    private List<NodeForSearch> nodes = new ArrayList<>();
 
-    // ������ ������ ���������� ����
-    public boolean searchAStar(Node n_start, Node n_finish, int robotSize, double robotRadius,
+    public boolean searchAStar(Node nodeStart, Node nodeFinish, int robotSize, double robotRadius,
                                byte[][] passabilityArray, Robot searchingRobot, Robot blockingRobot,
                                boolean findExact) {
         clean();
@@ -34,27 +30,29 @@ class SearchAlgorithm {
 //        for(Node n: nodesToPut){
 //            n.clear();
 // }
-        if (n_start != null && n_finish != null) {
-            openList.add(new NodeForSearch(n_start, n_finish, robotRadius, passabilityArray));
+        if (nodeStart != null && nodeFinish != null) {
+            openList.add(new NodeForSearch(nodeStart, nodeFinish, robotRadius, passabilityArray));
 //            for (Node n : nodes)
-//                n.calculateH(n_finish, robotRadius, passabilityArray);
+//                n.calculateH(nodeFinish, robotRadius, passabilityArray);
             NodeForSearch finishForSearch;
-            finishForSearch = iterationsAStar(n_finish, robotSize, passabilityArray, searchingRobot, blockingRobot);
+            finishForSearch = iterationsAStar(nodeFinish, robotSize, passabilityArray, searchingRobot, blockingRobot);
             if (finishForSearch != null) {
                 fillPath(finishForSearch);
                 fillPathInLinks();
                 return true;
             } else if (!findExact) {
-//                List<Link> n_finishLinks = n_finish.getLinks();
+//                List<Link> n_finishLinks = nodeFinish.getLinks();
 //                for (Link link : n_finishLinks) {
 //                    Node n = link.getChild();
-                List<Node> neighbours = searchingRobot.getMap().getNodesByChild24(n_finish);
+                List<Node> neighbours = searchingRobot.getMap().getNodesByChild24(nodeFinish);
                 for (Node n : neighbours) {
-                    if (n.getX() != n_start.getX() && n.getY() != n_start.getY() &&
-                            !Hypervisor.isPointOccupiedAsFinish(new Point2D.Double(n.getX(), n.getY()), searchingRobot)) {
+                    if (n.getX() != nodeStart.getX() && n.getY() != nodeStart.getY() &&
+                            !Hypervisor.isPointOccupiedAsFinish(new Point2D.Double(n.getX(), n.getY()),
+                                    searchingRobot)) {
                         clean();
-                        openList.add(new NodeForSearch(n_start, n, robotRadius, passabilityArray));
-                        finishForSearch = iterationsAStar(n, robotSize, passabilityArray, searchingRobot, blockingRobot);
+                        openList.add(new NodeForSearch(nodeStart, n, robotRadius, passabilityArray));
+                        finishForSearch = iterationsAStar(n, robotSize, passabilityArray,
+                                searchingRobot, blockingRobot);
                         if (finishForSearch != null) {
                             fillPath(finishForSearch);
                             fillPathInLinks();
@@ -68,21 +66,21 @@ class SearchAlgorithm {
     }
 
     // return finish
-    private NodeForSearch iterationsAStar(Node n_finish, int robotSize, byte[][] passabilityArray,
+    private NodeForSearch iterationsAStar(Node nodeFinish, int robotSize, byte[][] passabilityArray,
                                           Robot searchingRobot, Robot blockingRobot) {
         if (blockingRobot != null) {
-            if (Hypervisor.checkRobotInCoordinates(new Point((int) n_finish.getX(), (int) n_finish.getY()),
+            if (Hypervisor.checkRobotInCoordinates(new Point((int) nodeFinish.getX(), (int) nodeFinish.getY()),
                     robotSize, searchingRobot) != null) {
                 return null;
             }
         }
         while (!openList.isEmpty()) {
-            double minF = openList.get(0).getF();
+            double minF = openList.get(0).getScoreF();
             int index = 0;
 
             for (int i = 0; i < openList.size(); ++i) {
-                if (openList.get(i).getF() < minF) {
-                    minF = openList.get(i).getF();
+                if (openList.get(i).getScoreF() < minF) {
+                    minF = openList.get(i).getScoreF();
                     index = i;
                 }
 
@@ -100,55 +98,52 @@ class SearchAlgorithm {
             //synchronized (links) {
             //for(Iterator<Link> it=currentNode.getLinks().iterator(); it.hasNext();)
             for (Iterator<Link> it = links.iterator(); it.hasNext(); ) {
-                Link l = it.next();
-                NodeForSearch newNode = new NodeForSearch(l.getChild(), n_finish, robotSize, passabilityArray);
+                Link link = it.next();
+                NodeForSearch newNode = new NodeForSearch(link.getChild(), nodeFinish, robotSize, passabilityArray);
                 //if(closeList.indexOf(newNode)==-1)
                 if (!closeList.contains(newNode)) {
                     int indexOfNewNode;
-                    if ((indexOfNewNode = openList.indexOf(newNode)) == -1)
-                    //if(!openList.contains(newNode))
-                    {
-                        if (Link.isSegmentsBlocked(l.getSegments(), robotSize, passabilityArray)) {
-                            currentNode.getNode().removeLink(l);
+                    if ((indexOfNewNode = openList.indexOf(newNode)) == -1) {
+                        if (Link.isSegmentsBlocked(link.getSegments(), robotSize, passabilityArray)) {
+                            currentNode.getNode().removeLink(link);
                             it.remove();
                             continue;
                         }
                         if (blockingRobot != null && searchingRobot != null) {
-//                            if (Link.isSegmentsBlockedByRobot(l.getSegments(),
-//                                    (int) blockingRobot.getX(), (int) blockingRobot.getY(), blockingRobot.getAzimuth(),
+//                            if (Link.isSegmentsBlockedByRobot(link.getSegments(),
+//                                    (int) blockingRobot.getX(), (int) blockingRobot.getY(),
+// blockingRobot.getAzimuth(),
 //                                    robotSize, 0)) {
-                            if (Hypervisor.checkRobotsOnWay(searchingRobot, l, 0) != null) {
+                            if (Hypervisor.checkRobotsOnWay(searchingRobot, link, 0) != null) {
                                 it.remove();
                                 continue;
                             }
                         }
 
                         openList.add(newNode);
-                        newNode.setParent(currentNode, l.getLength(), l.getWeight(), l.getRadiansTotal());
-                        if (newNode.getNode() == n_finish) {
+                        newNode.setParent(currentNode, link.getLength(), link.getWeight(), link.getRadiansTotal());
+                        if (newNode.getNode() == nodeFinish) {
                             return newNode;
                         }
                     } else {
-                        if (Link.isSegmentsBlocked(l.getSegments(), robotSize, passabilityArray)) {
+                        if (Link.isSegmentsBlocked(link.getSegments(), robotSize, passabilityArray)) {
                             // deleted creation of neighborhood because I rely on makeConnectionsAround8
                             // and increasing calculation speed
-                            currentNode.getNode().removeLink(l);
+                            currentNode.getNode().removeLink(link);
                             it.remove();
                             continue;
                         }
                         if (blockingRobot != null && searchingRobot != null) {
-//                            if (Link.isSegmentsBlockedByRobot(l.getSegments(),
-//                                    (int) blockingRobot.getX(), (int) blockingRobot.getY(), blockingRobot.getAzimuth(),
-//                                    robotSize, 0)) {
-                            if (Hypervisor.checkRobotsOnWay(searchingRobot, l, 0) != null) {
+                            if (Hypervisor.checkRobotsOnWay(searchingRobot, link, 0) != null) {
                                 it.remove();
                                 continue;
                             }
                         }
 
-                        if (NodeForSearch.calculateG(l.getLength(), l.getWeight(), l.getRadiansTotal(), currentNode.getG()) < newNode.getG()) {
-                            //newNode.setParent(currentNode, l.getLength(), l.getWeight(), l.getRadiansTotal());
-                            openList.get(indexOfNewNode).setParent(currentNode, l.getLength(), l.getWeight(), l.getRadiansTotal());
+                        if (NodeForSearch.calculateG(link.getLength(), link.getWeight(),
+                                link.getRadiansTotal(), currentNode.getScoreG()) < newNode.getScoreG()) {
+                            openList.get(indexOfNewNode).setParent(currentNode, link.getLength(),
+                                    link.getWeight(), link.getRadiansTotal());
                         }
                     }
                 }
@@ -157,9 +152,7 @@ class SearchAlgorithm {
         }
         return null;
     }
-    // �������� ��������� �*
 
-    //
     private void clean() {
         openList.clear();
         closeList.clear();
@@ -171,18 +164,16 @@ class SearchAlgorithm {
         return pathInNodes;
     }
 
-    // ��������� �� ����?
     public boolean hasPath() {
         return !pathInNodes.isEmpty();
     }
 
-    // ��������� ���� �� ����-������ finish
     private void fillPath(NodeForSearch finish) {
         pathInNodes.add(0, finish.getNode());
-        NodeForSearch n = finish.getParent();
-        while (n != null) {
-            pathInNodes.add(0, n.getNode());
-            n = n.getParent();
+        NodeForSearch nodeForSearch = finish.getParent();
+        while (nodeForSearch != null) {
+            pathInNodes.add(0, nodeForSearch.getNode());
+            nodeForSearch = nodeForSearch.getParent();
         }
     }
 
@@ -216,13 +207,13 @@ class SearchAlgorithm {
 
     private static class NodeForSearch {
         private Node node;
-        private double F = 0;
-        private double H = 0;
-        private double G = 0;
+        private double scoreF = 0;           //scoreF
+        private double scoreH = 0;           //scoreH
+        private double scoreG = 0;        //G
         private NodeForSearch parent = null;
 
-        public NodeForSearch(Node n, Node finish, double robotRadius, byte[][] passabilityArray) {
-            node = n;
+        public NodeForSearch(Node node, Node finish, double robotRadius, byte[][] passabilityArray) {
+            this.node = node;
             calculateH(finish, robotRadius, passabilityArray);
         }
 
@@ -234,24 +225,25 @@ class SearchAlgorithm {
             int weight;
             if (passabilityArray == null) {
                 weight = 0;
-            }
-            else {
+            } else {
                 if (0 <= finish.getX() && finish.getX() < passabilityArray.length &&
                         0 <= finish.getY() && finish.getY() < passabilityArray[0].length) {
-                    weight = (127 - passabilityArray[(int) finish.getX()][(int) finish.getY()] + 127 - passabilityArray[(int) node.getX()][(int) node.getY()]) / 2;
+                    weight = (127 - passabilityArray[(int) finish.getX()]
+                            [(int) finish.getY()] + 127 - passabilityArray[(int) node.getX()][(int) node.getY()]) / 2;
                 } else {
                     weight = 254;
                 }
             }
-            Segment[][] s = new Segment[4][3];
+            Segment[][] segs = new Segment[4][3];
             double minLength = -1;
             double length;
             int minIndex = -1;
             for (int i = 0; i < 4; ++i) {
                 boolean isClockwise1 = (i < 2);
                 boolean isClockwise2 = (i == 1 || i == 3);
-                if ((s[i] = computeSegments(s[i], finish, isClockwise1, isClockwise2, robotRadius  /*passabilityMap,*/)) != null) {
-                    length = s[i][0].getLength() + s[i][1].getLength() + s[i][2].getLength();
+                if ((segs[i] = finish.computeSegments(segs[i], finish, isClockwise1, isClockwise2, robotRadius)) !=
+                        null) {
+                    length = segs[i][0].getLength() + segs[i][1].getLength() + segs[i][2].getLength();
                 } else {
                     length = -1;
                 }
@@ -261,112 +253,118 @@ class SearchAlgorithm {
                 }
             }
             if (minIndex == -1) {
-                H = Double.MAX_VALUE;
+                scoreH = Double.MAX_VALUE;
             }
-            if (s[minIndex] != null) {
-                H = (s[minIndex][0].getLength() + s[minIndex][1].getLength() + s[minIndex][2].getLength()) * (weight + 1);
+            if (segs[minIndex] != null) {
+                scoreH = (segs[minIndex][0].getLength() + segs[minIndex][1].getLength() +
+                        segs[minIndex][2].getLength()) * (weight + 1);
                 // turning penalty
-                H += (s[minIndex][0].getRadiansTotal() + s[minIndex][2].getRadiansTotal()) * (weight + 1);
+                scoreH += (segs[minIndex][0].getRadiansTotal() + segs[minIndex][2].getRadiansTotal()) * (weight + 1);
             }
-            F = G + H;
+            scoreF = scoreG + scoreH;
         }
 
-        private Segment[] computeSegments(Segment[] segments, Node n, boolean isClockwiseA, boolean isClockwiseB, double radius) {
-            Segment seg0 = new Segment();
-            Segment seg1 = new Segment();
-            Segment seg2 = new Segment();
-
-            seg0.setIsStraightLine(false);
-            seg0.setIsClockwise(isClockwiseA);
-            seg0.setRadius(radius);
-            seg2.setIsStraightLine(false);
-            seg2.setIsClockwise(isClockwiseB);
-            seg2.setRadius(radius);
-
-            seg0.setStartAngle(isClockwiseA ? Segment.CapRadian(node.getDirection() + Segment.halfPI) : Segment.CapRadian(node.getDirection() - Segment.halfPI));
-
-            seg0.setOriginX(node.getX() - radius * Math.cos(seg0.getStartAngle()));
-            // changed sign, because of screen coordinates
-            //seg0.setOriginY((double)coordinate.y-radius*Math.sin(seg0.getStartAngle()));
-            seg0.setOriginY(node.getY() + radius * Math.sin(seg0.getStartAngle()));
-
-            double radStopB = (isClockwiseB ? Segment.CapRadian(n.getDirection() + Segment.halfPI) : Segment.CapRadian(n.getDirection() - Segment.halfPI));
-
-            seg2.setOriginX(n.getX() - radius * Math.cos(radStopB));
-            // changed sign, because of screen coordinates
-            // seg2.setOriginY((double)n.getY()-radius*Math.sin(radStopB));
-            seg2.setOriginY(n.getY() + radius * Math.sin(radStopB));
-
-            // may be for some optimization
-            double originX0 = seg0.getOriginX();
-            double originY0 = seg0.getOriginY();
-            double originX2 = seg2.getOriginX();
-            double originY2 = seg2.getOriginY();
-            if (!(originX0 == originX2 && originY0 == originY2 && isClockwiseA == isClockwiseB)) {
-                double radStopA = Node.findTouchPoints(originX0, originY0, originX2, originY2,
-                        isClockwiseA, isClockwiseB, radius, seg1);
-                if (seg1.getLength() < 0) {
-                    return null;
-                }
-
-                seg0.setRadiansTotal(isClockwiseA ? Segment.CapRadian(seg0.getStartAngle() - radStopA)
-                        : Segment.CapRadian(radStopA - seg0.getStartAngle()));
-                seg0.setLength(seg0.getRadiansTotal() * radius);
-                seg2.setStartAngle(isClockwiseA == isClockwiseB ?
-                        radStopA : Segment.CapRadian(radStopA + Math.PI));
-                seg2.setRadiansTotal(isClockwiseB ? Segment.CapRadian(seg2.getStartAngle() - radStopB)
-                        : Segment.CapRadian(radStopB - seg2.getStartAngle()));
-                seg2.setLength(seg2.getRadiansTotal() * radius);
-
-                // Finish information on the straight line segment (length already set above)
-                seg1.setIsStraightLine(true);
-                seg1.setOriginX(originX0 + radius * Math.cos(radStopA));
-                // changed sign, because of screen coordinates
-                //seg1.setOriginY(seg0.getOriginY() + radius* Math.sin(radStopA));
-                seg1.setOriginY(originY0 - radius * Math.sin(radStopA));
-                seg1.setStartAngle(isClockwiseA ? Segment.CapRadian(radStopA - Segment.halfPI) : Segment.CapRadian(radStopA + Segment.halfPI));
-                seg1.setRadiansTotal(0);
-            } else {
-                seg0.setRadiansTotal(isClockwiseA ? Segment.CapRadian(seg0.getStartAngle() - radStopB)
-                        : Segment.CapRadian(radStopB - seg0.getStartAngle()));
-                seg0.setLength(seg0.getRadiansTotal() * radius);
-                seg2.setStartAngle(isClockwiseA == isClockwiseB ?
-                        radStopB : Segment.CapRadian(radStopB + Math.PI));
-                seg2.setRadiansTotal(0);
-                seg2.setLength(0);
-
-                // Finish information on the straight line segment (length already set above)
-                seg1.setIsStraightLine(true);
-                seg1.setOriginX(originX0 + radius * Math.cos(radStopB));
-                // changed sign, because of screen coordinates
-                //seg1.setOriginY(seg0.getOriginY() + radius* Math.sin(radStopA));
-                seg1.setOriginY(originY0 - radius * Math.sin(radStopB));
-                seg1.setStartAngle(isClockwiseA ? Segment.CapRadian(radStopB - Segment.halfPI) : Segment.CapRadian(radStopB + Segment.halfPI));
-                seg1.setRadiansTotal(0);
-                seg1.setLength(0);
-            }
-            segments[0] = seg0;
-            segments[1] = seg1;
-            segments[2] = seg2;
-            return segments;
-        }
-
-//        public double getH() {
-//            return H;
+//        private Segment[] computeSegments(Segment[] segments, Node node, boolean isClockwiseA,
+//                                          boolean isClockwiseB, double radius) {
+//            Segment seg0 = new Segment();
+//            Segment seg1 = new Segment();
+//            Segment seg2 = new Segment();
+//
+//            seg0.setIsStraightLine(false);
+//            seg0.setIsClockwise(isClockwiseA);
+//            seg0.setRadius(radius);
+//            seg2.setIsStraightLine(false);
+//            seg2.setIsClockwise(isClockwiseB);
+//            seg2.setRadius(radius);
+//
+//            seg0.setStartAngle(isClockwiseA ? Segment.capRadian(this.node.getDirection() + Segment.halfPI) :
+// Segment.capRadian(this.node.getDirection() - Segment.halfPI));
+//
+//            seg0.setOriginX(this.node.getX() - radius * Math.cos(seg0.getStartAngle()));
+//            // changed sign, because of screen coordinates
+//            //seg0.setOriginY((double)coordinate.y-radius*Math.sin(seg0.getStartAngle()));
+//            seg0.setOriginY(this.node.getY() + radius * Math.sin(seg0.getStartAngle()));
+//
+//            double radStopB = (isClockwiseB ? Segment.capRadian(node.getDirection() + Segment.halfPI) :
+// Segment.capRadian(node.getDirection() - Segment.halfPI));
+//
+//            seg2.setOriginX(node.getX() - radius * Math.cos(radStopB));
+//            // changed sign, because of screen coordinates
+//            // seg2.setOriginY((double)node.getY()-radius*Math.sin(radStopB));
+//            seg2.setOriginY(node.getY() + radius * Math.sin(radStopB));
+//
+//            // may be for some optimization
+//            double originX0 = seg0.getOriginX();
+//            double originY0 = seg0.getOriginY();
+//            double originX2 = seg2.getOriginX();
+//            double originY2 = seg2.getOriginY();
+//            if (!(originX0 == originX2 && originY0 == originY2 && isClockwiseA == isClockwiseB)) {
+//                double radStopA = Node.findTouchPoints(originX0, originY0, originX2, originY2,
+//                        isClockwiseA, isClockwiseB, radius, seg1);
+//                if (seg1.getLength() < 0) {
+//                    return null;
+//                }
+//
+//                seg0.setRadiansTotal(isClockwiseA ? Segment.capRadian(seg0.getStartAngle() - radStopA)
+//                        : Segment.capRadian(radStopA - seg0.getStartAngle()));
+//                seg0.setLength(seg0.getRadiansTotal() * radius);
+//                seg2.setStartAngle(isClockwiseA == isClockwiseB ?
+//                        radStopA : Segment.capRadian(radStopA + Math.PI));
+//                seg2.setRadiansTotal(isClockwiseB ? Segment.capRadian(seg2.getStartAngle() - radStopB)
+//                        : Segment.capRadian(radStopB - seg2.getStartAngle()));
+//                seg2.setLength(seg2.getRadiansTotal() * radius);
+//
+//                // Finish information on the straight line segment (length already set above)
+//                seg1.setIsStraightLine(true);
+//                seg1.setOriginX(originX0 + radius * Math.cos(radStopA));
+//                // changed sign, because of screen coordinates
+//                //seg1.setOriginY(seg0.getOriginY() + radius* Math.sin(radStopA));
+//                seg1.setOriginY(originY0 - radius * Math.sin(radStopA));
+//                seg1.setStartAngle(isClockwiseA ? Segment.capRadian(radStopA - Segment.halfPI) :
+// Segment.capRadian(radStopA + Segment.halfPI));
+//                seg1.setRadiansTotal(0);
+//            } else {
+//                seg0.setRadiansTotal(isClockwiseA ? Segment.capRadian(seg0.getStartAngle() - radStopB)
+//                        : Segment.capRadian(radStopB - seg0.getStartAngle()));
+//                seg0.setLength(seg0.getRadiansTotal() * radius);
+//                seg2.setStartAngle(isClockwiseA == isClockwiseB ?
+//                        radStopB : Segment.capRadian(radStopB + Math.PI));
+//                seg2.setRadiansTotal(0);
+//                seg2.setLength(0);
+//
+//                // Finish information on the straight line segment (length already set above)
+//                seg1.setIsStraightLine(true);
+//                seg1.setOriginX(originX0 + radius * Math.cos(radStopB));
+//                // changed sign, because of screen coordinates
+//                //seg1.setOriginY(seg0.getOriginY() + radius* Math.sin(radStopA));
+//                seg1.setOriginY(originY0 - radius * Math.sin(radStopB));
+//                seg1.setStartAngle(isClockwiseA ? Segment.capRadian(radStopB - Segment.halfPI) :
+// Segment.capRadian(radStopB + Segment.halfPI));
+//                seg1.setRadiansTotal(0);
+//                seg1.setLength(0);
+//            }
+//            segments[0] = seg0;
+//            segments[1] = seg1;
+//            segments[2] = seg2;
+//            return segments;
 //        }
 
-        public double getF() {
-            return F;
+//        public double getH() {
+//            return scoreH;
+//        }
+
+        public double getScoreF() {
+            return scoreF;
         }
 
-        public double getG() {
-            return G;
+        public double getScoreG() {
+            return scoreG;
         }
 
         public void setParent(NodeForSearch parent, double distanceToParent, int linkWeight, double linkRadiansTotal) {
             this.parent = parent;
-            G = calculateG(distanceToParent, linkWeight, linkRadiansTotal, parent.getG());
-            F = G + H;
+            scoreG = calculateG(distanceToParent, linkWeight, linkRadiansTotal, parent.getScoreG());
+            scoreF = scoreG + scoreH;
         }
 
         public List<Link> getLinks() {
@@ -383,7 +381,8 @@ class SearchAlgorithm {
 
         @Override
         public boolean equals(Object other) {
-            return other != null && (other == this || other instanceof NodeForSearch && (node == ((NodeForSearch) other).getNode()));
+            return other != null && (other == this || other instanceof NodeForSearch &&
+                    (node == ((NodeForSearch) other).getNode()));
         }
     }
 }

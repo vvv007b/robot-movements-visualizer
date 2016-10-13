@@ -1,6 +1,7 @@
 package com.robot.group.paths.finding;
 
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -12,37 +13,23 @@ class Robot implements Cloneable {
     private int speedDivider = 100;
     private int sleepTime = 1000 / speedDivider;
 
-    // �����
     private MapInfo map;
-    // ���������� ������
-    private double x;
-    private double y;
-    // �������� ������
+    private Point2D.Double position;
     private double speed;
 
     private long updateTime = 0;
 
     private double cachedSpeed;
-    //private boolean consistentCachedSpeedCoordinates=true;
     private Semaphore semCachedSpeedCoordinates = new Semaphore(1);
-    //private boolean consistentSpeedCoordinates=true;
-    // ������������ �������� ������
     private int maxSpeed;
-    // ����������� �������� �����
     private int minSpeed;
-    // ��������� ������
     private double acceleration;
     //
     private double deceleration = 1;
-    // ������������ ��� ����������� ��������
     private boolean maxSpeedSignal;
-    // �������� ������ ����
     private SearchAlgorithm searchPathAlgorithm;
-    // ������ ���������
     private boolean stopSignal;
-    // ������ ��������� �����
     private boolean mapChangedSignal;
-    // ��������� ��������� ��������
     private int sensorsRange = 1;
 
     //RADIANS
@@ -55,7 +42,7 @@ class Robot implements Cloneable {
     private List<Node> nodesToDelete = new ArrayList<>();
 
     private Node standing = null;
-    private Node finish = new Node(ROBOT_NOWHERE_X, ROBOT_NOWHERE_Y, 0);
+    private Node finish = new Node(new Point2D.Double(ROBOT_NOWHERE_X, ROBOT_NOWHERE_Y), 0);
 
     private Robot robotBlocking = null;
 
@@ -63,8 +50,7 @@ class Robot implements Cloneable {
 
     public Robot() {
         map = new MapInfo();
-        x = ROBOT_NOWHERE_X;
-        y = ROBOT_NOWHERE_Y;
+        position = new Point2D.Double(ROBOT_NOWHERE_X, ROBOT_NOWHERE_Y);
         speed = 0;
         cachedSpeed = speed;
         maxSpeed = 100;
@@ -82,16 +68,14 @@ class Robot implements Cloneable {
         obj.searchPathAlgorithm = new SearchAlgorithm();
         //obj.map=map.clone();
         obj.nodesToDelete = new ArrayList<>();
-        obj.finish = new Node(ROBOT_NOWHERE_X, ROBOT_NOWHERE_Y, 0);
+        obj.finish = new Node(new Point2D.Double(ROBOT_NOWHERE_X, ROBOT_NOWHERE_Y), 0);
         obj.standing = null;
         obj.robotBlocking = null;
         return obj;
     }
 
-    // �������� �������� ������ �� ����� ����
-    // ���������� ����� ��������
-    public long move(/*Node start,*/ /*Node finish*/) {
-        Node start = new Node(x, y, azimuth);
+    public long move() {
+        Node start = new Node(position, azimuth);
         if (start.getX() == ROBOT_NOWHERE_X || finish.getX() == ROBOT_NOWHERE_X) {
             stopSignal = true;
             return 0;
@@ -153,8 +137,8 @@ class Robot implements Cloneable {
 //                    }
                     //////////////////////////// DEBUG END
                 } else {
-                    if (Math.abs(x - finish.getX()) <= 2 * map.getScale() &&
-                            Math.abs(y - finish.getY()) <= 2 * map.getScale()) {
+                    if (Math.abs(position.x - finish.getX()) <= 2 * map.getScale() &&
+                            Math.abs(position.y - finish.getY()) <= 2 * map.getScale()) {
                         searchPathAlgorithm.searchAStar(standing, finish, map.getScale(),
                                 radius, map.getPassabilityArray(), this, robotBlocking, true);
                     } else {
@@ -203,7 +187,7 @@ class Robot implements Cloneable {
                 cacheSpeedCoordinates();
                 return time;
             }
-            if (!mapChangedSignal) { //���� ������������ �� �� �� ��������� ����� (��������, �� ��� ������ ����)
+            if (!mapChangedSignal) {
                 makeNodeUnderRobot();
                 cleanup(toDelete);
                 //toDelete=map.getStanding();
@@ -249,7 +233,6 @@ class Robot implements Cloneable {
         }
     }
 
-    // ������� �������� ��������� �����
     private void cleanup(Node toDelete) {
         if (toDelete != null && toDelete.getIsRobotMade()) {
             map.removeNode(toDelete);
@@ -263,7 +246,6 @@ class Robot implements Cloneable {
         nodesToDelete.clear();
     }
 
-    // ������� ������� ��������� � �������� �����������
     private void makeSmoothStop() {
         mapChangedSignal = false; // it was set, when a made "makeNodeUnderRobot"
         stopSignal = true;
@@ -272,12 +254,12 @@ class Robot implements Cloneable {
         while (speed > 0) {
             //List<Link> links=map.getStanding().getLinks();
             List<Link> links = standing.getLinks();
-            if (links != null && links.size() == 0) {
+            if (links == null || links.size() == 0) {
                 break;
             }
             //Link minLink=links.get(0);
             Link minLink = null;
-            synchronized (links) {
+            synchronized (standing.getLinks()) {
                 for (Link l : links) {
                     if (Hypervisor.checkRobotsOnWay(this, l, 0) == null) {
                         if (minLink == null) {
@@ -286,7 +268,7 @@ class Robot implements Cloneable {
                         }
                         if (minLink.getChild().getLinks().size() == 0 && l.getChild().getLinks().size() != 0) {
                             minLink = l;
-//                    } else if(l.getChild().getG()<minLink.getChild().getG()) {
+//                    } else if(l.getChild().getScoreG()<minLink.getChild().getScoreG()) {
 //                        minLink=l;
                         }
                     }
@@ -311,15 +293,13 @@ class Robot implements Cloneable {
     }
 
     // returns true when speed was changed and now its equals zero
-    // ������� �������� ������ �� ���� � ����
-    // ���������� true, ����� �������� ���� �������� � ����� ����� ����
     private boolean makeSteps(Link link, boolean isStopping) {
         if (link == null) {
             return false;
         }
         double distance = 0;
         double globalDistance = 0;
-        int i = 0;
+        int counter = 0;
         int step = map.getScale() / 5;
         int sensorCounter = 0;
         long startedTime = System.currentTimeMillis();
@@ -371,30 +351,27 @@ class Robot implements Cloneable {
             if (stopSignal && speed == 0) {
                 return true;
             }
-            Segment segment = link.getSegments()[i];
+            Segment segment = link.getSegments()[counter];
             if (distance < segment.getLength()) {
                 if (!segment.getIsStraightLine()) {
                     //determine current angle on arc (theta) by adding or
                     //subtracting (distance / r) to the starting angle
-                    /*����������� ������������ ������ ���� ������������ ����������� ������*/
 
                     double theta;
                     if (!segment.getIsClockwise()) {
-                        // ������������ ������
-                        theta = Segment.CapRadian(segment.getStartAngle() + distance / segment.getRadius());
-                        azimuth = Segment.CapRadian(theta + Math.PI / 2);
+                        theta = Segment.capRadian(segment.getStartAngle() + distance / segment.getRadius());
+                        azimuth = Segment.capRadian(theta + Math.PI / 2);
                     } else {
-                        // ������������ �������
-                        theta = Segment.CapRadian(segment.getStartAngle() - distance / segment.getRadius());
-                        azimuth = Segment.CapRadian(theta - Math.PI / 2);
+                        theta = Segment.capRadian(segment.getStartAngle() - distance / segment.getRadius());
+                        azimuth = Segment.capRadian(theta - Math.PI / 2);
                     }
-                    x = segment.getOriginX() + segment.getRadius() * Math.cos(theta);
+                    position.x = segment.getOriginX() + segment.getRadius() * Math.cos(theta);
                     // changed sign because of screen coordinates
-                    y = segment.getOriginY() - segment.getRadius() * Math.sin(theta);
+                    position.y = segment.getOriginY() - segment.getRadius() * Math.sin(theta);
                 } else {
-                    x = segment.getOriginX() + distance * Math.cos(segment.getStartAngle());
+                    position.x = segment.getOriginX() + distance * Math.cos(segment.getStartAngle());
                     // changed sign because of screen coordinates
-                    y = segment.getOriginY() - distance * Math.sin(segment.getStartAngle());
+                    position.y = segment.getOriginY() - distance * Math.sin(segment.getStartAngle());
                     azimuth = segment.getStartAngle();
                 }
                 cacheSpeedCoordinates();
@@ -409,9 +386,9 @@ class Robot implements Cloneable {
                 }
             } else {
                 distance -= segment.getLength();
-                ++i;
+                ++counter;
                 cacheSpeedCoordinates();
-                if (i >= link.getSegments().length) {
+                if (counter >= link.getSegments().length) {
                     break;
                 }
             }
@@ -421,8 +398,8 @@ class Robot implements Cloneable {
             }
         }
         if (!mapChangedSignal) {
-            x = link.getChild().getX();
-            y = link.getChild().getY();
+            position.x = link.getChild().getX();
+            position.y = link.getChild().getY();
             //map.setStanding(link.getChild());
             standing = link.getChild();
             azimuth = link.getChild().getDirection();
@@ -430,7 +407,6 @@ class Robot implements Cloneable {
         return false;
     }
 
-    // ������� �������� ��������
     private void checkSensors() {
         if (map.getRealityMap() == null) {
             checkForGrayBorderForward();
@@ -444,8 +420,8 @@ class Robot implements Cloneable {
         double yi;
         List<Point> cells = new ArrayList<>();
         for (int i = (-1) * map.getScale() / 2; i <= map.getScale() / 2; ++i) {
-            xi = x + i * cosShift - map.getScale() / 2 * cosAzimuth;
-            yi = y - i * sinShift + map.getScale() / 2 * sinAzimuth;
+            xi = position.x + i * cosShift - map.getScale() / 2 * cosAzimuth;
+            yi = position.y - i * sinShift + map.getScale() / 2 * sinAzimuth;
 
             for (int distance = 0; distance < sensorsRange; ++distance) {
                 xi += cosAzimuth;
@@ -455,18 +431,19 @@ class Robot implements Cloneable {
                     checkForGrayBorderForward();
                     return;
                 }
-                Point cellCenter = map.getCellCenterPoint((int) xi, (int) yi);
+                Point cellCenter = map.getCellCenterPoint(new Point((int) xi, (int) yi));
                 if (cellCenter != null && !cells.contains(cellCenter)) {
                     cells.add(cellCenter);
                 }
-                map.setPassabilityPoint((int) xi, (int) yi, map.getRealityWeight((int) xi, (int) yi));
+                map.setPassabilityPoint(new Point((int) xi, (int) yi),
+                        map.getRealityWeight(new Point((int) xi, (int) yi)));
             }
         }
         boolean turnOffMaxSpeed = false;
         for (Point cellCenter : cells) {
-            int oldWeight = map.getPassabilityWeight(cellCenter.x, cellCenter.y);
-            map.calculatePassabilityForCell(cellCenter.x, cellCenter.y, radius);
-            int newWeight = map.getPassabilityWeight(cellCenter.x, cellCenter.y);
+            int oldWeight = map.getPassabilityWeight(cellCenter);
+            map.calculatePassabilityForCell(cellCenter, radius);
+            int newWeight = map.getPassabilityWeight(cellCenter);
             if ((newWeight == 255 && oldWeight != 255) || (newWeight != 255 && oldWeight == 255) ||
                     Math.abs(oldWeight - newWeight) > MapColors.DIFFERENCE_BORDER) {
                 //Hypervisor.sendMapChanged=true;
@@ -483,12 +460,12 @@ class Robot implements Cloneable {
     private void checkForGrayBorderForward() {
         double sinAzimuth = Math.sin(azimuth);
         double cosAzimuth = Math.cos(azimuth);
-        double xi = x;
-        double yi = y;
+        double xi = position.x;
+        double yi = position.y;
         for (int distance = 0; distance < sensorsRange; ++distance) {
             xi += cosAzimuth;
             yi -= sinAzimuth;
-            if (map.getPassabilityWeight((int) xi, (int) yi) >= MapColors.GRAY_BORDER) {
+            if (map.getPassabilityWeight(new Point((int) xi, (int) yi)) >= MapColors.GRAY_BORDER) {
                 maxSpeedSignal = false;
                 return;
             }
@@ -517,12 +494,8 @@ class Robot implements Cloneable {
 //        mapChangedSignal = true;
 //    }
 
-    public void setX(double x) {
-        this.x = x;
-    }
-
-    public void setY(double y) {
-        this.y = y;
+    public void setPosition(Point point) {
+        this.position = new Point2D.Double(point.x, point.y);
     }
 
     public void setStopSignal(boolean signal) {
@@ -533,7 +506,6 @@ class Robot implements Cloneable {
         mapChangedSignal = signal;
     }
 
-    // ��������� �� ����?
     public boolean hasPath() {
         return searchPathAlgorithm.hasPath();
     }
@@ -542,29 +514,21 @@ class Robot implements Cloneable {
         return mapChangedSignal;
     }
 
-//    public boolean isStopSignal() {
-//        return stopSignal;
-//    }
-
     public SearchAlgorithm getSearchAlgorithm() {
         return searchPathAlgorithm;
     }
 
     public double getX() {
-        return x;
+        return position.x;
     }
 
     public double getY() {
-        return y;
+        return position.y;
     }
 
     public double getSpeed() {
         return speed;
     }
-
-//    public void setSpeed(double speed) {
-//        this.speed = speed;
-//    }
 
     public MapInfo getMap() {
         return map;
@@ -574,10 +538,6 @@ class Robot implements Cloneable {
         this.sensorsRange = sensorsRange;
     }
 
-//    public int getSensorsRange() {
-//        return sensorsRange;
-//    }
-
     public void setMinSpeed(int minSpeed) {
         this.minSpeed = minSpeed;
     }
@@ -586,7 +546,6 @@ class Robot implements Cloneable {
         this.maxSpeed = maxSpeed;
     }
 
-    // ������� ��������� ��������
     private void changeSpeed() {
         if (stopSignal || internalStopSignal) {
             if (speed > 0) {
@@ -624,27 +583,23 @@ class Robot implements Cloneable {
         }
     }
 
-    // ������� �������� ���� ��� �������
     private boolean makeNodeUnderRobot() {
-        Node n = new Node(x, y, azimuth);
-        if (Link.getPointWeight(new Point((int) x, (int) y), azimuth, map.getScale(),
+        Node node = new Node(position, azimuth);
+        if (Link.getPointWeight(new Point((int) position.x, (int) position.y), azimuth, map.getScale(),
                 map.getPassabilityArray()) == 255) {
-            //map.setStanding(null);
             standing = null;
             return false;
         }
-        n.setIsRobotMade(true);
-        map.addNode(n);
+        node.setIsRobotMade(true);
+        map.addNode(node);
         mapChangedSignal = true;
-        map.addLinksAroundCell24(n, radius, true);
-        //map.setStanding(n);
-        standing = n;
+        map.addLinksAroundCell24(node, radius, true);
+        standing = node;
         return true;
     }
 
     private int getIndexOfStanding() {
         for (int i = 0; i < searchPathAlgorithm.getPath().size(); ++i) {
-            //if(searchPathAlgorithm.getPath().get(i)==map.getStanding()) {
             if (searchPathAlgorithm.getPath().get(i) == standing) {
                 return i;
             }
@@ -682,7 +637,6 @@ class Robot implements Cloneable {
         return summary - passed;
     }
 
-    // ������� �������� ����� ������ ���������� �� ������
     private void checkForStop(double additionalDistance) {
         if (!stopSignal && !internalStopSignal) {
             // path calculating not from start to current point, but from current point to finish
@@ -724,13 +678,12 @@ class Robot implements Cloneable {
         this.standing = standing;
     }
 
-    //public void addRobot(Robot r) {robots.add(r);}
     public Node getFinish() {
         return finish;
     }
 
-    public void setFinish(Node n) {
-        finish = n;
+    public void setFinish(Node node) {
+        finish = node;
         mapChangedSignal = true;
     }
 
@@ -743,39 +696,17 @@ class Robot implements Cloneable {
         }
     }
 
-    // blocking operation!
-//    public void setConsistentCachedSpeedCoordinates(boolean consistentCachedSpeedCoordinates) {
-//        if(consistentCachedSpeedCoordinates==false)
-//            while (!consistentCachedSpeedCoordinates){}
-//        this.consistentCachedSpeedCoordinates = consistentCachedSpeedCoordinates;
-//    }
-    // blocking operation!
     private void cacheSpeedCoordinates() {
-//        while(!consistentCachedSpeedCoordinates){}
-//        consistentCachedSpeedCoordinates=false;
         try {
             semCachedSpeedCoordinates.acquire();
             cachedSpeed = speed;
-            //consistentCachedSpeedCoordinates=true;
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         semCachedSpeedCoordinates.release();
     }
 
-    // blocking operation!
-//    public double getCachedX() {
-//        while (!consistentCachedSpeedCoordinates){}
-//        return cachedX;
-//    }
-//    // blocking operation!
-//    public double getCachedY() {
-//        while (!consistentCachedSpeedCoordinates){}
-//        return cachedY;
-//    }
-    // blocking operation!
     public double getCachedSpeed() {
-        //while (!consistentCachedSpeedCoordinates){}
         double result = -1;
         try {
             semCachedSpeedCoordinates.acquire();
@@ -785,23 +716,15 @@ class Robot implements Cloneable {
             e.printStackTrace();
         }
 
-        //return cachedSpeed;
         return result;
     }
 
-//    private String status = "";
-
     public double[] getCachedCoordinates() {
-//        status = "before";
-//        while (!consistentCachedSpeedCoordinates) {}
-//        status = "after";
-//        consistentCachedSpeedCoordinates=false;
         double[] result = new double[2];
         try {
             semCachedSpeedCoordinates.acquire();
-            result[0] = x;
-            result[1] = y;
-            //consistentCachedSpeedCoordinates=true;
+            result[0] = position.x;
+            result[1] = position.y;
             semCachedSpeedCoordinates.release();
         } catch (InterruptedException e) {
             e.printStackTrace();

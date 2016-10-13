@@ -13,7 +13,7 @@ import javax.swing.WindowConstants;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class LauncherGui extends JFrame {
+class LauncherGui extends JFrame {
     private JPanel rootPanel;
     private JButton pathsFindingButton;
     private JButton pathsLinkingButton;

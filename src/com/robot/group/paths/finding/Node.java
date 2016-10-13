@@ -1,6 +1,7 @@
 package com.robot.group.paths.finding;
 
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -9,8 +10,7 @@ class Node {
     // список соседей узла
     private final List<Link> links = new ArrayList<>();
     // координата узла
-    private double x;
-    private double y;
+    private Point2D.Double position;
     // коэффициенты для алгоритма поиска пути
     //private double F, H, G;
     // родитель узла (для построения найденного пути)
@@ -20,9 +20,8 @@ class Node {
     // RADIANS
     private double direction = 0;
 
-    public Node(double x, double y, double direction) {
-        this.x = x;
-        this.y = y;
+    public Node(Point2D.Double point, double direction) {
+        this.position = point;
         this.direction = direction;
 //        F=0;
 //        H=0;
@@ -31,34 +30,36 @@ class Node {
         isRobotMade = false;
     }
 
-    public static double findTouchPoints(double originXA, double originYA, double originXB, double originYB,
-                                         boolean isClockwiseA, boolean isClockwiseB, double radius, Segment line) {
-        double dx = originXB - originXA;
+    private static double findTouchPoints(double originXa, double originYa, double originXb, double originYb,
+                                          boolean isClockwiseA, boolean isClockwiseB, double radius, Segment line) {
+        double dx = originXb - originXa;
         //     changed sign, because of screen coordinates
-        // double dy=originYB-originYA;
-        double dy = originYA - originYB;
-        double angleOrigin, angleFinal;
+        // double dy=originYb-originYa;
+        double dy = originYa - originYb;
+        double angleOrigin;
+        double angleFinal;
 
         angleOrigin = Math.atan2(dy, dx);
 
         line.setLength(Math.sqrt(dx * dx + dy * dy));
 
         if (isClockwiseA == isClockwiseB) {
-            if (isClockwiseA)
-                return Segment.CapRadian(angleOrigin + Segment.halfPI);
-            else
-                return Segment.CapRadian(angleOrigin - Segment.halfPI);
+            if (isClockwiseA) {
+                return Segment.capRadian(angleOrigin + Segment.halfPI);
+            } else {
+                return Segment.capRadian(angleOrigin - Segment.halfPI);
+            }
         } else if (Math.abs(2 * radius / line.getLength()) <= 1) {
             double angleRight = Math.acos(2 * radius / line.getLength());
-            angleFinal = Segment.CapRadian(isClockwiseA ? angleOrigin + angleRight : angleOrigin - angleRight);
-            double xNew = originXA + 2 * radius * Math.cos(angleFinal);
+            angleFinal = Segment.capRadian(isClockwiseA ? angleOrigin + angleRight : angleOrigin - angleRight);
+            double newX = originXa + 2 * radius * Math.cos(angleFinal);
             //     changed sign, because of screen coordinates
-            //double yNew=originYA+2*radius*Math.sin(angleFinal);
-            double yNew = originYA - 2 * radius * Math.sin(angleFinal);
-            dx = originXB - xNew;
+            //double newY=originYa+2*radius*Math.sin(angleFinal);
+            double newY = originYa - 2 * radius * Math.sin(angleFinal);
+            dx = originXb - newX;
             //     changed sign, because of screen coordinates
-            // dy=originYB-yNew;
-            dy = yNew - originYB;
+            // dy=originYb-newY;
+            dy = newY - originYb;
             line.setLength(Math.sqrt(dx * dx + dy * dy));
 
             return angleFinal;
@@ -68,24 +69,29 @@ class Node {
         }
     }
 
-    // возвращает true, когда узел n является соседом данного узла
-    public boolean isNeighbor(Node n) {
+    // возвращает true, когда узел node является соседом данного узла
+    public boolean isNeighbor(Node node) {
         synchronized (links) {
             for (Link l : links) {
-                if (l.getChild() == n)
+                if (l.getChild() == node) {
                     return true;
+                }
             }
         }
         return false;
     }
 
-    public boolean addNeighbor(Node n, double radius, int robotSize, byte[][] passabilityArray) {
-        if (isNeighbor(n) || this == n)
+    public boolean addNeighbor(Node node, double radius, int robotSize, byte[][] passabilityArray) {
+        if (isNeighbor(node) || this == node) {
             return false;
-        Segment s[][] = new Segment[4][3], s2[], sMin[] = null;
-        double minLength = -1, length = -1;
+        }
+        Segment[][] segments = new Segment[4][3];
+        Segment[] s2;
+        Segment[] minS = null;
+        double minLength = -1;
+        double length = -1;
         for (int i = 0; i < 4; ++i) {
-            if ((s2 = computeSegments(s[i], n, (i < 2), (i == 1 || i == 3), radius)) != null) {
+            if ((s2 = computeSegments(segments[i], node, (i < 2), (i == 1 || i == 3), radius)) != null) {
                 if (Link.isSegmentsBlocked(s2, robotSize, passabilityArray)) {
                     s2 = null;
                 } else {
@@ -96,40 +102,47 @@ class Node {
                 length = -1;
             }
             if (length != -1 && length != 0 && (minLength == -1 || minLength > length)) {
-                sMin = s2;
+                minS = s2;
                 minLength = length;
             }
         }
-        if (sMin == null) return false;
+        if (minS == null) {
+            return false;
+        }
         synchronized (links) {
-            links.add(new Link(n, sMin));
+            links.add(new Link(node, minS));
         }
         return true;
     }
 
-    private Segment[] computeSegments(Segment[] segments, Node n, boolean isClockwiseA, boolean isClockwiseB, double radius) {
-        Segment seg0 = new Segment(), seg1 = new Segment(), seg2 = new Segment();
-
+    public Segment[] computeSegments(Segment[] segments, Node node,
+                                      boolean isClockwiseA, boolean isClockwiseB, double radius) {
+        Segment seg0 = new Segment();
         seg0.setIsStraightLine(false);
         seg0.setIsClockwise(isClockwiseA);
         seg0.setRadius(radius);
+
+        Segment seg1 = new Segment();
+        Segment seg2 = new Segment();
         seg2.setIsStraightLine(false);
         seg2.setIsClockwise(isClockwiseB);
         seg2.setRadius(radius);
 
-        seg0.setStartAngle(isClockwiseA ? Segment.CapRadian(direction + Segment.halfPI) : Segment.CapRadian(direction - Segment.halfPI));
+        seg0.setStartAngle(isClockwiseA ? Segment.capRadian(direction + Segment.halfPI) :
+                Segment.capRadian(direction - Segment.halfPI));
 
-        seg0.setOriginX(x - radius * Math.cos(seg0.getStartAngle()));
+        seg0.setOriginX(position.x - radius * Math.cos(seg0.getStartAngle()));
         // changed sign, because of screen coordinates
         //seg0.setOriginY((double)coordinate.y-radius*Math.sin(seg0.getStartAngle()));
-        seg0.setOriginY(y + radius * Math.sin(seg0.getStartAngle()));
+        seg0.setOriginY(position.y + radius * Math.sin(seg0.getStartAngle()));
 
-        double radStopB = (isClockwiseB ? Segment.CapRadian(n.direction + Segment.halfPI) : Segment.CapRadian(n.direction - Segment.halfPI));
+        double radStopB = (isClockwiseB ? Segment.capRadian(node.direction + Segment.halfPI) :
+                Segment.capRadian(node.direction - Segment.halfPI));
 
-        seg2.setOriginX(n.getX() - radius * Math.cos(radStopB));
+        seg2.setOriginX(node.getX() - radius * Math.cos(radStopB));
         // changed sign, because of screen coordinates
-        // seg2.setOriginY((double)n.getY()-radius*Math.sin(radStopB));
-        seg2.setOriginY(n.getY() + radius * Math.sin(radStopB));
+        // seg2.setOriginY((double)node.getY()-radius*Math.sin(radStopB));
+        seg2.setOriginY(node.getY() + radius * Math.sin(radStopB));
 
         // may be for some optimization
         double originX0 = seg0.getOriginX();
@@ -143,13 +156,13 @@ class Node {
                 return null;
             }
 
-            seg0.setRadiansTotal(isClockwiseA ? Segment.CapRadian(seg0.getStartAngle() - radStopA)
-                    : Segment.CapRadian(radStopA - seg0.getStartAngle()));
+            seg0.setRadiansTotal(isClockwiseA ? Segment.capRadian(seg0.getStartAngle() - radStopA)
+                    : Segment.capRadian(radStopA - seg0.getStartAngle()));
             seg0.setLength(seg0.getRadiansTotal() * radius);
             seg2.setStartAngle(isClockwiseA == isClockwiseB ?
-                    radStopA : Segment.CapRadian(radStopA + Math.PI));
-            seg2.setRadiansTotal(isClockwiseB ? Segment.CapRadian(seg2.getStartAngle() - radStopB)
-                    : Segment.CapRadian(radStopB - seg2.getStartAngle()));
+                    radStopA : Segment.capRadian(radStopA + Math.PI));
+            seg2.setRadiansTotal(isClockwiseB ? Segment.capRadian(seg2.getStartAngle() - radStopB)
+                    : Segment.capRadian(radStopB - seg2.getStartAngle()));
             seg2.setLength(seg2.getRadiansTotal() * radius);
 
             // Finish information on the straight line segment (length already set above)
@@ -158,14 +171,14 @@ class Node {
             // changed sign, because of screen coordinates
             //seg1.setOriginY(seg0.getOriginY() + radius* Math.sin(radStopA));
             seg1.setOriginY(originY0 - radius * Math.sin(radStopA));
-            seg1.setStartAngle(isClockwiseA ? Segment.CapRadian(radStopA - Segment.halfPI) : Segment.CapRadian(radStopA + Segment.halfPI));
+            seg1.setStartAngle(isClockwiseA ? Segment.capRadian(radStopA - Segment.halfPI) :
+                    Segment.capRadian(radStopA + Segment.halfPI));
             seg1.setRadiansTotal(0);
         } else {
-            seg0.setRadiansTotal(isClockwiseA ? Segment.CapRadian(seg0.getStartAngle() - radStopB)
-                    : Segment.CapRadian(radStopB - seg0.getStartAngle()));
+            seg0.setRadiansTotal(isClockwiseA ? Segment.capRadian(seg0.getStartAngle() - radStopB)
+                    : Segment.capRadian(radStopB - seg0.getStartAngle()));
             seg0.setLength(seg0.getRadiansTotal() * radius);
-            seg2.setStartAngle(isClockwiseA == isClockwiseB ?
-                    radStopB : Segment.CapRadian(radStopB + Math.PI));
+            seg2.setStartAngle(radStopB);
             seg2.setRadiansTotal(0);
             seg2.setLength(0);
 
@@ -175,7 +188,8 @@ class Node {
             // changed sign, because of screen coordinates
             //seg1.setOriginY(seg0.getOriginY() + radius* Math.sin(radStopA));
             seg1.setOriginY(originY0 - radius * Math.sin(radStopB));
-            seg1.setStartAngle(isClockwiseA ? Segment.CapRadian(radStopB - Segment.halfPI) : Segment.CapRadian(radStopB + Segment.halfPI));
+            seg1.setStartAngle(isClockwiseA ? Segment.capRadian(radStopB - Segment.halfPI) :
+                    Segment.capRadian(radStopB + Segment.halfPI));
             seg1.setRadiansTotal(0);
             seg1.setLength(0);
         }
@@ -186,25 +200,29 @@ class Node {
     }
 
     public double getX() {
-        return x;
+        return position.x;
     }
-
-    public void setX(double x) {
-        this.x = x;
-    }
+//
+//    public void setX(double x) {
+//        this.x = x;
+//    }
 
     public double getY() {
-        return y;
+        return position.y;
     }
 
-    public void setY(double y) {
-        this.y = y;
+//    public void setY(double y) {
+//        this.y = y;
+//    }
+
+    public void setPosition(Point2D.Double position) {
+        this.position = position;
     }
 
     //    public void setG(double G) {this.G=G; F=G+H;}
-//    public double getF() {return F;}
+//    public double getScoreF() {return F;}
 //    public double getH() {return H;}
-//    public double getG() {return G;}
+//    public double getScoreG() {return G;}
 //    public void calculateH(Node n, double robotRadius, byte[][] passabilityArray) {
 //        int weight;
 //        if(passabilityArray==null)
@@ -224,7 +242,8 @@ class Node {
 //        {
 //            boolean isClockwise1=(i<2);
 //            boolean isClockwise2=(i==1 || i==3);
-//            if((s[i]=computeSegments(s[i], n, isClockwise1, isClockwise2, robotRadius, -1, /*passabilityMap,*/ passabilityArray))!=null) {
+//            if((s[i]=computeSegments(s[i], n, isClockwise1, isClockwise2,
+// robotRadius, -1, /*passabilityMap,*/ passabilityArray))!=null) {
 //                length=s[i][0].getLength()+s[i][1].getLength()+s[i][2].getLength();
 //            } else {
 //                length=-1;
@@ -249,7 +268,7 @@ class Node {
 //    }
 //    public void setParent(Node parent, double distanceToParent, int linkWeight, double linkRadiansTotal) {
 //        this.parent=parent;
-//        G=calculateG(distanceToParent, linkWeight, linkRadiansTotal, parent.getG());
+//        G=calculateG(distanceToParent, linkWeight, linkRadiansTotal, parent.getScoreG());
 //        F=G+H;
 //    }
 //    public Node getParent()
@@ -260,11 +279,11 @@ class Node {
         return links;
     }
 
-    public boolean removeNeighbor(Node n) {
+    public boolean removeNeighbor(Node node) {
         synchronized (links) {
             for (Iterator<Link> it = links.iterator(); it.hasNext(); ) {
-                Link l = it.next();
-                if (l.getChild() == n) {
+                Link link = it.next();
+                if (link.getChild() == node) {
                     it.remove();
                 }
             }
@@ -297,15 +316,17 @@ class Node {
 
     public Link getLinkByChild(Node child) {
         synchronized (links) {
-            for (Link l : links)
-                if (l.getChild() == child)
+            for (Link l : links) {
+                if (l.getChild() == child) {
                     return l;
+                }
+            }
         }
         return null;
     }
 
     public Point getPoint() {
-        return new Point((int) x, (int) y);
+        return new Point((int) position.x, (int) position.y);
     }
 
     public void removeLink(Link link) {

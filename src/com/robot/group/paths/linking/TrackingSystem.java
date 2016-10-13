@@ -19,7 +19,8 @@ class TrackingSystem {
         ArrayList<InOutVector> outVectors = new ArrayList<>();
         for (Camera camera : TrackingSystem.getCameraList()) {
             camera.getTracker().finishAllTrajectories();
-            camera.getTracker().getTrajectories().stream().filter(robotTrajectory -> robotTrajectory.getPoints().size() >= 2).forEach(robotTrajectory -> {
+            camera.getTracker().getTrajectories().stream().filter(robotTrajectory ->
+                    robotTrajectory.getPoints().size() >= 2).forEach(robotTrajectory -> {
                 int direction = robotTrajectory.getDirection();
                 if (robotTrajectory.getPoints().size() >= 3) {
                     InOutVector inVector = new InOutVector(robotTrajectory, InOutVector.IN);
@@ -55,10 +56,12 @@ class TrackingSystem {
         for (InOutVector outVector : outVectors) {
             inVectors.stream().filter(inVector -> outVector.isPotentialFollowerTo(inVector) &
                     !inVector.getRobotTrajectory().equals(outVector.getRobotTrajectory())).forEach(inVector -> {
-                if (inVector.getRobotTrajectory().getConnectedTrajectories().indexOf(outVector.getRobotTrajectory()) == -1) {
+                if (inVector.getRobotTrajectory().getConnectedTrajectories().indexOf(outVector.getRobotTrajectory()) ==
+                        -1) {
                     inVector.getRobotTrajectory().getConnectedTrajectories().add(outVector.getRobotTrajectory());
                 }
-                if (outVector.getRobotTrajectory().getConnectedTrajectories().indexOf(inVector.getRobotTrajectory()) == -1) {
+                if (outVector.getRobotTrajectory().getConnectedTrajectories().indexOf(inVector.getRobotTrajectory()) ==
+                        -1) {
                     outVector.getRobotTrajectory().getConnectedTrajectories().add(inVector.getRobotTrajectory());
                 }
                 inVector.getPrev().add(outVector);

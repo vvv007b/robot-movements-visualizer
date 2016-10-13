@@ -107,30 +107,30 @@ class Link {
         robotSize /= 2;
         int dx = robotSize - 2;
         int dy = dx - robotSize / 3;
-        int[] x = {dx, -dx, -dx, dx, 0, 0};
-        int[] y = {dy, dy, -dy, -dy, -dy, dy};
+        int[] arrayX = {dx, -dx, -dx, dx, 0, 0};
+        int[] arrayY = {dy, dy, -dy, -dy, -dy, dy};
         int weight = 0;
-        int h = passabilityArray[0].length;
+        int length = passabilityArray[0].length;
         double cos = Math.cos(azimuth);
         double sin = Math.sin(azimuth);
 
         // rotating and checking
         for (int i = 0; i < 6; ++i) {
-            dx = x[i];
-            dy = y[i];
+            dx = arrayX[i];
+            dy = arrayY[i];
             int xi = center.x + (int) (cos * dx + sin * dy);
             int yi = center.y + (int) (cos * dy - sin * dx);
 
             if ((xi | yi) < 0) {
                 return 255;
             }
-            if (xi < passabilityArray.length && yi < h) {
+            if (xi < passabilityArray.length && yi < length) {
                 int add = passabilityArray[xi][yi];
                 if (add == -128) {
                     return 255; // point is blocked
                 }
                 weight += 127 - add;
-            } else if (xi <= passabilityArray.length + robotSize && yi <= h + robotSize) {
+            } else if (xi <= passabilityArray.length + robotSize && yi <= length + robotSize) {
                 weight += 254;
             } else {
                 return 255;

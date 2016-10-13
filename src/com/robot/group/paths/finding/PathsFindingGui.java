@@ -20,6 +20,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -81,7 +82,7 @@ public class PathsFindingGui extends JFrame implements ChangeListener {
     private JButton startTimeButton;
     private JRadioButton rainRadioButton;
     private JRadioButton dryRadioButton;
-    private JButton stopTimeButton;
+    private JRadioButton normalRadioButton;
     private Surface surface;
 
     private JFileChooser fileChooser;
@@ -114,6 +115,8 @@ public class PathsFindingGui extends JFrame implements ChangeListener {
         surfaceScrollPane.getHorizontalScrollBar().setUnitIncrement(10);
         controlScrollPane.getVerticalScrollBar().setUnitIncrement(10);
         controlScrollPane.getHorizontalScrollBar().setUnitIncrement(10);
+        timeScrollPane.getVerticalScrollBar().setUnitIncrement(10);
+        timeScrollPane.getHorizontalScrollBar().setUnitIncrement(10);
 
 
 
@@ -132,7 +135,7 @@ public class PathsFindingGui extends JFrame implements ChangeListener {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setTitle("Robot");
-        setSize(1201, 720);
+        setSize(1221, 720);
 //        setVisible(true);
 
         createMyComponents();
@@ -266,8 +269,7 @@ public class PathsFindingGui extends JFrame implements ChangeListener {
         addRobotButton.addActionListener(e -> {
             try {
                 Robot robot = surface.getRobot().clone();
-                robot.setX(Robot.ROBOT_NOWHERE_X);
-                robot.setY(Robot.ROBOT_NOWHERE_Y);
+                robot.setPosition(new Point(Robot.ROBOT_NOWHERE_X, Robot.ROBOT_NOWHERE_Y));
                 surface.addRobot(robot);
             } catch (CloneNotSupportedException e1) {
                 e1.printStackTrace();
@@ -293,6 +295,25 @@ public class PathsFindingGui extends JFrame implements ChangeListener {
                 surface.stopRobots();
             }
         });
+
+        startTimeButton.addActionListener(e -> {
+            if (GlobalTime.isTimeRuns()) {
+                GlobalTime.setTimeRuns(false);
+                startTimeButton.setText("Запустить время");
+            } else {
+                GlobalTime.setTimeRuns(true);
+                startTimeButton.setText("Остановить время");
+            }
+        });
+
+        ButtonGroup weatherButtonGroup = new ButtonGroup();
+        weatherButtonGroup.add(rainRadioButton);
+        weatherButtonGroup.add(dryRadioButton);
+        weatherButtonGroup.add(normalRadioButton);
+
+        rainRadioButton.addActionListener(e -> GlobalTime.setWeather(GlobalTime.RAIN_WEATHER));
+        dryRadioButton.addActionListener(e -> GlobalTime.setWeather(GlobalTime.DRY_WEATHER));
+        normalRadioButton.addActionListener(e -> GlobalTime.setWeather(GlobalTime.NORMAL_WEATHER));
 
         makeExcessInvisible();
 
