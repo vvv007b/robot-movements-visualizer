@@ -21,8 +21,11 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyListener {
+
+    private static final Logger log = Logger.getLogger(Surface.class.getName());
     public static final int STAGE_PLACE_ROBOT = 6;
     public static final int STAGE_SET_FINISH = 7;
     public static final int STAGE_SET_RECT_WEIGHT = 8;
@@ -72,7 +75,6 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
         screen = null;
         System.out.println("Surface created");
         Hypervisor hypervisor = new Hypervisor(robots);
-        System.out.println(hypervisor.toString()); //i hate warnings
 
         GlobalTime globalTime = new GlobalTime(this);
         globalTime.start();
@@ -775,6 +777,7 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
     }
 
     public void runRobots() {
+        long startTime = System.nanoTime();
         robotsRunning = true;
         class MyThread extends Thread {
             private Robot robot;
@@ -784,12 +787,9 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
             }
 
             public void run() {
-                robot.move(/*
-                new Node(robot.getX(), robot.getY(), robot.getAzimuth()),*/
-                /*new Node(finish.getX(), finish.getY(), finish.getDirection())*/);
+                robot.move();
             }
         }
-        //Hypervisor hypervisor=new Hypervisor(robots);
 
         try {
             int size = robots.size();
@@ -806,14 +806,14 @@ class Surface extends JPanel implements MouseListener, MouseMotionListener, KeyL
                 threads[i].join();
             }
             Hypervisor.stopLog();
-
         } catch (InterruptedException ex) {
             ex.printStackTrace();
         }
 
-
         robotsRunning = false;
-        JOptionPane.showMessageDialog(this, "All robots have stopped");
+//        System.out.println();
+        JOptionPane.showMessageDialog(this, "All robots have stopped. " +
+                "Path finding time(ms): " + (System.nanoTime() - startTime) / 1_000_000);
     }
 
     public boolean selectRobot(int index) {

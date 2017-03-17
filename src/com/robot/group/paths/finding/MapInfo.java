@@ -458,13 +458,17 @@ class MapInfo implements Cloneable {
     public void setRealityMap(BufferedImage realityMap) {
         synchronized (realityMapLock) {
             this.realityMap = realityMap;
-            realityArray = new byte[realityMap.getWidth()][realityMap.getHeight()];
-            for (int x = 0; x < realityMap.getWidth(); ++x) {
-                for (int y = 0; y < realityMap.getHeight(); ++y) {
-                    if (Objects.equals(new Color(realityMap.getRGB(x, y)), MapColors.PUDDLE_COLOR)) {
-                        realityArray[x][y] = 127;
-                    } else {
-                        realityArray[x][y] = (byte) ((realityMap.getRGB(x, y) & 0xFF) - 128);
+            if (realityMap != null) {
+                realityArray = new byte[realityMap.getWidth()][realityMap.getHeight()];
+                for (int x = 0; x < realityMap.getWidth(); ++x) {
+                    for (int y = 0; y < realityMap.getHeight(); ++y) {
+                        Color color = new Color(realityMap.getRGB(x, y));
+                        if (mapColors.isColorsSimilar(MapColors.PUDDLE_COLOR, color)) {
+                            realityArray[x][y] = -127;
+                        } else {
+//                        System.out.println( (byte) ((realityMap.getRGB(x, y) & 0xFF) - 128));
+                            realityArray[x][y] = (byte) ((realityMap.getRGB(x, y) & 0xFF) - 128);
+                        }
                     }
                 }
             }
@@ -502,9 +506,12 @@ class MapInfo implements Cloneable {
             return 255;
         }
         int weight = 127;
-        synchronized (getRealityArray()) {
+        synchronized (realityMapLock) {         //lock should be at start of this method
             weight -= realityArray[point.x][point.y];
         }
+//        if (weight == 0) {
+//            System.out.println(0);
+//        }
         return weight;
     }
 

@@ -36,7 +36,6 @@ public class PathsFindingGui extends JFrame implements ChangeListener {
     private JSlider finishDirectionSlider;
     private JRadioButton setRectRadioButton;
     private JSlider rectWeightSlider;
-    private JButton goButton;
     private JButton loadMapButton;
     private JButton loadRealityButton;
     private JSlider robotSizeSlider;
@@ -101,7 +100,7 @@ public class PathsFindingGui extends JFrame implements ChangeListener {
         fileChooser = new JFileChooser();
         fileChooser.setAcceptAllFileFilterUsed(false);
         fileChooser.setFileFilter(new FileNameExtensionFilter("Image file (bmp, png, gif)", "bmp", "png", "gif"));
-        fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+        fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir") + File.separator + "Maps"));
 
         setEnabledOther(false);
         setEnabledOperations(false);
@@ -134,9 +133,11 @@ public class PathsFindingGui extends JFrame implements ChangeListener {
         pack();
         setLocationRelativeTo(null);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Robot");
+        setTitle("Path Finding");
         setSize(1221, 720);
 //        setVisible(true);
+//        timeScrollPane.setVisible(false);
+
 
         createMyComponents();
     }
@@ -152,13 +153,6 @@ public class PathsFindingGui extends JFrame implements ChangeListener {
     }
 
     private void createMyComponents() {
-        goButton.addActionListener(e -> {
-            if (!Objects.equals(goButton.getText(), "Стоп")) {
-                runRobot();
-            } else {
-                surface.stopRobots();
-            }
-        });
         loadMapButton.addActionListener(e -> {
             int returnValue = fileChooser.showOpenDialog(null);
             if (returnValue == JFileChooser.APPROVE_OPTION) {
@@ -223,7 +217,6 @@ public class PathsFindingGui extends JFrame implements ChangeListener {
 
             aboutPassabilityLabel.setText("Нажмите \"Загрузить карту\"");
             aboutPassabilityLabel.setForeground(Color.RED);
-            goButton.setEnabled(false);
             goAllButton.setEnabled(false);
             setEnabledOther(false);
             setEnabledOperations(false);
@@ -234,7 +227,6 @@ public class PathsFindingGui extends JFrame implements ChangeListener {
             aboutPassabilityLabel.setText("Нажмите \"Расчитать проходимость\"");
             aboutPassabilityLabel.setForeground(Color.RED);
             setEnabledOperations(false);
-            goButton.setEnabled(false);
             goAllButton.setEnabled(false);
             removePassabilityButton.setEnabled(false);
         });
@@ -247,7 +239,6 @@ public class PathsFindingGui extends JFrame implements ChangeListener {
             aboutPassabilityLabel.setText("Проходимость расчитана");
             aboutPassabilityLabel.setForeground(Color.GREEN);
             setEnabledOperations(true);
-            goButton.setEnabled(true);
             goAllButton.setEnabled(true);
             removePassabilityButton.setEnabled(true);
         });
@@ -389,7 +380,6 @@ public class PathsFindingGui extends JFrame implements ChangeListener {
             aboutPassabilityLabel.setText("Нажмите \"Расчитать проходимость\"");
             aboutPassabilityLabel.setForeground(Color.RED);
             setEnabledOperations(false);
-            goButton.setEnabled(false);
             goAllButton.setEnabled(false);
 
         } else if (source == robotRadiusSlider) {
@@ -399,7 +389,6 @@ public class PathsFindingGui extends JFrame implements ChangeListener {
             aboutPassabilityLabel.setText("Нажмите \"Расчитать проходимость\"");
             aboutPassabilityLabel.setForeground(Color.RED);
             setEnabledOperations(false);
-            goButton.setEnabled(false);
             goAllButton.setEnabled(false);
         } else if (source == robotSensorsRangeSlider) {
             surface.setRobotsSensorsRange(robotSensorsRangeSlider.getValue());
@@ -440,70 +429,6 @@ public class PathsFindingGui extends JFrame implements ChangeListener {
 //            finishCoordsLabel.setText("Координаты финиша: ?, ?");
 //    }
 
-    private void runRobot() {
-        final Thread t = new Thread() {
-            public void run() {
-                surface.runRobot();
-            }
-        };
-        final Thread t_draw = new Thread() {
-            public void run() {
-                robotAzimuthSlider.setEnabled(false);
-                goButton.setText("Стоп");
-                loadMapButton.setEnabled(false);
-                loadRealityButton.setEnabled(false);
-                robotSizeSlider.setEnabled(false);
-                robotRadiusSlider.setEnabled(false);
-                robotDecelerationSlider.setEnabled(false);
-                calculatePassabilityButton.setEnabled(false);
-                refreshGraphButton.setEnabled(false);
-                removeMapButton.setEnabled(false);
-                removePassabilityButton.setEnabled(false);
-                removeRealityButton.setEnabled(false);
-                loggingCheckBox.setEnabled(false);
-
-                while (t.isAlive()) {
-                    if (!disableDrawingCheckBox.isSelected()) {
-                        try {
-                            Thread.sleep(25);        //40 fps
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        robotCurrentSpeedLabel.setText("Текущая скорость: " +
-                                Integer.toString((int) surface.getRobotSpeed()));
-                        robotCoordsLabel.setText("Координаты робота: " +
-                                Integer.toString((int) surface.getRobot().getX()) + ", " +
-                                Integer.toString((int) surface.getRobot().getY()));
-                        robotAzimuthLabel.setText("Азимут робота: " +
-                                Integer.toString((int) Math.toDegrees(surface.getRobot().getAzimuth())));
-                        robotAzimuthSlider.setValue((int) Math.toDegrees(surface.getRobot().getAzimuth()));
-                        surface.repaint();
-                    }
-                }
-                robotAzimuthSlider.setEnabled(true);
-                goButton.setText("Поехали");
-                loadMapButton.setEnabled(true);
-                loadRealityButton.setEnabled(true);
-                robotSizeSlider.setEnabled(true);
-                robotRadiusSlider.setEnabled(true);
-                robotDecelerationSlider.setEnabled(true);
-                calculatePassabilityButton.setEnabled(true);
-                refreshGraphButton.setEnabled(true);
-                removeMapButton.setEnabled(true);
-                removePassabilityButton.setEnabled(true);
-                removeRealityButton.setEnabled(true);
-                loggingCheckBox.setEnabled(true);
-                surface.repaint();
-                repaint();
-            }
-        };
-
-        t.setDaemon(true);
-        t_draw.setDaemon(true);
-        t.start();
-        t_draw.start();
-    }
-
     private void runRobots() {
         final Thread t = new Thread() {
             public void run() {
@@ -536,7 +461,6 @@ public class PathsFindingGui extends JFrame implements ChangeListener {
                 loggingCheckBox.setEnabled(false);
 
                 rectWeightSlider.setEnabled(false);
-
                 while (t.isAlive()) {
                     if (!disableDrawingCheckBox.isSelected()) {
                         try {
@@ -599,7 +523,6 @@ public class PathsFindingGui extends JFrame implements ChangeListener {
 
 
     private void makeExcessInvisible() {
-        goButton.setVisible(false);
         robotCoordsLabel.setVisible(false);
         finishCoordsLabel.setVisible(false);
         setRectRadioButton.setVisible(false);

@@ -113,7 +113,6 @@ class GlobalTime extends Thread {
                         for (Point point:points) {
                             graphics2D.fillRect(i + point.x, j + point.y, 1, 1);
                         }
-                        //may be add another 4
                     }
                 }
             }

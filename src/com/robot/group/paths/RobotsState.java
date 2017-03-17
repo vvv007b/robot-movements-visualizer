@@ -9,22 +9,22 @@ import java.util.ArrayList;
  * Created by bocharov_n on 19.09.16.
  */
 public class RobotsState {
-    public static final int NETWORK_MODE = 0,
-                            LOCAL_MODE = 1;         //default
+    public static final int NETWORK_MODE = 0;
+    public static final int LOCAL_MODE = 1;         //default
     private int mode;
     private static volatile RobotsState instance;
 
 
-    private RobotsState(){
+    private RobotsState() {
         mode = RobotsState.LOCAL_MODE;
     }
 
-    public static RobotsState getInstance(){
+    public static RobotsState getInstance() {
         RobotsState localInstance = instance;
-        if (localInstance == null){
-            synchronized (RobotsState.class){
+        if (localInstance == null) {
+            synchronized (RobotsState.class) {
                 localInstance = instance;
-                if (localInstance == null){
+                if (localInstance == null) {
                     instance = localInstance = new RobotsState();
                 }
             }
@@ -32,7 +32,7 @@ public class RobotsState {
         return localInstance;
     }
 
-    public void setMode(int mode){
+    public void setMode(int mode) {
         this.mode = mode;
     }
 

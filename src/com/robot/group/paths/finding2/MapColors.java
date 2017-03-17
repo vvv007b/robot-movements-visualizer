@@ -1,16 +1,16 @@
-package com.robot.group.paths.finding;
+package com.robot.group.paths.finding2;
 
 import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
 // Maps can be downloaded at http://overpass-turbo.eu/
-class MapColors {
+public class MapColors {
 
     public static final Color PUDDLE_COLOR = new Color(0, 0, 212);
     public static final Color GRAY_COLOR = new Color(128, 128, 128);
     private HashMap<Color, Integer> streetMapsColors;
-//    HashMap<Color, Integer> realityMapColors;
+    //    HashMap<Color, Integer> realityMapColors;
     public static final int DIFFERENCE_BORDER = 128;
     public static final int GRAY_BORDER = 128;
 
