@@ -45,6 +45,10 @@ public class PathFinding2Gui extends JFrame {
     private javax.swing.JCheckBox showMapCheckBox;
     private javax.swing.JCheckBox showPassabilityMapCheckBox;
     private javax.swing.JCheckBox showRealityMapCheckBox;
+    private JSlider robotRotationAngleSlider;
+    private JLabel robotRotationAngleLabel;
+    private JSlider samplingStepSlider;
+    private JLabel samplingStepLabel;
     private Surface surface;
 
     private JFileChooser fileChooser;
@@ -88,7 +92,7 @@ public class PathFinding2Gui extends JFrame {
         placeFinishToAllRadioButton.addActionListener(e -> surface.setSelectedTool(Surface.PLACE_FINISH_TO_ALL_TOOL));
 
         addRobotButton.addActionListener(e -> {
-            Robot robot = new Robot();
+            Robot robot = new Robot(surface);
             surface.addRobot(robot);
             if (surface.getRobots().size() == 1) {
                 selectRobotSpinner.setValue(1);
@@ -143,12 +147,21 @@ public class PathFinding2Gui extends JFrame {
             }
         });
         robotSizeSlider.addChangeListener(e -> {
-            surface.setRobotSize(robotSizeSlider.getValue());
+            int value = robotSizeSlider.getValue();
+            surface.getCurrentRobot().setSize(value);
+//            surface.setRobotSize(robotSizeSlider.getValue());
             robotSizeLabel.setText("Robot size: " + robotSizeSlider.getValue());
-            enableGui(false);
-            addRobotButton.setEnabled(false);
-            surface.getRobots().clear();
+//            enableGui(false);
+//            addRobotButton.setEnabled(false);
+//            surface.getRobots().clear();
         });
+        robotRotationAngleSlider.addChangeListener(e -> {
+            int value = robotRotationAngleSlider.getValue();
+            surface.getCurrentRobot().setRotationAngle(Math.toRadians(value));
+//            surface.setRobotRotationAngle(value);
+            robotRotationAngleLabel.setText("Robot rotation angle: " + value);
+        });
+        //TODO: check point weight
         robotAzimuthSlider.addChangeListener(e -> {
             if (!surface.isRobotsRunning()) {
                 surface.getCurrentRobot().getPosition().setAzimuth(Math.toRadians(robotAzimuthSlider.getValue()));
@@ -193,11 +206,18 @@ public class PathFinding2Gui extends JFrame {
         placeFinishToAllRadioButton.setEnabled(isEnable);
         finishAzimuthLabel.setEnabled(isEnable);
         finishAzimuthSlider.setEnabled(isEnable);
+        robotSizeLabel.setEnabled(isEnable);
+        robotSizeSlider.setEnabled(isEnable);
+        robotRotationAngleLabel.setEnabled(isEnable);
+        robotRotationAngleSlider.setEnabled(isEnable);
     }
 
     private void refreshRobotParameters() {
         robotAzimuthSlider.setValue((int) Math.toDegrees(surface.getCurrentRobot().getPosition().getAzimuth()));
         finishAzimuthSlider.setValue((int) Math.toDegrees(surface.getCurrentRobot().getFinish().getAzimuth()));
+        robotRotationAngleSlider.setValue((int) Math.toDegrees(surface.getCurrentRobot().getRotationAngle()));
+        robotSizeSlider.setValue(surface.getCurrentRobot().getSize());
+
     }
 
 

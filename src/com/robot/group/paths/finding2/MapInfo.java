@@ -15,12 +15,14 @@ public class MapInfo {
     private MapColors mapColors = new MapColors();
 
     private int scale;
+    private int rotationAngle;
 
     public MapInfo() {
         imageMap = null;
         passabilityMap = null;
         passabilityArray = null;
-        scale = 60;
+        scale = 15;
+        rotationAngle = 15;
     }
 
     public int calculatePassability() {
@@ -105,7 +107,7 @@ public class MapInfo {
         return average / counter;
     }
 
-    public int getPointWeight(Point point, double azimuth) {
+    public int getPointWeight(Point point, int size, double azimuth) {
         if (passabilityArray == null) {
             return 255;
         }
@@ -160,6 +162,13 @@ public class MapInfo {
         this.scale = scale;
     }
 
+    public int getRotationAngle() {
+        return rotationAngle;
+    }
+
+    public void setRotationAngle(int rotationAngle) {
+        this.rotationAngle = rotationAngle;
+    }
 
     public BufferedImage getPassabilityMap() {
         return passabilityMap;

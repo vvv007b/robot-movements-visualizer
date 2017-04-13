@@ -2,7 +2,6 @@
   <library name="jgoodies-forms">
     <CLASSES>
       <root url="jar://$APPLICATION_HOME_DIR$/lib/jgoodies-forms.jar!/" />
-      <root url="jar://$APPLICATION_HOME_DIR$/lib/junit-4.11.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

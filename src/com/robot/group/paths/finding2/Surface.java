@@ -12,8 +12,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 /***
@@ -36,9 +34,9 @@ public class Surface extends JPanel implements MouseListener, MouseMotionListene
     private Robot currentRobot;
     private MapInfo mapInfo;
 
-    private Image robotImage;
+    //    private Image robotImage;
     private Image robotImageOriginal;
-    private Image robotImageSelected;
+    //    private Image robotImageSelected;
     private Image robotImageSelectedOriginal;
     private Image finishDirectionImage;
 
@@ -49,13 +47,12 @@ public class Surface extends JPanel implements MouseListener, MouseMotionListene
         addMouseMotionListener(this);
         addMouseListener(this);
         robots = new ArrayList<>();
-        robotImage = new ImageIcon(getClass().getResource("/robot.png")).getImage();
+//        robotImage = new ImageIcon(getClass().getResource("/robot.png")).getImage();
         robotImageOriginal = new ImageIcon(getClass().getResource("/robot.png")).getImage();
-        robotImageSelected = new ImageIcon(getClass().getResource("/robot_selected.png")).getImage();
+//        robotImageSelected = new ImageIcon(getClass().getResource("/robot_selected.png")).getImage();
         robotImageSelectedOriginal = new ImageIcon(getClass().getResource("/robot_selected.png")).getImage();
         finishDirectionImage = new ImageIcon(getClass().getResource("/arrow.png")).getImage();
         selectedTool = Surface.PLACE_ROBOT_TOOL;
-        resizeRobot(60);
         mapInfo = new MapInfo();
     }
 
@@ -72,7 +69,7 @@ public class Surface extends JPanel implements MouseListener, MouseMotionListene
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1));
         for (Robot robot : robots) {
             g2d.setColor(robot == currentRobot ? Color.GREEN : Color.YELLOW);
-            Image robotImageToDraw = robot == currentRobot ? robotImageSelected : robotImage;
+            Image robotImageToDraw = robot == currentRobot ? robot.getImageSelected() : robot.getImage();
             AffineTransform at = new AffineTransform();
             at.translate(robot.getPosition().x - robotImageToDraw.getWidth(null) / 2,
                     robot.getPosition().y - robotImageToDraw.getHeight(null) / 2);
@@ -88,7 +85,12 @@ public class Surface extends JPanel implements MouseListener, MouseMotionListene
     }
 
     private void placeRobot(Point position) {
-        if (!fixPosition(position)) {
+        if (!fixPosition(position) |
+                mapInfo.getPointWeight(
+                        position,
+                        currentRobot.getSize(),
+                        currentRobot.getPosition().getAzimuth()
+                ) == 255) {
             return;
         }
 //        currentRobot.setPosition(position);
@@ -96,7 +98,12 @@ public class Surface extends JPanel implements MouseListener, MouseMotionListene
     }
 
     private void placeFinish(Robot robot, Point position) {
-        if (!fixPosition(position)) {
+        if (!fixPosition(position) |
+                mapInfo.getPointWeight(
+                        position,
+                        currentRobot.getSize(),
+                        currentRobot.getFinish().getAzimuth()
+                ) == 255) {
             return;
         }
         robot.getFinish().setLocation(position);
@@ -107,15 +114,19 @@ public class Surface extends JPanel implements MouseListener, MouseMotionListene
         if (!fixPosition(position)) {
             return;
         }
-        for (Robot robot : robots) {
-            placeFinish(robot, position);
-        }
+        robots.stream()
+                .filter(robot -> mapInfo.getPointWeight(
+                        position,
+                        robot.getSize(),
+                        robot.getFinish().getAzimuth()
+                ) == 255)
+                .forEach(robot -> placeFinish(robot, position));
     }
 
     private boolean fixPosition(Point position) {
-        if (mapInfo.getPointWeight(position, 0) == 255) {
-            return false; //TODO: azimuth fix required
-        }
+//        if (mapInfo.getPointWeight(position, currentRobot.getSize(), azimuth) == 255) {
+//            return false; //TODO: azimuth fix required
+//        }
         int robotSize = mapInfo.getScale();
         if (position.x < robotSize / 2) {
             position.x = robotSize / 2;
@@ -128,21 +139,6 @@ public class Surface extends JPanel implements MouseListener, MouseMotionListene
             position.y = mapInfo.getImageMap().getHeight() - robotSize / 2;
         }
         return true;
-    }
-
-
-    private void resizeRobot(int size) {
-        BufferedImage resized = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = resized.createGraphics();
-        g2d.drawImage(robotImageOriginal, 0, 0, size, size, null);
-        robotImage = resized;
-
-        resized = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
-        g2d = resized.createGraphics();
-        g2d.drawImage(robotImageSelectedOriginal, 0, 0, size, size, null);
-        robotImageSelected = resized;
-        g2d.dispose();
-        repaint();
     }
 
     @Override
@@ -229,9 +225,8 @@ public class Surface extends JPanel implements MouseListener, MouseMotionListene
         this.selectedTool = selectedTool;
     }
 
-    public void setRobotSize(int robotSize) {
-        mapInfo.setScale(robotSize);
-        resizeRobot(robotSize);
+    public void setSamplingStep(int step) {
+        mapInfo.setScale(step);
     }
 
     public boolean isRobotsRunning() {
@@ -256,5 +251,17 @@ public class Surface extends JPanel implements MouseListener, MouseMotionListene
 
     public void setShowRealityMap(boolean showRealityMap) {
         this.showRealityMap = showRealityMap;
+    }
+
+    public void setRobotRotationAngle(int robotRotationAngle) {
+        mapInfo.setRotationAngle(robotRotationAngle);
+    }
+
+    public Image getRobotImageOriginal() {
+        return robotImageOriginal;
+    }
+
+    public Image getRobotImageSelectedOriginal() {
+        return robotImageSelectedOriginal;
     }
 }
