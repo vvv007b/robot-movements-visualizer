@@ -36,7 +36,8 @@ target/classes/robot.png
 target/classes/robotR2D2.png
 target/classes/robotR2D22.png
 target/classes/robotR2D23.png
-target/classes/robotR2D2Selected.png
 target/classes/robotR2D2_origindal.png
 target/classes/robot_origindal.png
-target/classes/robot_selected.png
+/target/
+target/generated-sources/
+target/maven-archiver/
