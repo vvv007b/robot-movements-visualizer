@@ -1,4 +1,4 @@
-package com.robot.paths.finding;
+package com.robot.group.paths.finding;
 
 
 import java.util.Arrays;
